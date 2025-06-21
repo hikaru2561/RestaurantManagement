@@ -1,0 +1,44 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Feedback>
+@{
+    ViewData["Title"] = "Quản lý phản hồi";
+    Layout = "_AdminLayout";
+}
+
+<h2>Danh sách phản hồi</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Khách hàng</th>
+            <th>Đơn hàng</th>
+            <th>Đánh giá</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var fb in Model)
+        {
+            <tr>
+                <td>@fb.Order.Customer.Name</td>
+                <td>#@fb.Order?.OrderId</td>
+                <td>@fb.Rating / 5</td>
+                <td>
+                    @if (fb.Reply != null)
+                    {
+                        <span class="badge bg-success">Đã phản hồi</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">Chưa phản hồi</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@fb.FeedbackId" class="btn btn-info btn-sm">Chi tiết</a>
+                    <a asp-action="Delete" asp-route-id="@fb.FeedbackId" class="btn btn-danger btn-sm"
+                       onclick="return confirm('Xác nhận xoá phản hồi này?')">Xoá</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

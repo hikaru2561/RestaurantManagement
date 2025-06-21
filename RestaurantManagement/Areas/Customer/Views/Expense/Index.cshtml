@@ -1,0 +1,42 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Order>
+@{
+    ViewData["Title"] = "Chi tiêu của bạn";
+    Layout = "_CustomerLayout";
+}
+
+<h2 class="mb-4">Chi tiết chi tiêu của bạn</h2>
+
+@if (!Model.Any())
+{
+    <p>Chưa có đơn hàng nào đã thanh toán.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Ngày</th>
+                <th>Bàn</th>
+                <th>Tổng tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@order.Table?.Name</td>
+                    <td>@order.Payment?.TotalAmount.ToString("N0") đ</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="table-info">
+                <td colspan="2" class="text-end fw-bold">Tổng cộng:</td>
+                <td class="fw-bold">
+                    @Model.Sum(o => o.Payment?.TotalAmount ?? 0).ToString("N0") đ
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+}

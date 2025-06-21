@@ -1,0 +1,76 @@
+﻿@model IEnumerable<RestaurantManagement.Models.InventoryTransaction>
+@{
+    ViewData["Title"] = "Giao dịch kho";
+    Layout = "_AdminLayout";
+    var selectedType = Context.Request.Query["searchType"].ToString();
+    var selectedItemId = Context.Request.Query["itemId"].ToString();
+}
+
+<h2>Giao dịch kho</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form id="filterForm" method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <label class="form-label">Loại giao dịch</label>
+        <select name="searchType" class="form-select" onchange="submitFilter()">
+            <option value="">-- Tất cả --</option>
+            <option value="Nhập" selected="@(selectedType == "Nhập")">Nhập</option>
+            <option value="Xuất" selected="@(selectedType == "Xuất")">Xuất</option>
+            <option value="Hủy" selected="@(selectedType == "Hủy")">Hủy</option>
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Nguyên liệu</label>
+        <select name="itemId" class="form-select" onchange="submitFilter()">
+            <option value="">-- Tất cả nguyên liệu --</option>
+            @foreach (var item in (SelectList)ViewBag.Items)
+            {
+                <option value="@item.Value" selected="@(item.Value == selectedItemId)">
+                    @item.Text
+                </option>
+            }
+        </select>
+    </div>
+</form>
+
+<a class="btn btn-success mb-3" asp-area="Admin" asp-action="Create">+ Thêm giao dịch</a>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Nguyên liệu</th>
+            <th>Loại</th>
+            <th>Số lượng</th>
+            <th>Thời gian</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.InventoryItem?.Name</td>
+                <td>@t.Type</td>
+                <td>@t.Quantity</td>
+                <td>@t.CreatedAt.ToString("g")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-area="Admin" asp-controller="Inventory" asp-action="Index" class="btn btn-light">← Quay lại</a>
+
+@section Scripts {
+    <script>
+        let timer;
+        function submitFilter() {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 300);
+        }
+    </script>
+}

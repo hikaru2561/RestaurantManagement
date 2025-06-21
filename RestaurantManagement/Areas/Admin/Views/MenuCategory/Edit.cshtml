@@ -1,0 +1,20 @@
+﻿@model RestaurantManagement.Models.MenuCategory
+@{
+    ViewData["Title"] = "Chỉnh sửa danh mục";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chỉnh sửa danh mục món ăn</h2>
+
+<form asp-area="Admin" asp-action="Edit" method="post">
+    <input type="hidden" asp-for="MenuCategoryId" />
+
+    <div class="mb-3">
+        <label class="form-label">Tên danh mục</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cập nhật</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

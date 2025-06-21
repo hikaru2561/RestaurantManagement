@@ -1,0 +1,20 @@
+﻿@model RestaurantManagement.Models.InventoryUsage
+@{
+    ViewData["Title"] = "Chi tiết nguyên liệu sử dụng";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chi tiết nguyên liệu sử dụng</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Món ăn</dt>
+    <dd class="col-sm-9">@Model.MenuItem?.Name</dd>
+
+    <dt class="col-sm-3">Nguyên liệu</dt>
+    <dd class="col-sm-9">@Model.InventoryItem?.Name</dd>
+
+    <dt class="col-sm-3">Số lượng</dt>
+    <dd class="col-sm-9">@Model.QuantityUsed</dd>
+</dl>
+
+<a asp-area="Admin" asp-action="Index" asp-route-menuItemId="@Model.MenuItemId" class="btn btn-secondary">← Quay lại</a>

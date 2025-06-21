@@ -1,0 +1,48 @@
+﻿@model RestaurantManagement.Models.Account
+@{
+    ViewData["Title"] = "Thêm tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <h2>Thêm tài khoản mới</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form asp-area="Admin" asp-controller="Account" asp-action="Create" method="post">
+        <div class="form-group">
+            <label>Tên đăng nhập</label>
+            <input asp-for="Username" class="form-control" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label>Mật khẩu</label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label>Vai trò</label>
+            <select asp-for="Role" class="form-control">
+                <option value="Admin">Admin</option>
+                <option value="Staff">Staff</option>
+                <option value="Customer">Customer</option>
+            </select>
+            <span asp-validation-for="Role" class="text-danger"></span>
+        </div>
+        <br />
+        <button type="submit" class="btn btn-success">Lưu</button>
+        <a asp-area="Admin" asp-controller="Account" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </form>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
+else
+{
+    <div class="alert alert-danger">Bạn không có quyền truy cập trang này.</div>
+}

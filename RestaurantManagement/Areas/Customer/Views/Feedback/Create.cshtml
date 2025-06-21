@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Gửi phản hồi";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    int orderId = ViewBag.OrderId;
+}
+
+<h2>Gửi phản hồi cho đơn hàng #@orderId</h2>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" name="orderId" value="@orderId" />
+
+    <div class="mb-3">
+        <label>Nội dung</label>
+        <textarea name="content" class="form-control" rows="3" required></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label>Đánh giá (1 đến 5)</label>
+        <select name="rating" class="form-select" required>
+            <option value="5">5 - Tuyệt vời</option>
+            <option value="4">4 - Tốt</option>
+            <option value="3">3 - Trung bình</option>
+            <option value="2">2 - Kém</option>
+            <option value="1">1 - Rất kém</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
+</form>

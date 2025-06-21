@@ -1,0 +1,43 @@
+﻿@model RestaurantManagement.Models.Feedback
+
+@{
+    ViewData["Title"] = "Chi tiết phản hồi";
+    Layout = "_AdminLayout";
+}
+
+<h3>Chi tiết phản hồi từ khách hàng: @Model.Order.Customer.Name</h3>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <p><strong>Đánh giá:</strong> @Model.Rating / 5</p>
+        <p><strong>Nội dung phản hồi:</strong> @Model.Content</p>
+
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img src="~/images/feedback/@Model.ImagePath" width="300" />
+        }
+    </div>
+</div>
+
+@if (Model.Reply != null)
+{
+    <div class="card border-success mt-4">
+        <div class="card-header bg-success text-white">Đã phản hồi</div>
+        <div class="card-body">
+            <p>@Model.Reply.Content</p>
+            <small class="text-muted">Thời gian: @Model.Reply.RepliedAt.ToString("HH:mm dd/MM/yyyy")</small>
+        </div>
+    </div>
+}
+else
+{
+    <form asp-action="Reply" method="post" class="mt-4">
+        <input type="hidden" name="feedbackId" value="@Model.FeedbackId" />
+        <div class="mb-3">
+            <label for="content" class="form-label">Nội dung phản hồi</label>
+            <textarea name="content" class="form-control" required rows="4"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Quay lại</a>
+    </form>
+}

@@ -1,0 +1,83 @@
+﻿@model IEnumerable<RestaurantManagement.Models.InventoryItem>
+
+@{
+    ViewData["Title"] = "Danh sách nguyên liệu";
+    Layout = "_AdminLayout";
+    var currentSearch = Context.Request.Query["search"].ToString();
+    var currentUnit = Context.Request.Query["unitFilter"].ToString();
+}
+
+<h2>Danh sách nguyên liệu</h2>
+
+<form id="filterForm" method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-4">
+        <label for="search" class="form-label">Tìm theo tên</label>
+        <input type="text" name="search" id="search"
+               class="form-control"
+               placeholder="Nhập tên nguyên liệu..."
+               value="@currentSearch"
+               oninput="submitFilter()" />
+    </div>
+
+    <div class="col-md-4">
+        <label for="unitFilter" class="form-label">Lọc theo đơn vị</label>
+        <select name="unitFilter" id="unitFilter" class="form-select" onchange="submitFilter()">
+            <option value="">-- Tất cả đơn vị --</option>
+            @foreach (var unit in ViewBag.UnitList as List<string>)
+            {
+                <option value="@unit" selected="@(unit == currentUnit)">@unit</option>
+            }
+        </select>
+    </div>
+</form>
+
+<div class="mb-3 d-flex justify-content-between">
+    <a class="btn btn-success" asp-area="Admin" asp-action="Create">+ Thêm nguyên liệu</a>
+    <a class="btn btn-primary" asp-area="Admin" asp-controller="InventoryTransaction" asp-action="Index">📦 Quản lý nhập/xuất kho</a>
+</div>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Ảnh</th>
+            <th>Tên</th>
+            <th>Số lượng</th>
+            <th>Đơn vị</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImagePath))
+                    {
+                        <img src="@item.ImagePath" width="60" height="60" />
+                    }
+                </td>
+                <td>@item.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Unit</td>
+                <td>
+                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.InventoryItemId" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@item.InventoryItemId" class="btn btn-danger btn-sm">Xoá</a>
+                    <a asp-area="Admin" asp-action="Details" asp-route-id="@item.InventoryItemId" class="btn btn-info btn-sm">Chi tiết</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>
+
+@section Scripts {
+    <script>
+        let timer;
+        function submitFilter() {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 300); // 300ms debounce
+        }
+    </script>
+}

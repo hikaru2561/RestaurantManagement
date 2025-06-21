@@ -1,0 +1,24 @@
+﻿@model RestaurantManagement.Models.Shift
+@{
+    ViewData["Title"] = "Thêm ca làm";
+    Layout = "_AdminLayout";
+}
+
+<h2>Thêm ca làm</h2>
+<form asp-area="Admin" asp-action="Create" method="post">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Tên ca</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="StartTime" class="form-label">Giờ bắt đầu</label>
+        <input asp-for="StartTime" class="form-control" type="time" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="EndTime" class="form-label">Giờ kết thúc</label>
+        <input asp-for="EndTime" class="form-control" type="time" />
+    </div>
+    <button type="submit" class="btn btn-success">Lưu</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

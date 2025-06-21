@@ -1,0 +1,38 @@
+﻿@model Dictionary<int, RestaurantManagement.Models.Attendance>
+@{
+    var staffs = ViewBag.Staffs as List<RestaurantManagement.Models.Staffs>;
+    var shift = ViewBag.Shift as RestaurantManagement.Models.Shift;
+    DateTime date = ViewBag.Date;
+    ViewData["Title"] = "Chấm công";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chấm công - @shift?.Name (@date.ToString("dd/MM/yyyy"))</h2>
+
+<form asp-area="Admin" asp-action="ManageAttendance" method="post">
+    <input type="hidden" name="id" value="@shift.ShiftId" />
+    <input type="hidden" name="date" value="@date.ToString("yyyy-MM-dd")" />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nhân viên</th>
+                <th>Có mặt</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var staff in staffs)
+            {
+                var isChecked = Model.ContainsKey(staff.StaffId) && Model[staff.StaffId].IsPresent;
+                <tr>
+                    <td>@staff.Name</td>
+                    <td>
+                        <input type="checkbox" name="presentStaffIds" value="@staff.StaffId" @(isChecked ? "checked" : "") />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button type="submit" class="btn btn-success">Lưu chấm công</button>
+    <a asp-area="Admin" asp-action="Details" asp-route-id="@shift.ShiftId" class="btn btn-secondary">Quay lại</a>
+</form>

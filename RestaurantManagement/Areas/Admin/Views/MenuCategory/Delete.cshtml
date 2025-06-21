@@ -1,0 +1,17 @@
+﻿@model RestaurantManagement.Models.MenuCategory
+@{
+    ViewData["Title"] = "Xoá danh mục";
+    Layout = "_AdminLayout";
+}
+
+<h2>Xoá danh mục</h2>
+
+<div class="alert alert-warning">
+    Bạn có chắc chắn muốn xoá danh mục: <strong>@Model.Name</strong>?
+</div>
+
+<form asp-area="Admin" asp-action="Delete" asp-controller="MenuCategory" method="post">
+    <input type="hidden" asp-for="MenuCategoryId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
+</form>

@@ -1,0 +1,36 @@
+﻿@model RestaurantManagement.Models.Customer
+@{
+    ViewData["Title"] = "Thông tin tài khoản";
+    Layout = "_CustomerLayout";
+}
+
+<h3>Thông tin tài khoản</h3>
+<table class="table table-bordered">
+    <tr>
+        <th>Họ tên</th>
+        <td>@Model.Name</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>@Model.Email</td>
+    </tr>
+    <tr>
+        <th>Số điện thoại</th>
+        <td>@Model.Phone</td>
+    </tr>
+    <tr>
+        <th>VIP</th>
+        <td>
+            @if (Model.IsVIP)
+            {
+                <span class="badge bg-warning text-dark">Khách VIP</span>
+            }
+            else
+            {
+                <span class="text-muted">Bình thường</span>
+            }
+        </td>
+    </tr>
+</table>
+
+<a asp-action="Edit" class="btn btn-primary">Chỉnh sửa</a>

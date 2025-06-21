@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Chuyển bàn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chuyển bàn: @ViewBag.FromTableName</h2>
+
+<form asp-area="Admin" asp-action="ChangeTable" method="post">
+    <input type="hidden" name="fromTableId" value="@ViewBag.FromTableId" />
+
+    <div class="form-group">
+        <label>Chọn bàn đích:</label>
+        <select name="toTableId" class="form-control" required>
+            @foreach (var table in (List<RestaurantManagement.Models.Table>)ViewBag.AvailableTables)
+            {
+                <option value="@table.TableId">@table.Name (Sức chứa: @table.Capacity)</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Xác nhận chuyển bàn</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary mt-3">Huỷ</a>
+</form>

@@ -1,0 +1,77 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Feedback>
+@{
+    ViewData["Title"] = "Phản hồi của tôi";
+    Layout = "_CustomerLayout";
+}
+
+<h2 class="mb-4">Danh sách phản hồi</h2>
+
+@if (!Model.Any())
+{
+    <p>Bạn chưa gửi phản hồi nào.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nội dung</th>
+                <th>Đánh giá</th>
+                <th>Ảnh</th>
+                <th>Phản hồi từ Admin</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Content</td>
+                    <td>
+                        @for (int i = 0; i < item.Rating; i++)
+                        {
+                            <i class="bi bi-star-fill text-warning"></i>
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                        {
+                            <img src="@Url.Content("~/images/feedback/" + item.ImagePath)" width="80" />
+                        }
+                        else
+                        {
+                            <em>Không có</em>
+                        }
+                    </td>
+                    <td>
+                        @if (item.Reply != null)
+                        {
+                            <span>@item.Reply.Content</span>
+
+                            <br />
+                            <small class="text-muted">(@item.Reply.RepliedAt.ToString("dd/MM/yyyy HH:mm"))</small>
+                        }
+                        else
+                        {
+                            <span class="text-muted fst-italic">Chưa được phản hồi</span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.Reply == null)
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.FeedbackId" class="btn btn-sm btn-warning me-2">Sửa</a>
+                            <form asp-action="Delete" asp-route-id="@item.FeedbackId" method="post" class="d-inline"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xoá phản hồi này?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Xoá</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Đã phản hồi</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

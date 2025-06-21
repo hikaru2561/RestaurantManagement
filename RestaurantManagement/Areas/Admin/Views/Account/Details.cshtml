@@ -1,0 +1,35 @@
+﻿@model RestaurantManagement.Models.Account
+@{
+    ViewData["Title"] = "Chi tiết tài khoản";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <h2>Chi tiết tài khoản</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">ID:</dt>
+                <dd class="col-sm-9">@Model.AccountId</dd>
+
+                <dt class="col-sm-3">Tên đăng nhập:</dt>
+                <dd class="col-sm-9">@Model.Username</dd>
+
+                <dt class="col-sm-3">Mật khẩu:</dt>
+                <dd class="col-sm-9">@Model.Password</dd>
+
+                <dt class="col-sm-3">Vai trò:</dt>
+                <dd class="col-sm-9">@Model.Role</dd>
+            </dl>
+
+            <a asp-area="Admin" asp-controller="Account" asp-action="Edit" asp-route-id="@Model.AccountId" class="btn btn-warning">Sửa</a>
+            <a asp-area="Admin" asp-controller="Account" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">Bạn không có quyền truy cập trang này.</div>
+}

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<RestaurantManagement.Models.MenuItem>
+@{
+    ViewData["Title"] = "Món ăn theo danh mục";
+    Layout = "_AdminLayout";
+    var searchValue = Context.Request.Query["search"];
+}
+
+<h2>Danh sách món ăn thuộc: @ViewBag.CategoryName</h2>
+
+<form method="get" class="form-inline mb-3">
+    <input type="hidden" name="id" value="@ViewBag.CategoryId" />
+    <input type="text" name="search" class="form-control mr-2" placeholder="Tìm món ăn..." value="@searchValue" />
+    <button type="submit" class="btn btn-primary">Tìm</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary ml-2">Quay lại danh mục</a>
+</form>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tên món</th>
+            <th>Giá</th>
+            <th>Trạng thái</th>
+            <th>Ảnh</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Price.ToString("N0") VNĐ</td>
+                <td>@(item.Status ? "Còn bán" : "Ngừng bán")</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImagePath))
+                    {
+                        <img src="~/uploads/@item.ImagePath" width="60" />
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

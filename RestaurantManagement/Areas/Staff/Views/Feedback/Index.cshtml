@@ -1,0 +1,51 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Feedback>
+@{
+    ViewData["Title"] = "Phản hồi của khách hàng";
+    Layout = "_StaffLayout";
+}
+
+<h2>Phản hồi liên quan đến đơn hàng của bạn</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Khách hàng</th>
+            <th>Đơn hàng</th>
+            <th>Đánh giá</th>
+            <th>Nội dung</th>
+            <th>Hình ảnh</th>
+            <th>Phản hồi lại</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var fb in Model)
+        {
+            <tr>
+                <td>@fb.Order.Customer.Name</td>
+                <td>@fb.Order?.OrderId</td>
+                <td>@fb.Rating / 5</td>
+                <td>@fb.Content</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(fb.ImagePath))
+                    {
+                        <img src="~/images/feedback/@fb.ImagePath" alt="Ảnh" width="100" />
+                    }
+                </td>
+                <td>
+                    @if (fb.Reply != null)
+                    {
+                        <span class="text-success">Đã phản hồi</span>
+                    }
+                    else
+                    {
+                        <span class="text-danger">Chưa phản hồi</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@fb.FeedbackId" class="btn btn-info btn-sm">Xem</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

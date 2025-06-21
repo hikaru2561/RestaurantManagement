@@ -1,0 +1,36 @@
+﻿@model IEnumerable<RestaurantManagement.Models.InventoryUsage>
+@{
+    ViewData["Title"] = "Nguyên liệu sử dụng cho món";
+    Layout = "_AdminLayout";
+    var menuItemId = ViewBag.MenuItemId;
+}
+
+<h2>Nguyên liệu sử dụng cho món: @ViewBag.MenuItemName</h2>
+<div class="mb-3">
+    <a asp-area="Admin" asp-controller="Menu" asp-action="Items" asp-route-id="@ViewBag.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+    <a asp-area="Admin" asp-action="Create" asp-route-menuItemId="@menuItemId" class="btn btn-success">+ Thêm nguyên liệu</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Nguyên liệu</th>
+            <th>Số lượng</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var usage in Model)
+        {
+            <tr>
+                <td>@usage.InventoryItem?.Name</td>
+                <td>@usage.QuantityUsed</td>
+                <td>
+                    <a asp-area="Admin" asp-action="Details" asp-route-id="@usage.InventoryUsageId" class="btn btn-info btn-sm">Chi tiết</a>
+                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@usage.InventoryUsageId" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@usage.InventoryUsageId" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xoá nguyên liệu này không?');">Xoá</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

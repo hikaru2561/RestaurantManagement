@@ -1,0 +1,63 @@
+﻿@model RestaurantManagement.Models.Reservation
+@{
+    ViewData["Title"] = "Đặt bàn mới";
+    Layout = "_AdminLayout";
+}
+
+<h2>Đặt bàn mới</h2>
+
+<form asp-area="Admin" asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Tìm SĐT khách hàng</label>
+        <input type="text" id="phoneInput" class="form-control" placeholder="Nhập số điện thoại..." oninput="findCustomer()" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Khách hàng</label>
+        <select asp-for="CustomerId" asp-items="ViewBag.Customers" class="form-select" id="customerSelect">
+            <option value="">-- Không chọn --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Bàn</label>
+        <select asp-for="TableId" asp-items="ViewBag.Tables" class="form-select"></select>
+        <span asp-validation-for="TableId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Thời gian đặt</label>
+        <input asp-for="ReservationTime" type="datetime-local" class="form-control" />
+        <span asp-validation-for="ReservationTime" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Số người</label>
+        <input asp-for="NumberOfPeople" type="number" class="form-control" />
+        <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DepositAmount" class="form-label">Tiền cọc (VNĐ)</label>
+        <input asp-for="DepositAmount" class="form-control" />
+        <span asp-validation-for="DepositAmount" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Lưu đặt bàn</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>
+
+<script>
+    function findCustomer() {
+        const phone = document.getElementById("phoneInput").value.trim();
+        const select = document.getElementById("customerSelect");
+
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].text.toLowerCase().includes(phone.toLowerCase())) {
+                select.selectedIndex = i;
+                return;
+            }
+        }
+
+        select.selectedIndex = 0;
+    }
+</script>

@@ -1,0 +1,18 @@
+﻿@model RestaurantManagement.Models.InventoryItem
+
+@{
+    ViewData["Title"] = "Xoá nguyên liệu";
+    Layout = "_AdminLayout";
+}
+
+<h2>Xác nhận xoá nguyên liệu</h2>
+
+<div class="alert alert-warning">
+    Bạn có chắc muốn xoá nguyên liệu <strong>@Model.Name</strong> không?
+</div>
+
+<form asp-area="Admin" asp-action="Delete">
+    <input type="hidden" asp-for="InventoryItemId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
+</form>

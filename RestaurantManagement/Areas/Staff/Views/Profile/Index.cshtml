@@ -1,0 +1,36 @@
+﻿@model RestaurantManagement.Models.Staffs
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<h2 class="mb-4">Thông tin nhân viên</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img src="~/images/Staffs/@Model.ImagePath" class="img-thumbnail mb-3" style="max-width: 100%;" alt="Ảnh nhân viên" />
+        }
+        else
+        {
+            <img src="https://via.placeholder.com/200x200.png?text=No+Image" class="img-thumbnail mb-3" />
+        }
+    </div>
+    <div class="col-md-8">
+        <dl class="row">
+            <dt class="col-sm-4">Mã nhân viên</dt>
+            <dd class="col-sm-8">@Model.StaffId</dd>
+
+            <dt class="col-sm-4">Tên đăng nhập</dt>
+            <dd class="col-sm-8">@Model.Username</dd>
+
+            <dt class="col-sm-4">Họ tên</dt>
+            <dd class="col-sm-8">@Model.Name</dd>
+
+            <dt class="col-sm-4">Số điện thoại</dt>
+            <dd class="col-sm-8">@Model.Phone</dd>
+        </dl>
+
+        <a asp-action="Edit" class="btn btn-primary">Chỉnh sửa</a>
+    </div>
+</div>

@@ -1,0 +1,18 @@
+﻿@model RestaurantManagement.Models.Reservation
+@{
+    ViewData["Title"] = "Xác nhận xoá đặt bàn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Xác nhận xoá đặt bàn</h2>
+
+<div class="alert alert-warning">
+    Bạn có chắc chắn muốn xoá đặt bàn lúc <strong>@Model.ReservationTime.ToString("HH:mm dd/MM/yyyy")</strong>
+    của khách hàng <strong>@Model.Customer?.Name</strong> tại bàn <strong>@Model.Table?.Name</strong>?
+</div>
+
+<form asp-area="Admin" asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="ReservationId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
+</form>

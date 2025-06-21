@@ -1,0 +1,30 @@
+﻿@model RestaurantManagement.Models.Feedback
+
+@{
+    ViewData["Title"] = "Phản hồi phản hồi";
+    Layout = "_AdminLayout";
+}
+
+<h3>Phản hồi khách hàng: @Model.Order.Customer.Name</h3>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <p><strong>Đơn hàng:</strong> #@Model.Order?.OrderId</p>
+        <p><strong>Đánh giá:</strong> @Model.Rating / 5</p>
+        <p><strong>Nội dung:</strong> @Model.Content</p>
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img src="~/images/feedback/@Model.ImagePath" width="300" />
+        }
+    </div>
+</div>
+
+<form asp-action="Reply" method="post">
+    <input type="hidden" name="feedbackId" value="@Model.FeedbackId" />
+    <div class="mb-3">
+        <label for="content" class="form-label">Nội dung phản hồi</label>
+        <textarea name="content" class="form-control" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Gửi phản hồi</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Hủy</a>
+</form>

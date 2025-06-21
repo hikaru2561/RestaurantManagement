@@ -1,0 +1,29 @@
+﻿@model RestaurantManagement.Models.InventoryTransaction
+@{
+    ViewData["Title"] = "Xoá giao dịch";
+    Layout = "_AdminLayout";
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <h2>Xác nhận xoá giao dịch</h2>
+
+    <div class="mb-3">
+        <strong>Nguyên liệu:</strong> @Model.InventoryItem?.Name
+    </div>
+    <div class="mb-3">
+        <strong>Loại:</strong> @Model.Type
+    </div>
+    <div class="mb-3">
+        <strong>Số lượng:</strong> @Model.Quantity
+    </div>
+    <div class="mb-3">
+        <strong>Thời gian:</strong> @Model.CreatedAt.ToString("g")
+    </div>
+
+    <form asp-action="DeleteConfirmed" method="post">
+        <input type="hidden" asp-for="InventoryTransactionId" />
+        <button type="submit" class="btn btn-danger">Xoá</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    </form>
+}

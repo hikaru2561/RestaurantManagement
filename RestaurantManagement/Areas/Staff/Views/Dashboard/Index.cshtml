@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Trang chính của nhân viên";
+    Layout = "_StaffLayout"; 
+}
+@if (User.IsInRole("Staff"))
+{
+    var staff = ViewBag.Staff as RestaurantManagement.Models.Staffs;
+
+        <h2>Xin chào, @staff?.Name!</h2>
+        <p><strong>Hôm nay:</strong> @DateTime.Now.ToString("dd/MM/yyyy")</p>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h4 class="card-title">Đơn hàng hôm nay</h4>
+                        <p class="card-text display-4">@ViewBag.OrderCount</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h4 class="card-title">Lịch làm hôm nay</h4>
+                        <p class="card-text display-4">@ViewBag.AttendanceCount</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+}

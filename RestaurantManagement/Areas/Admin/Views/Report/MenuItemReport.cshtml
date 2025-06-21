@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Báo cáo món ăn bán chạy";
+    Layout = "_AdminLayout";
+}
+
+<h2>Top 10 món ăn bán chạy nhất</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Tên món ăn</th>
+            <th>Số lượng bán</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewBag.Data)
+        {
+            <tr>
+                <td>@item.MenuItem</td>
+                <td>@item.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>

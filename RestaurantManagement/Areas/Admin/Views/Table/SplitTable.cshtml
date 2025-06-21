@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Tách bàn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Tách bàn: @ViewBag.SourceTableName</h2>
+
+<form asp-area="Admin" asp-action="SplitTable" method="post">
+    <input type="hidden" name="sourceTableId" value="@ViewBag.SourceTableId" />
+
+    <div class="form-group">
+        <label>Chọn bàn đích (trống):</label>
+        <select name="targetTableId" class="form-control" required>
+            @foreach (var table in (List<RestaurantManagement.Models.Table>)ViewBag.AvailableTables)
+            {
+                <option value="@table.TableId">@table.Name - Sức chứa: @table.Capacity</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group mt-3">
+        <label>Chọn đơn hàng cần tách:</label>
+        @foreach (var order in (List<RestaurantManagement.Models.Order>)ViewBag.ActiveOrders)
+        {
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="selectedOrderIds" value="@order.OrderId" id="order_@order.OrderId" />
+                <label class="form-check-label" for="order_@order.OrderId">
+                    Đơn @order.OrderId - Khách: @order.Customer?.Name - Trạng thái: @order.Status
+                </label>
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Tách bàn</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary mt-3">Huỷ</a>
+</form>

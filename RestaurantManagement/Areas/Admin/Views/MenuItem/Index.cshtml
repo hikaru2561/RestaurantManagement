@@ -1,0 +1,54 @@
+﻿@model IEnumerable<RestaurantManagement.Models.MenuItem>
+@{
+    ViewData["Title"] = "Danh sách món ăn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Danh sách món ăn</h2>
+
+<form method="get" class="row mb-2">
+    <div class="col-md-6">
+        <input name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm theo tên món hoặc danh mục" />
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+    </div>
+</form>
+
+<p><a class="btn btn-success" asp-area="Admin" asp-action="Create">Thêm món mới</a></p>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tên món</th>
+            <th>Giá</th>
+            <th>Loại</th>
+            <th>Trạng thái</th>
+            <th>Ảnh</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Price.ToString("N0")</td>
+                <td>@item.MenuCategory?.Name</td>
+                <td>@(item.Status ? "Còn bán" : "Ngừng bán")</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImagePath))
+                    {
+                        <img src="/uploads/@item.ImagePath" width="60" />
+                    }
+                </td>
+                <td>
+                    <a asp-area="Admin" asp-action="Details" asp-route-id="@item.MenuItemId" class="btn btn-info btn-sm">Xem</a>
+                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.MenuItemId" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@item.MenuItemId" class="btn btn-danger btn-sm">Xoá</a>
+                    <a asp-area="Admin" asp-controller="InventoryUsage" asp-action="Index" asp-route-menuItemId="@item.MenuItemId" class="btn btn-secondary btn-sm">Nguyên liệu</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

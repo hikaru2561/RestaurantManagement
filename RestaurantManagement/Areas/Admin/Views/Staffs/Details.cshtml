@@ -1,0 +1,21 @@
+﻿@model RestaurantManagement.Models.Staffs
+@{
+    ViewData["Title"] = "Chi tiết nhân viên";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chi tiết nhân viên</h2>
+
+<div class="mb-3">
+    <strong>Tên:</strong> @Model.Name
+</div>
+<div class="mb-3">
+    <strong>Số điện thoại:</strong> @Model.Phone
+</div>
+<div class="mb-3">
+    <strong>Ảnh đại diện:</strong><br />
+    <img src="~/images/Staffs/@Model.ImagePath" width="150" />
+</div>
+
+<a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.StaffId" class="btn btn-warning">Chỉnh sửa</a>
+<a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>

@@ -1,0 +1,18 @@
+﻿@model RestaurantManagement.Models.Feedback
+
+@{
+    ViewData["Title"] = "Xoá phản hồi";
+    Layout = "_AdminLayout";
+}
+
+<h2>Bạn có chắc muốn xoá phản hồi này?</h2>
+
+<div class="mb-3"><strong>Khách hàng:</strong> @Model.Order.Customer.Name</div>
+<div class="mb-3"><strong>Nội dung:</strong> @Model.Content</div>
+<div class="mb-3"><strong>Đánh giá:</strong> @Model.Rating/5</div>
+
+<form asp-area="Admin" asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="FeedbackId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
+</form>

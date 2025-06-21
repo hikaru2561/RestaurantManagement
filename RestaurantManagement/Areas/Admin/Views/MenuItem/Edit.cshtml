@@ -1,0 +1,62 @@
+﻿@model RestaurantManagement.Models.MenuItem
+@{
+    ViewData["Title"] = "Chỉnh sửa món ăn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chỉnh sửa món ăn</h2>
+
+<form asp-area="Admin" asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="MenuItemId" />
+    <input type="hidden" asp-for="MenuCategoryId" />
+    <input type="hidden" asp-for="ImagePath" />
+
+    <div class="mb-3">
+        <label class="form-label">Tên món</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Giá</label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Trạng thái</label>
+        <select asp-for="Status" class="form-control">
+            <option value="true">Còn bán</option>
+            <option value="false">Ngừng bán</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ảnh mới (nếu muốn thay)</label>
+        <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ảnh hiển thị:</label><br />
+        <img id="previewImg" src="~/images/MenuItem/@Model.ImagePath" width="150" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    <a asp-area="Admin" asp-controller="Menu" asp-action="Items" asp-route-id="@ViewBag.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+</form>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('previewImg');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+}

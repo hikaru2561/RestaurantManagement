@@ -1,0 +1,36 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Reservation>
+@{
+    ViewData["Title"] = "Quản lý đặt bàn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Danh sách đặt bàn</h2>
+<a asp-area="Admin" asp-action="Create" class="btn btn-success mb-3">+ Đặt bàn mới</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Khách hàng</th>
+            <th>Bàn</th>
+            <th>Thời gian</th>
+            <th>Số người</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var r in Model)
+        {
+            <tr>
+                <td>@r.Customer?.Name</td>
+                <td>@r.Table?.Name</td>
+                <td>@r.ReservationTime.ToString("HH:mm dd/MM/yyyy")</td>
+                <td>@r.NumberOfPeople</td>
+                <td>
+                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@r.ReservationId" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@r.ReservationId" class="btn btn-danger btn-sm">Xoá</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>

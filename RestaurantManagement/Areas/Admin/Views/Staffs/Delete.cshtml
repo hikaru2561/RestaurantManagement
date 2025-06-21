@@ -1,0 +1,15 @@
+﻿@model RestaurantManagement.Models.Staffs
+@{
+    ViewData["Title"] = "Xoá nhân viên";
+    Layout = "_AdminLayout";
+}
+
+<h2>Xoá nhân viên</h2>
+
+<div class="alert alert-warning">Bạn có chắc chắn muốn xoá nhân viên <strong>@Model.Name</strong> không?</div>
+
+<form asp-area="Admin" asp-action="Delete">
+    <input type="hidden" asp-for="StaffId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
+</form>

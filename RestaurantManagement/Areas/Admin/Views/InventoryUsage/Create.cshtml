@@ -1,0 +1,36 @@
+﻿@model RestaurantManagement.Models.InventoryUsage
+@{
+    ViewData["Title"] = "Thêm nguyên liệu vào món ăn";
+    Layout = "_AdminLayout";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-area="Admin" asp-action="Create" method="post">
+    <div class="form-group">
+        <label>Món ăn:</label>
+        <input type="text" class="form-control" value="@ViewBag.MenuItemName" disabled />
+        <input type="hidden" asp-for="MenuItemId" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="InventoryItemId" class="control-label">Nguyên liệu</label>
+        <select asp-for="InventoryItemId" class="form-control" asp-items="ViewBag.InventoryItemId">
+            <option value="">-- Chọn nguyên liệu --</option>
+        </select>
+        <span asp-validation-for="InventoryItemId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="QuantityUsed" class="control-label">Số lượng sử dụng</label>
+        <input asp-for="QuantityUsed" class="form-control" />
+        <span asp-validation-for="QuantityUsed" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Thêm</button>
+    <a asp-area="Admin" asp-controller="MenuItem" asp-action="Index" asp-route-id="@ViewBag.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}

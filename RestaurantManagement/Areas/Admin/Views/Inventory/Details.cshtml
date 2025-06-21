@@ -1,0 +1,29 @@
+﻿@model RestaurantManagement.Models.InventoryItem
+
+@{
+    ViewData["Title"] = "Chi tiết nguyên liệu";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chi tiết nguyên liệu</h2>
+
+<div class="mb-3">
+    @if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <img src="@Model.ImagePath" width="120" />
+    }
+</div>
+
+<dl class="row">
+    <dt class="col-sm-3">Tên</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Số lượng</dt>
+    <dd class="col-sm-9">@Model.Quantity</dd>
+
+    <dt class="col-sm-3">Đơn vị</dt>
+    <dd class="col-sm-9">@Model.Unit</dd>
+</dl>
+
+<a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.InventoryItemId" class="btn btn-warning">Sửa</a>
+<a asp-area="Admin" asp-action="Index" class="btn btn-light">← Quay lại</a>

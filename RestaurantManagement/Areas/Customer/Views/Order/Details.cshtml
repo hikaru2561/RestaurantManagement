@@ -1,0 +1,71 @@
+﻿@model RestaurantManagement.Models.Order
+@using RestaurantManagement.Models
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    var feedback = ViewBag.Feedback as Feedback;
+}
+
+<h2>Chi tiết đơn hàng #@Model.OrderId</h2>
+
+<p><strong>Bàn:</strong> @Model.Table?.Name</p>
+<p><strong>Ngày:</strong> @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</p>
+<p><strong>Trạng thái:</strong> @Model.Status</p>
+<p><strong>Tổng tiền:</strong> @Model.Payment?.TotalAmount.ToString("N0") đ</p>
+
+<h4>Danh sách món</h4>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Tên món</th>
+            <th>Số lượng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>@item.MenuItem?.Name</td>
+                <td>@item.Quantity</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.Status == OrderStatus.Completed)
+{
+    if (feedback == null)
+    {
+        <a asp-area="Customer" asp-controller="Feedback" asp-action="Create" asp-route-orderId="@Model.OrderId"
+           class="btn btn-success mt-3">Gửi phản hồi</a>
+    }
+    else
+    {
+        <div class="alert alert-info mt-4">
+            <strong>Bạn đã phản hồi:</strong>
+            <p>@feedback.Content</p>
+            <p>⭐ Đánh giá: @feedback.Rating / 5</p>
+
+            @if (feedback.Reply == null)
+            {
+                <a asp-area="Customer" asp-controller="Feedback" asp-action="Edit"
+                   asp-route-id="@feedback.FeedbackId"
+                   class="btn btn-warning btn-sm">Sửa phản hồi</a>
+                <form asp-area="Customer" asp-controller="Feedback" asp-action="Delete"
+                      asp-route-id="@feedback.FeedbackId" method="post"
+                      onsubmit="return confirm('Bạn có chắc chắn muốn xoá phản hồi này?');"
+                      class="d-inline">
+                    <button type="submit" class="btn btn-danger btn-sm">Xoá phản hồi</button>
+                </form>
+
+            }
+            else
+            {
+                <div class="alert alert-secondary mt-3">
+                    <strong>Phản hồi từ nhà hàng:</strong>
+                    <p>@feedback.Reply.Content</p>
+                </div>
+            }
+        </div>
+    }
+}

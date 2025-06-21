@@ -1,0 +1,94 @@
+﻿@model RestaurantManagement.Models.Order
+@{
+    ViewData["Title"] = "Tạo đơn hàng";
+    Layout = "_AdminLayout";
+}
+
+<h2>Tạo đơn hàng</h2>
+
+<form asp-area="Admin" asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Bàn</label>
+        <select asp-for="TableId" class="form-select">
+            @foreach (var table in (List<RestaurantManagement.Models.Table>)ViewBag.Tables)
+            {
+                <option value="@table.TableId">@table.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nhân viên</label>
+        <select asp-for="StaffId" class="form-select">
+            @foreach (var staff in (List<RestaurantManagement.Models.Staffs>)ViewBag.Staffs)
+            {
+                <option value="@staff.StaffId">@staff.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Số điện thoại khách hàng (nếu có)</label>
+        <input type="text" id="phoneInput" class="form-control" placeholder="Nhập SĐT khách hàng..." oninput="findCustomer()" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Khách hàng (tùy chọn)</label>
+        <select asp-for="CustomerId" class="form-select" id="customerSelect">
+            <option value="">-- Không chọn --</option>
+            @foreach (var c in (List<RestaurantManagement.Models.Customer>)ViewBag.Customers)
+            {
+                <option value="@c.CustomerId">@c.Name</option>
+            }
+        </select>
+    </div>
+
+    <h5>Món ăn đã gọi</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Chọn</th>
+                <th>Món</th>
+                <th>Số lượng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in (List<RestaurantManagement.Models.MenuItem>)ViewBag.MenuItems)
+            {
+                <tr>
+                    <td><input type="checkbox" class="form-check-input" onchange="toggleQty(this)" /></td>
+                    <td>
+                        <input type="hidden" name="MenuItemIds" value="@item.MenuItemId" />
+                        @item.Name
+                    </td>
+                    <td><input type="number" name="Quantities" class="form-control" disabled min="1" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Tạo đơn</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>
+
+<script>
+    function toggleQty(checkbox) {
+        var qty = checkbox.closest('tr').querySelector('input[name="Quantities"]');
+        qty.disabled = !checkbox.checked;
+        if (!checkbox.checked) qty.value = 0;
+    }
+
+    function findCustomer() {
+        const phone = document.getElementById("phoneInput").value.trim();
+        const select = document.getElementById("customerSelect");
+
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].text.includes(phone)) {
+                select.selectedIndex = i;
+                return;
+            }
+        }
+
+        select.selectedIndex = 0;
+    }
+</script>

@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "Đăng ký ca làm tuần sau";
+    Layout = "_StaffLayout";
+    var nextMonday = DateTime.Today.AddDays((8 - (int)DateTime.Today.DayOfWeek) % 7); // Lấy thứ 2 tuần sau
+    var daysOfWeek = Enumerable.Range(0, 7).Select(i => nextMonday.AddDays(i)).ToList();
+    var shifts = ViewBag.Shifts as List<RestaurantManagement.Models.Shift>;
+}
+
+<h2 class="mb-3">Đăng ký ca làm tuần sau</h2>
+
+<form asp-action="Register" method="post" id="registerForm">
+    <input type="hidden" name="SelectedShiftsJson" id="SelectedShiftsJson" />
+    <table class="table table-bordered text-center">
+        <thead>
+            <tr>
+                <th>Ca / Ngày</th>
+                @foreach (var day in daysOfWeek)
+                {
+                    <th>@day.ToString("dddd<br/>dd/MM", new System.Globalization.CultureInfo("vi-VN"))</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var shift in shifts)
+            {
+                <tr>
+                    <td>@shift.Name (@shift.StartTime.ToString(@"hh\:mm") - @shift.EndTime.ToString(@"hh\:mm"))</td>
+                    @foreach (var day in daysOfWeek)
+                    {
+                        <td>
+                            <div class="select-cell"
+                                 data-shiftid="@shift.ShiftId"
+                                 data-date="@day.ToString("yyyy-MM-dd")">
+                                <i class="bi bi-check-circle d-none text-success"></i>
+                            </div>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success mt-3">Đăng ký ca</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3">Quay lại</a>
+</form>
+
+<style>
+    .select-cell {
+        width: 100%;
+        height: 50px;
+        cursor: pointer;
+        border-radius: 5px;
+        background-color: #f8f9fa;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .select-cell.selected {
+            background-color: #d1e7dd;
+            border: 2px solid #0f5132;
+        }
+</style>
+
+@section Scripts {
+    <script>
+        const selected = new Set();
+
+        document.querySelectorAll('.select-cell').forEach(cell => {
+            cell.addEventListener('click', () => {
+                const key = cell.dataset.shiftid + "_" + cell.dataset.date;
+                if (selected.has(key)) {
+                    selected.delete(key);
+                    cell.classList.remove('selected');
+                } else {
+                    selected.add(key);
+                    cell.classList.add('selected');
+                }
+            });
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            const values = Array.from(selected).map(k => {
+                const [shiftId, date] = k.split('_');
+                return { shiftId, date };
+            });
+            document.getElementById('SelectedShiftsJson').value = JSON.stringify(values);
+        });
+    </script>
+}

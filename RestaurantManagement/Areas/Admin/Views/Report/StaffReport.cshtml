@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Báo cáo nhân viên phục vụ";
+    Layout = "_AdminLayout";
+}
+
+<h2>Thống kê nhân viên phục vụ nhiều đơn hàng</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tên nhân viên</th>
+            <th>Số đơn phục vụ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewBag.Data)
+        {
+            <tr>
+                <td>@item.StaffName</td>
+                <td>@item.TotalOrders</td>
+            </tr>
+        }
+    </tbody>
+</table>

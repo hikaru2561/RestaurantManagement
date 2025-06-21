@@ -1,0 +1,83 @@
+﻿@model RestaurantManagement.Models.Order
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng";
+    Layout = "_StaffLayout";
+}
+
+<h2>Chi tiết đơn hàng #@Model.OrderId</h2>
+
+<p><strong>Bàn:</strong> @Model.Table?.Name</p>
+<p><strong>Khách hàng:</strong> @Model.Customer?.Name</p>
+<p><strong>Thời gian:</strong> @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</p>
+<p><strong>Trạng thái:</strong> <span class="badge bg-info">@Model.Status</span></p>
+
+<hr />
+<h4>Danh sách món</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Món</th>
+            <th>Số lượng</th>
+            <th>Giá</th>
+            <th>Thành tiền</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
+            <tr>
+                <td>@item.MenuItem?.Name</td>
+                <td>
+                    <form asp-action="UpdateItemQuantity" method="post" class="d-flex">
+                        <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                        <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control me-2" style="width:80px;" />
+                        <button type="submit" class="btn btn-sm btn-success">✔</button>
+                    </form>
+                </td>
+                <td>@item.MenuItem?.Price.ToString("N0") đ</td>
+                <td>@(item.Quantity * item.MenuItem?.Price ?? 0).ToString("N0") đ</td>
+                <td>
+                    <form asp-action="RemoveItem" method="post">
+                        <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+<h4>Thêm món</h4>
+<form asp-action="AddItem" method="post" class="row g-3">
+    <input type="hidden" name="orderId" value="@Model.OrderId" />
+    <div class="col-md-6">
+        <select name="menuItemId" class="form-select">
+            @foreach (var item in ViewBag.MenuItems as List<RestaurantManagement.Models.MenuItem>)
+            {
+                <option value="@item.MenuItemId">@item.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="number" name="quantity" class="form-control" min="1" value="1" />
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Thêm</button>
+    </div>
+</form>
+
+<hr />
+@if (Model.Status != OrderStatus.Paid)
+{
+    <form asp-action="Checkout" method="post" class="mt-3">
+        <input type="hidden" name="id" value="@Model.OrderId" />
+        <label>Phương thức thanh toán:</label>
+        <select name="method" class="form-select w-25">
+            <option>Tiền mặt</option>
+            <option>Thẻ</option>
+        </select>
+        <button type="submit" class="btn btn-success mt-2">Thanh toán</button>
+    </form>
+}

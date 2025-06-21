@@ -1,0 +1,37 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Shift>
+@{
+    ViewData["Title"] = "Danh sách ca làm";
+    Layout = "_AdminLayout";
+}
+
+<h2>Danh sách ca làm</h2>
+
+<a asp-area="Admin" asp-action="Create" class="btn btn-primary mb-3">Thêm ca làm</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tên ca</th>
+            <th>Bắt đầu</th>
+            <th>Kết thúc</th>
+            <th>Số lượt chấm công</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var shift in Model)
+        {
+            <tr>
+                <td>@shift.Name</td>
+                <td>@shift.StartTime</td>
+                <td>@shift.EndTime</td>
+                <td>@(shift.Attendances?.Count ?? 0)</td>
+                <td>
+                    <a asp-area="Admin" asp-action="Details" asp-route-id="@shift.ShiftId" class="btn btn-sm btn-info">Chi tiết</a>
+                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@shift.ShiftId" class="btn btn-sm btn-warning">Sửa</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@shift.ShiftId" class="btn btn-sm btn-danger">Xoá</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>

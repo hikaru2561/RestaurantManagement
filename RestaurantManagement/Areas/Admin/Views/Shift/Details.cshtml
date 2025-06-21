@@ -1,0 +1,40 @@
+﻿@model RestaurantManagement.Models.Shift
+@{
+    ViewData["Title"] = "Chi tiết ca làm";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chi tiết ca: @Model.Name</h2>
+
+<p><strong>Bắt đầu:</strong> @Model.StartTime</p>
+<p><strong>Kết thúc:</strong> @Model.EndTime</p>
+
+<form asp-area="Admin" asp-action="ManageAttendance" method="get" class="mb-3">
+    <input type="hidden" name="id" value="@Model.ShiftId" />
+    <label>Chọn ngày: </label>
+    <input type="date" name="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control d-inline-block w-auto" />
+    <button type="submit" class="btn btn-outline-primary btn-sm">Xem chấm công</button>
+</form>
+
+<h5>Lượt chấm công:</h5>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Nhân viên</th>
+            <th>Ngày</th>
+            <th>Đi làm?</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var att in Model.Attendances.OrderByDescending(a => a.Date))
+        {
+            <tr>
+                <td>@att.Staff?.Name</td>
+                <td>@att.Date.ToString("dd/MM/yyyy")</td>
+                <td>@(att.IsPresent ? "✅ Có mặt" : "❌ Vắng")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>

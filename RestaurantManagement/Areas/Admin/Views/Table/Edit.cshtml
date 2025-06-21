@@ -1,0 +1,28 @@
+﻿@model RestaurantManagement.Models.Table
+@{
+    ViewData["Title"] = "Sửa bàn";
+    Layout = "_AdminLayout";
+}
+<h2>Sửa thông tin bàn</h2>
+
+<form asp-area="Admin" asp-action="Edit">
+    <input type="hidden" asp-for="TableId" />
+    <div class="mb-3">
+        <label class="form-label">Tên bàn</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Sức chứa</label>
+        <input asp-for="Capacity" type="number" class="form-control" />
+    </div>
+    <div class="form-check">
+        <input asp-for="IsVIP" class="form-check-input" />
+        <label class="form-check-label">Bàn VIP</label>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="Status" class="form-check-input" />
+        <label class="form-check-label">Đang sử dụng</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
+</form>

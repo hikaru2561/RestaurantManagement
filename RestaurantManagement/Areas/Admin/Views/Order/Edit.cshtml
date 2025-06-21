@@ -1,0 +1,24 @@
+﻿@model RestaurantManagement.Models.Order
+@{
+    ViewData["Title"] = "Cập nhật đơn hàng";
+    Layout = "_AdminLayout";
+}
+
+<h2>Cập nhật trạng thái đơn hàng</h2>
+
+<form asp-area="Admin" asp-action="Edit" method="post">
+    <input type="hidden" asp-for="OrderId" />
+
+    <div class="mb-3">
+        <label class="form-label">Trạng thái</label>
+        <select asp-for="Status" class="form-select">
+            @foreach (var s in Enum.GetValues(typeof(RestaurantManagement.Models.OrderStatus)))
+            {
+                <option value="@s" selected="@(Model.Status == (RestaurantManagement.Models.OrderStatus)s)">@s</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

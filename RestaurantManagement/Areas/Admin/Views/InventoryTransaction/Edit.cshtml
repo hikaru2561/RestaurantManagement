@@ -1,0 +1,33 @@
+﻿@model RestaurantManagement.Models.InventoryTransaction
+@{
+    ViewData["Title"] = "Chỉnh sửa giao dịch";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chỉnh sửa giao dịch</h2>
+
+<form asp-area="Admin" asp-action="Edit" method="post">
+    <input type="hidden" asp-for="InventoryTransactionId" />
+
+    <div class="mb-3">
+        <label asp-for="InventoryItemId" class="form-label">Nguyên liệu</label>
+        <select asp-for="InventoryItemId" class="form-select" asp-items="ViewBag.InventoryItemId"></select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Type" class="form-label">Loại giao dịch</label>
+        <select asp-for="Type" class="form-select">
+            <option value="Nhập">Nhập</option>
+            <option value="Xuất">Xuất</option>
+            <option value="Hủy">Hủy</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Quantity" class="form-label">Số lượng</label>
+        <input asp-for="Quantity" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Cập nhật</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

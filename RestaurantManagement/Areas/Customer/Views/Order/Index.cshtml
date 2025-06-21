@@ -1,0 +1,55 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Order>
+@using RestaurantManagement.Models
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng";
+    Layout = "_CustomerLayout";
+}
+
+<h2>Lịch sử đơn hàng</h2>
+
+<form method="get" class="row mb-3">
+    <div class="col-md-3">
+        <select class="form-select" name="statusFilter">
+            <option value="">-- Trạng thái --</option>
+            @foreach (var status in Enum.GetValues(typeof(OrderStatus)))
+            {
+                <option value="@status">@status</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="fromDate" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <input type="date" name="toDate" class="form-control" />
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </div>
+</form>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ngày đặt</th>
+            <th>Bàn</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@order.Table?.Name</td>
+                <td>@order.Payment?.TotalAmount.ToString("N0") đ</td>
+                <td>@order.Status</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-info">Chi tiết</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

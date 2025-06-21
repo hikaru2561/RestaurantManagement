@@ -1,0 +1,13 @@
+﻿@model RestaurantManagement.Models.Shift
+@{
+    ViewData["Title"] = "Xoá ca làm";
+    Layout = "_AdminLayout";
+}
+
+<h2>Xoá ca làm</h2>
+<p>Bạn có chắc chắn muốn xoá ca: <strong>@Model.Name</strong>?</p>
+<form asp-area="Admin" asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="ShiftId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

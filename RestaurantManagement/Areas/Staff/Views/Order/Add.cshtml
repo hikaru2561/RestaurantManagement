@@ -1,0 +1,57 @@
+﻿@model RestaurantManagement.Models.Order
+@{
+    ViewData["Title"] = "Tạo đơn hàng";
+    Layout = "_StaffLayout";
+    var tables = ViewBag.Tables as List<RestaurantManagement.Models.Table>;
+    var customers = ViewBag.Customers as List<RestaurantManagement.Models.Customer>;
+    var menuItems = ViewBag.MenuItems as List<RestaurantManagement.Models.MenuItem>;
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Add" method="post">
+    <div class="mb-3">
+        <label asp-for="TableId" class="form-label">Chọn bàn</label>
+        <select asp-for="TableId" class="form-select" asp-items="@(new SelectList(tables, "TableId", "Name"))">
+            <option value="">-- Chọn bàn --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CustomerId" class="form-label">Chọn khách hàng (nếu có)</label>
+        <select asp-for="CustomerId" class="form-select" asp-items="@(new SelectList(customers, "CustomerId", "Name"))">
+            <option value="">-- Không có --</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Chọn món ăn</label>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Tên món</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < menuItems.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            @menuItems[i].Name
+                            <input type="hidden" name="MenuItemIds" value="@menuItems[i].MenuItemId" />
+                        </td>
+                        <td>@menuItems[i].Price.ToString("N0") đ</td>
+                        <td>
+                            <input type="number" name="Quantities" value="0" class="form-control" min="0" />
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <button type="submit" class="btn btn-success">Tạo đơn hàng</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

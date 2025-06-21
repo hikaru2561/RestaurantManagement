@@ -1,0 +1,23 @@
+﻿@model RestaurantManagement.Models.Reservation
+@{
+    ViewData["Title"] = "Đặt bàn";
+    Layout = "_CustomerLayout";
+}
+
+<h2>Đặt bàn</h2>
+
+<form asp-action="Create" method="post" class="mt-3">
+    <div class="mb-3">
+        <label asp-for="TableId" class="form-label">Chọn bàn</label>
+        <select asp-for="TableId" class="form-select" asp-items="ViewBag.Tables"></select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="NumberOfPeople" class="form-label">Số người</label>
+        <input asp-for="NumberOfPeople" class="form-control" type="number" min="1" required />
+    </div>
+    <div class="mb-3">
+        <label asp-for="ReservationTime" class="form-label">Thời gian đặt</label>
+        <input asp-for="ReservationTime" class="form-control" type="datetime-local" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Gửi yêu cầu đặt bàn</button>
+</form>

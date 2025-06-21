@@ -1,0 +1,23 @@
+﻿@model RestaurantManagement.Models.InventoryTransaction
+@{
+    ViewData["Title"] = "Chi tiết giao dịch";
+    Layout = "_AdminLayout";
+}
+
+<h2>Chi tiết giao dịch kho</h2>
+
+<div class="mb-3">
+    <strong>Nguyên liệu:</strong> @Model.InventoryItem?.Name
+</div>
+<div class="mb-3">
+    <strong>Loại giao dịch:</strong> @Model.Type
+</div>
+<div class="mb-3">
+    <strong>Số lượng:</strong> @Model.Quantity
+</div>
+<div class="mb-3">
+    <strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("g")
+</div>
+
+<a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.InventoryTransactionId" class="btn btn-warning">Sửa</a>
+<a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>

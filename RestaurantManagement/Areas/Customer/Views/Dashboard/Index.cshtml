@@ -1,0 +1,88 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ khách hàng";
+    Layout = "_CustomerLayout";
+    var customer = ViewBag.Customer as RestaurantManagement.Models.Customer;
+    var orders = ViewBag.RecentOrders as List<RestaurantManagement.Models.Order>;
+    var reservations = ViewBag.RecentReservations as List<RestaurantManagement.Models.Reservation>;
+    var lastFeedback = ViewBag.LastFeedback as RestaurantManagement.Models.Feedback;
+}
+
+<h2 class="mb-4">Chào mừng, @customer?.Name!</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card border-success mb-4">
+            <div class="card-header bg-success text-white">Thông tin tài khoản</div>
+            <div class="card-body">
+                <p><strong>Email:</strong> @customer?.Email</p>
+                <p><strong>Điện thoại:</strong> @customer?.Phone</p>
+                <p><strong>Hạng:</strong> @(customer?.IsVIP == true ? "VIP" : "Thường")</p>
+                <a class="btn btn-sm btn-primary" asp-controller="Profile" asp-action="Index">Chi tiết</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-info mb-4">
+            <div class="card-header bg-info text-white">Đơn hàng gần đây</div>
+            <div class="card-body">
+                @if (orders != null && orders.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var order in orders)
+                        {
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Bàn @order.Table?.Name</span>
+                                <span>@order.Status</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted">Chưa có đơn hàng nào.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-warning mb-4">
+            <div class="card-header bg-warning text-dark">Đặt bàn gần đây</div>
+            <div class="card-body">
+                @if (reservations != null && reservations.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var res in reservations)
+                        {
+                            <li class="list-group-item">
+                                Bàn @res.Table?.Name - @res.ReservationTime.ToString("dd/MM/yyyy HH:mm")
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted">Không có lịch đặt bàn nào.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (lastFeedback != null)
+{
+    <div class="card border-secondary">
+        <div class="card-header">Phản hồi gần nhất</div>
+        <div class="card-body">
+            <p><strong>Đánh giá:</strong> @lastFeedback.Rating sao</p>
+            <p>@lastFeedback.Content</p>
+            @if (lastFeedback.Reply != null)
+            {
+                <div class="alert alert-success mt-3">
+                    <strong>Phản hồi từ nhà hàng:</strong> @lastFeedback.Reply.Content
+                </div>
+            }
+        </div>
+    </div>
+}

@@ -1,0 +1,78 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Customer>
+@{
+    ViewData["Title"] = "Quản lý khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (User.IsInRole("Admin"))
+{
+    <h2>Danh sách khách hàng</h2>
+
+    <form id="filterForm" method="get" class="form-inline mb-3">
+        <input type="text" name="search" class="form-control me-2"
+               placeholder="Tìm theo tên..." value="@ViewBag.Search"
+               oninput="submitFilter()" />
+
+        <input type="text" name="phoneFilter" class="form-control me-2"
+               placeholder="SĐT..." value="@ViewBag.PhoneFilter"
+               oninput="submitFilter()" />
+
+        <select name="vipFilter" class="form-control me-2" onchange="submitFilter()">
+            <option value="">-- Tất cả --</option>
+            <option value="VIP" selected="@(ViewBag.VipFilter == "VIP")">VIP</option>
+            <option value="Normal" selected="@(ViewBag.VipFilter == "Normal")">Thường</option>
+        </select>
+    </form>
+
+    <p>
+        <a asp-area="Admin" asp-controller="Customer" asp-action="Create" class="btn btn-success">
+            + Thêm khách hàng
+        </a>
+    </p>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Tên</th>
+                <th>SĐT</th>
+                <th>Email</th>
+                <th>VIP</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.Name</td>
+                    <td>@c.Phone</td>
+                    <td>@c.Email</td>
+                    <td>@(c.IsVIP ? "✔ VIP" : "Thường")</td>
+                    <td>
+                        <a asp-area="Admin" asp-controller="Customer" asp-action="Edit" asp-route-id="@c.CustomerId" class="btn btn-warning btn-sm">Sửa</a>
+                        <a asp-area="Admin" asp-controller="Customer" asp-action="Delete" asp-route-id="@c.CustomerId" class="btn btn-danger btn-sm">Xoá</a>
+                        <a asp-area="Admin" asp-controller="Customer" asp-action="Details" asp-route-id="@c.CustomerId" class="btn btn-info btn-sm">Chi tiết</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>
+}
+else
+{
+    <div class="alert alert-danger">Bạn không có quyền truy cập trang này.</div>
+}
+
+@section Scripts {
+    <script>
+        let timer;
+        function submitFilter() {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 400);
+        }
+    </script>
+}

@@ -1,0 +1,26 @@
+﻿@model RestaurantManagement.Models.MenuItem
+@{
+    ViewData["Title"] = "Xoá món ăn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Bạn có chắc chắn muốn xoá món này?</h2>
+
+<div>
+    <strong>Tên món:</strong> @Model.Name <br />
+    <strong>Giá:</strong> @Model.Price.ToString("N0") đ <br />
+    <strong>Trạng thái:</strong> @(Model.Status ? "Còn bán" : "Ngừng bán") <br />
+    @if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <strong>Ảnh:</strong>
+
+        <br />
+        <img src="~/images/MenuItem/@Model.ImagePath" width="150" />
+    }
+</div>
+
+<form asp-area="Admin" asp-action="Delete">
+    <input type="hidden" asp-for="MenuItemId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-controller="Menu" asp-action="Items" asp-route-id="@Model.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+</form>

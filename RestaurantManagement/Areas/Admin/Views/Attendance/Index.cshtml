@@ -1,0 +1,40 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Attendance>
+@{
+    ViewData["Title"] = "Duyệt lịch làm việc tuần sau";
+    Layout = "_AdminLayout";
+}
+
+<h2>Duyệt lịch làm việc tuần sau</h2>
+
+<form asp-action="Approve" method="post">
+    <a class="btn btn-primary" asp-area="Admin" asp-controller="Shift" asp-action="Index">
+        <i class="bi bi-diagram-3-fill me-2"></i> Ca làm
+    </a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Nhân viên</th>
+                <th>Ngày</th>
+                <th>Ca làm</th>
+                <th>Thời gian</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="selectedIds" value="@item.AttendanceId" />
+                        </td>
+                        <td>@item.Staff?.Name</td>
+                        <td>@item.Date.ToString("dddd, dd/MM/yyyy")</td>
+                        <td>@item.Shift?.Name</td>
+                        <td>@item.Shift?.StartTime.ToString(@"hh\:mm") - @item.Shift?.EndTime.ToString(@"hh\:mm")</td>
+                    </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Duyệt lịch đã chọn</button>
+</form>

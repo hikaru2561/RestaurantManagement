@@ -1,0 +1,26 @@
+﻿@model RestaurantManagement.Models.InventoryUsage
+@{
+    ViewData["Title"] = "Xoá nguyên liệu khỏi món ăn";
+    Layout = "_AdminLayout";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<h4>Bạn có chắc chắn muốn xoá nguyên liệu này?</h4>
+
+<dl class="row">
+    <dt class="col-sm-3">Món ăn</dt>
+    <dd class="col-sm-9">@Model.MenuItem?.Name</dd>
+
+    <dt class="col-sm-3">Nguyên liệu</dt>
+    <dd class="col-sm-9">@Model.InventoryItem?.Name</dd>
+
+    <dt class="col-sm-3">Số lượng</dt>
+    <dd class="col-sm-9">@Model.QuantityUsed</dd>
+</dl>
+
+<form asp-area="Admin" asp-action="Delete" method="post">
+    <input type="hidden" asp-for="InventoryUsageId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-action="Index" asp-route-menuItemId="@Model.MenuItemId" class="btn btn-secondary">Huỷ</a>
+</form>

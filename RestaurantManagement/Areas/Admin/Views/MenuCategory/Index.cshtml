@@ -1,0 +1,34 @@
+﻿@model List<RestaurantManagement.Models.MenuCategory>
+@{
+    ViewData["Title"] = "Danh sách danh mục món ăn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Danh mục món ăn</h2>
+
+<a asp-area="Admin" asp-action="Create" class="btn btn-primary mb-3">Thêm danh mục</a>
+<a asp-area="Admin" asp-controller="Menu" asp-action="Index" class="btn btn-secondary mb-3">Quay lại</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Tên danh mục</th>
+            <th>Số lượng món</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var itemCount = item.MenuItems?.Count ?? 0;
+            <tr>
+                <td>@item.Name</td>
+                <td>@itemCount</td>
+                <td>
+                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@item.MenuCategoryId" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@item.MenuCategoryId" class="btn btn-danger btn-sm">Xoá</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

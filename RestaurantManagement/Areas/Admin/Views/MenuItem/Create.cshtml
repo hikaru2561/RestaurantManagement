@@ -1,0 +1,69 @@
+﻿@model RestaurantManagement.Models.MenuItem
+@{
+    ViewData["Title"] = "Thêm món ăn";
+    Layout = "_AdminLayout";
+}
+
+<h2>Thêm món ăn thuộc danh mục: @ViewBag.CategoryName</h2>
+
+<form asp-area="Admin" asp-action="Create" enctype="multipart/form-data" method="post">
+    <input type="hidden" asp-for="MenuCategoryId" />
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Tên món</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Price" class="form-label">Giá</label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ảnh món ăn</label>
+        <input type="file" name="imageFile" class="form-control" />
+    </div>
+
+    <h5 class="mt-4">Nguyên liệu sử dụng</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Chọn</th>
+                <th>Nguyên liệu</th>
+                <th>Số lượng</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ingredient in (List<RestaurantManagement.Models.InventoryItem>)ViewBag.Ingredients)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="IngredientIds" value="@ingredient.InventoryItemId"
+                               class="ingredient-checkbox" onchange="toggleQuantity(this)" />
+                    </td>
+                    <td>@ingredient.Name</td>
+                    <td>
+                        <input type="number" name="Quantities" step="0.1" class="form-control quantity-input"
+                               disabled value="0" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Lưu</button>
+    <a asp-area="Admin" asp-controller="Menu" asp-action="Items" asp-route-id="@ViewBag.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+</form>
+
+@section Scripts {
+    <script>
+        function toggleQuantity(checkbox) {
+            var row = checkbox.closest('tr');
+            var qtyInput = row.querySelector('.quantity-input');
+            qtyInput.disabled = !checkbox.checked;
+            if (!checkbox.checked) qtyInput.value = 0;
+        }
+    </script>
+}

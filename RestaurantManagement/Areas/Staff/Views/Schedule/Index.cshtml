@@ -1,0 +1,51 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Attendance>
+@{
+    ViewData["Title"] = "Lịch làm việc của tôi";
+    Layout = "_StaffLayout";
+}
+
+<h2 class="mb-3">Lịch làm việc của tôi</h2>
+
+<a asp-action="Register" class="btn btn-primary mb-3">Đăng ký ca làm</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ngày</th>
+            <th>Ca làm</th>
+            <th>Thời gian</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                <td>@item.Shift?.Name</td>
+                <td>@item.Shift?.StartTime.ToString(@"hh\:mm") - @item.Shift?.EndTime.ToString(@"hh\:mm")</td>
+                <td>
+                    @if (item.IsPresent)
+                    {
+                        <span class="badge bg-success">Đã làm</span>
+                    }
+                    else if (item.Date < DateTime.Today)
+                    {
+                        <span class="badge bg-danger">Vắng</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning">Chưa diễn ra</span>
+                    }
+                </td>
+                <td>
+                    @if (!item.IsPresent && item.Date >= DateTime.Today)
+                    {
+                        <a asp-action="Cancel" asp-route-id="@item.AttendanceId" class="btn btn-sm btn-danger">Huỷ</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,52 @@
+﻿@model List<RestaurantManagement.Models.Staffs>
+@{
+    ViewData["Title"] = "Danh sách nhân viên";
+    Layout = "_AdminLayout";
+}
+
+<h2>Danh sách nhân viên</h2>
+
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Tìm theo tên hoặc số điện thoại..." />
+        <button type="submit" class="btn btn-primary">Tìm</button>
+    </div>
+</form>
+
+<a asp-area="Admin" asp-action="Create" class="btn btn-success mb-3">Thêm nhân viên</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Ảnh</th>
+            <th>Tên</th>
+            <th>SĐT</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var staff in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(staff.ImagePath))
+                    {
+                        <img src="~/images/Staffs/@staff.ImagePath" width="60" height="60" class="rounded-circle" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">Không có</span>
+                    }
+                </td>
+                <td>@staff.Name</td>
+                <td>@staff.Phone</td>
+                <td>
+                    <a asp-area="Admin" asp-action="Details" asp-route-id="@staff.StaffId" class="btn btn-info btn-sm">Chi tiết</a>
+                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@staff.StaffId" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@staff.StaffId" class="btn btn-danger btn-sm">Xoá</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>

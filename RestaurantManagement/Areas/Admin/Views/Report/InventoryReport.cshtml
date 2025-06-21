@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Báo cáo nguyên liệu sử dụng";
+    Layout = "_AdminLayout";
+}
+
+<h2>Thống kê nguyên liệu sử dụng nhiều nhất</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Nguyên liệu</th>
+            <th>Tổng số lượng đã dùng</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewBag.Data)
+        {
+            <tr>
+                <td>@item.Item</td>
+                <td>@item.TotalUsed</td>
+            </tr>
+        }
+    </tbody>
+</table>
