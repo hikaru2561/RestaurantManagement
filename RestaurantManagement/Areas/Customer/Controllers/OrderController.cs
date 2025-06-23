@@ -28,7 +28,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         {
             int customerId = GetCustomerId();
             var orders = _context.Orders
-                .Include(o => o.Table)
+                .Include(o => o.DingningTable)
                 .Include(o => o.Payment)
                 .Where(o => o.CustomerId == customerId)
                 .AsQueryable();
@@ -53,7 +53,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
             int customerId = GetCustomerId();
             var order = _context.Orders
                 .Include(o => o.OrderItems).ThenInclude(oi => oi.MenuItem)
-                .Include(o => o.Table)
+                .Include(o => o.DingningTable)
                 .Include(o => o.Payment)
                 .FirstOrDefault(o => o.OrderId == id && o.CustomerId == customerId);
 

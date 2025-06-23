@@ -59,7 +59,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         public IActionResult CanceledOrders()
         {
             var canceledOrders = _context.Orders
-                .Include(o => o.Table)
+                .Include(o => o.DingningTable)
                 .Include(o => o.Customer)
                 .Include(o => o.Staff)
                 .Where(o => o.Status == OrderStatus.Canceled)

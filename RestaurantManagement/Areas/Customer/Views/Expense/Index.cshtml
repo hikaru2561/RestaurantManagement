@@ -26,7 +26,7 @@ else
             {
                 <tr>
                     <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@order.Table?.Name</td>
+                    <td>@order.DingningTable?.Name</td>
                     <td>@(order.Payment?.TotalAmount ?? 0).ToString("N0") đ</td>
                 </tr>
             }

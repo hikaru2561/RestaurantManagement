@@ -1,4 +1,4 @@
-﻿@model RestaurantManagement.Models.Table
+﻿@model RestaurantManagement.Models.DingningTable
 @{
     ViewData["Title"] = "Sửa bàn";
     Layout = "_AdminLayout";
@@ -6,7 +6,7 @@
 <h2>Sửa thông tin bàn</h2>
 
 <form asp-area="Admin" asp-action="Edit">
-    <input type="hidden" asp-for="TableId" />
+    <input type="hidden" asp-for="DingningTableId" />
     <div class="mb-3">
         <label class="form-label">Tên bàn</label>
         <input asp-for="Name" class="form-control" />

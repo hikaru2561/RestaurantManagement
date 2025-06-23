@@ -57,7 +57,7 @@ else
                 var amount = order.Payment?.TotalAmount ?? 0;
                 <tr>
                     <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@order.Table?.Name</td>
+                    <td>@order.DingningTable?.Name</td>
                     <td>@amount.ToString("N0") đ</td>
                     <td>@order.Status</td>
                     <td>

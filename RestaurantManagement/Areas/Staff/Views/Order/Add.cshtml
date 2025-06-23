@@ -3,7 +3,7 @@
 @{
     ViewData["Title"] = "Tạo đơn hàng";
     Layout = "_StaffLayout";
-    var tables = ViewBag.Tables as List<Table>;
+    var tables = ViewBag.Tables as List<DingningTable>;
     var customers = ViewBag.Customers as List<Customer>;
     var menuItems = ViewBag.MenuItems as List<MenuItem>;
 }
@@ -12,8 +12,8 @@
 
 <form asp-action="Add" method="post">
     <div class="mb-3">
-        <label asp-for="TableId" class="form-label">Chọn bàn</label>
-        <select asp-for="TableId" class="form-select" asp-items="@(new SelectList(tables, "TableId", "Name"))" required>
+        <label asp-for="DingningTableId" class="form-label">Chọn bàn</label>
+        <select asp-for="DingningTableId" class="form-select" asp-items="@(new SelectList(tables, "TableId", "Name"))" required>
             <option value="">-- Chọn bàn --</option>
         </select>
     </div>

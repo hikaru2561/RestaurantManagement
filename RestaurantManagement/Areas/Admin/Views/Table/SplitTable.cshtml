@@ -11,9 +11,9 @@
     <div class="form-group">
         <label>Chọn bàn đích (trống):</label>
         <select name="targetTableId" class="form-control" required>
-            @foreach (var table in (List<RestaurantManagement.Models.Table>)ViewBag.AvailableTables)
+            @foreach (var table in (List<RestaurantManagement.Models.DingningTable>)ViewBag.AvailableTables)
             {
-                <option value="@table.TableId">@table.Name - Sức chứa: @table.Capacity</option>
+                <option value="@table.DingningTableId">@table.Name - Sức chứa: @table.Capacity</option>
             }
         </select>
     </div>

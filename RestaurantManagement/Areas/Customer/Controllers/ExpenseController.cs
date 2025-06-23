@@ -32,7 +32,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
 
             var orders = await _context.Orders
                 .Include(o => o.Payment)
-                .Include(o => o.Table)
+                .Include(o => o.DingningTable)
                 .Where(o => o.CustomerId == customerId && o.Status == Models.OrderStatus.Paid)
                 .OrderByDescending(o => o.OrderTime)
                 .ToListAsync();

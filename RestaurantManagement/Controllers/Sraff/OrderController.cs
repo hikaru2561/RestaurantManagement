@@ -31,7 +31,7 @@ namespace RestaurantManagement.Controllers.Staff
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create(int TableId, int? CustomerId, List<int> MenuItemIds, List<int> Quantities)
+        public async Task<IActionResult> Create(int DingningTableId, int? CustomerId, List<int> MenuItemIds, List<int> Quantities)
         {
             var username = User.FindFirst(ClaimTypes.Name)?.Value;
             var staff = await _context.Staffs.FirstOrDefaultAsync(s => s.Username == username);
@@ -49,7 +49,7 @@ namespace RestaurantManagement.Controllers.Staff
 
             var order = new Order
             {
-                TableId = TableId,
+                DingningTableId = DingningTableId,
                 CustomerId = CustomerId,
                 StaffId = staff.StaffId,
                 OrderTime = DateTime.Now,

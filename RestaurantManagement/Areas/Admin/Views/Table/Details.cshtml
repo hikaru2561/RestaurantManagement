@@ -1,4 +1,4 @@
-﻿@model RestaurantManagement.Models.Table
+﻿@model RestaurantManagement.Models.DingningTable
 @{
     ViewData["Title"] = "Chi tiết bàn";
     Layout = "_AdminLayout";
@@ -30,5 +30,5 @@
     <dd class="col-sm-10">@Model.Capacity</dd>
 </dl>
 
-<a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.TableId" class="btn btn-warning">Sửa</a>
+<a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.DingningTableId" class="btn btn-warning">Sửa</a>
 <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>

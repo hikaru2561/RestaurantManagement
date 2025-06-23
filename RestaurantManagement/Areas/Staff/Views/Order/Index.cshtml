@@ -23,7 +23,7 @@
         @foreach (var order in Model)
         {
             <tr>
-                <td>@order.Table?.Name</td>
+                <td>@order.DingningTable?.Name</td>
                 <td>@order.Customer?.Name</td>
                 <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
                 <td>

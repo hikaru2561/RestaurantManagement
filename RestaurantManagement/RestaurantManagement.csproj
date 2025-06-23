@@ -33,6 +33,7 @@
     <Folder Include="wwwroot\images\MenuItem\" />
     <Folder Include="wwwroot\images\InventoryItem\" />
     <Folder Include="wwwroot\images\FeedBack\" />
+    <Folder Include="wwwroot\images\Staffs\" />
     <Folder Include="wwwroot\js\" />
     <Folder Include="wwwroot\lib\bootstrap\" />
     <Folder Include="wwwroot\lib\bootstrap\dist\css\" />

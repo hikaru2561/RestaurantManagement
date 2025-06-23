@@ -49,7 +49,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
                     NotificationHelper.AddNotification(
                         _context,
                         "Đặt bàn mới",
-                        $"Khách hàng {customer?.Name} đã đặt bàn {reservation.TableId} vào {reservation.ReservationTime:dd/MM/yyyy HH:mm}.",
+                        $"Khách hàng {customer?.Name} đã đặt bàn {reservation.DingningTableId} vào {reservation.ReservationTime:dd/MM/yyyy HH:mm}.",
                         "admin",
                         "Admin"
                     );
@@ -67,7 +67,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
                 TempData["Error"] = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
             }
 
-            ViewBag.DingningTables = new SelectList(_context.DingningTables.ToList(), "TableId", "Name", reservation.TableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables.ToList(), "TableId", "Name", reservation.DingningTableId);
             return View(reservation);
         }
 
@@ -76,7 +76,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         {
             int customerId = GetCustomerId();
             var list = _context.Reservations
-                .Include(r => r.Table)
+                .Include(r => r.DingningTable)
                 .Where(r => r.CustomerId == customerId)
                 .OrderByDescending(r => r.ReservationTime)
                 .ToList();
