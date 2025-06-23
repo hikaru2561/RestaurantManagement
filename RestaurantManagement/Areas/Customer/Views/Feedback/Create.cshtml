@@ -1,29 +1,46 @@
 ﻿@{
     ViewData["Title"] = "Gửi phản hồi";
-    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    Layout = "_CustomerLayout";
     int orderId = ViewBag.OrderId;
+    var form = ViewContext.HttpContext.Request.Form;
 }
 
-<h2>Gửi phản hồi cho đơn hàng #@orderId</h2>
+<h2 class="mb-4">Gửi phản hồi cho đơn hàng #@orderId</h2>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
 
 <form asp-action="Create" method="post">
     <input type="hidden" name="orderId" value="@orderId" />
 
     <div class="mb-3">
-        <label>Nội dung</label>
-        <textarea name="content" class="form-control" rows="3" required></textarea>
+        <label class="form-label">Nội dung phản hồi</label>
+        <textarea name="content" class="form-control" rows="4" required>@form["content"]</textarea>
     </div>
 
     <div class="mb-3">
-        <label>Đánh giá (1 đến 5)</label>
+        <label class="form-label">Đánh giá</label>
         <select name="rating" class="form-select" required>
-            <option value="5">5 - Tuyệt vời</option>
-            <option value="4">4 - Tốt</option>
-            <option value="3">3 - Trung bình</option>
-            <option value="2">2 - Kém</option>
-            <option value="1">1 - Rất kém</option>
+            <option value="">-- Chọn đánh giá --</option>
+            @Html.DropDownList("rating", new SelectList(
+                     new[] {
+            new { Value = "5", Text = "5 - Tuyệt vời" },
+            new { Value = "4", Text = "4 - Tốt" },
+            new { Value = "3", Text = "3 - Trung bình" },
+            new { Value = "2", Text = "2 - Kém" },
+            new { Value = "1", Text = "1 - Rất kém" }
+            }, "Value", "Text", form["rating"]
+                     ), "Chọn đánh giá", new { @class = "form-select" })
         </select>
     </div>
 
     <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
+    <a asp-controller="Order" asp-action="Details" asp-route-id="@orderId" class="btn btn-secondary ms-2">Quay lại</a>
 </form>

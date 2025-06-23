@@ -4,21 +4,21 @@
     Layout = "_CustomerLayout";
 }
 
-<h2 class="mb-4">Danh sách phản hồi</h2>
+<h2 class="mb-4">Phản hồi của bạn</h2>
 
 @if (!Model.Any())
 {
-    <p>Bạn chưa gửi phản hồi nào.</p>
+    <div class="alert alert-info">Bạn chưa gửi phản hồi nào.</div>
 }
 else
 {
-    <table class="table table-bordered">
-        <thead>
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
             <tr>
                 <th>Nội dung</th>
                 <th>Đánh giá</th>
-                <th>Ảnh</th>
-                <th>Phản hồi từ Admin</th>
+                <th>Ảnh đính kèm</th>
+                <th>Phản hồi từ nhà hàng</th>
                 <th>Hành động</th>
             </tr>
         </thead>
@@ -27,39 +27,50 @@ else
             {
                 <tr>
                     <td>@item.Content</td>
+
                     <td>
                         @for (int i = 0; i < item.Rating; i++)
                         {
                             <i class="bi bi-star-fill text-warning"></i>
                         }
+                        @for (int i = item.Rating; i < 5; i++)
+                        {
+                            <i class="bi bi-star text-muted"></i>
+                        }
                     </td>
+
                     <td>
                         @if (!string.IsNullOrEmpty(item.ImagePath))
                         {
-                            <img src="@Url.Content("~/images/feedback/" + item.ImagePath)" width="80" />
+                            <img src="~/images/feedback/@item.ImagePath" width="80" class="img-thumbnail" />
                         }
                         else
                         {
                             <em>Không có</em>
                         }
                     </td>
+
                     <td>
                         @if (item.Reply != null)
                         {
                             <span>@item.Reply.Content</span>
-
                             <br />
-                            <small class="text-muted">(@item.Reply.RepliedAt.ToString("dd/MM/yyyy HH:mm"))</small>
+                            <small class="text-muted fst-italic">
+                                (@item.Reply.RepliedAt.ToString("dd/MM/yyyy HH:mm"))
+                            </small>
                         }
                         else
                         {
-                            <span class="text-muted fst-italic">Chưa được phản hồi</span>
+                            <span class="text-muted fst-italic">Chưa có phản hồi</span>
                         }
                     </td>
+
                     <td>
                         @if (item.Reply == null)
                         {
-                            <a asp-action="Edit" asp-route-id="@item.FeedbackId" class="btn btn-sm btn-warning me-2">Sửa</a>
+                            <a asp-action="Edit" asp-route-id="@item.FeedbackId" class="btn btn-sm btn-warning me-1">
+                                Sửa
+                            </a>
                             <form asp-action="Delete" asp-route-id="@item.FeedbackId" method="post" class="d-inline"
                                   onsubmit="return confirm('Bạn có chắc chắn muốn xoá phản hồi này?');">
                                 <button type="submit" class="btn btn-sm btn-danger">Xoá</button>

@@ -1,15 +1,16 @@
 ﻿@model IEnumerable<RestaurantManagement.Models.Order>
+@using RestaurantManagement.Models
 @{
     ViewData["Title"] = "Đơn hàng của tôi";
     Layout = "_StaffLayout";
 }
 
-<h2>Đơn hàng của tôi</h2>
+<h2 class="mb-4">Đơn hàng của tôi</h2>
 
-<a asp-action="Add" class="btn btn-success mb-3">Tạo đơn mới</a>
+<a asp-action="Add" class="btn btn-success mb-3">+ Tạo đơn mới</a>
 
 <table class="table table-bordered table-hover">
-    <thead>
+    <thead class="table-dark">
         <tr>
             <th>Bàn</th>
             <th>Khách hàng</th>
@@ -26,14 +27,40 @@
                 <td>@order.Customer?.Name</td>
                 <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
                 <td>
-                    <span class="badge bg-secondary">@order.Status</span>
+                    @switch (order.Status)
+                    {
+                        case OrderStatus.Ordered:
+                            <span class="badge bg-warning text-dark">Đã đặt</span>
+                            ;
+                            break;
+                        case OrderStatus.Preparing:
+                            <span class="badge bg-info text-dark">Đang chuẩn bị</span>
+                            ;
+                            break;
+                        case OrderStatus.Paid:
+                            <span class="badge bg-success">Đã thanh toán</span>
+                            ;
+                            break;
+                        case OrderStatus.Canceled:
+                            <span class="badge bg-danger">Đã hủy</span>
+                            ;
+                            break;
+                        default:
+                            <span class="badge bg-secondary">Không rõ</span>
+                            ;
+                            break;
+                    }
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-info btn-sm">Chi tiết</a>
+                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-info btn-sm me-1">Chi tiết</a>
+
                     @if (order.Status != OrderStatus.Paid && order.Status != OrderStatus.Canceled)
                     {
                         <form asp-action="Cancel" asp-route-id="@order.OrderId" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-danger btn-sm">Hủy</button>
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">
+                                Hủy
+                            </button>
                         </form>
                     }
                 </td>

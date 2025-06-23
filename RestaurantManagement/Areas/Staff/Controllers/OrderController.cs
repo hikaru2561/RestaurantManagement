@@ -54,8 +54,8 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
             if (MenuItemIds.Length != Quantities.Length || MenuItemIds.Length == 0)
             {
-                TempData["Error"] = "Vui lòng chọn ít nhất 1 món ăn.";
-                return View(order);
+                TempData["Error"] = "Vui lòng chọn ít nhất một món ăn.";
+                return RedirectToAction(nameof(Add));
             }
 
             _context.Orders.Add(order);
@@ -65,21 +65,25 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             {
                 if (Quantities[i] > 0)
                 {
-                    _context.OrderItems.Add(new OrderItem
+                    var orderItem = new OrderItem
                     {
                         OrderId = order.OrderId,
                         MenuItemId = MenuItemIds[i],
                         Quantity = Quantities[i]
-                    });
+                    };
+                    _context.OrderItems.Add(orderItem);
                 }
             }
 
             var table = _context.Tables.FirstOrDefault(t => t.TableId == order.TableId);
-            if (table != null) table.Status = TableStatus.InUse;
+            if (table != null)
+            {
+                table.Status = TableStatus.InUse;
+            }
 
             _context.SaveChanges();
-            TempData["Success"] = "Tạo đơn hàng thành công!";
-            return RedirectToAction("Index");
+            TempData["Success"] = "Tạo đơn hàng thành công.";
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Details(int id)
@@ -93,25 +97,40 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 .FirstOrDefault(o => o.OrderId == id && o.StaffId == staffId);
 
             if (order == null) return NotFound();
+
+            ViewBag.MenuItems = _context.MenuItems.Where(m => m.Status).ToList();
             return View(order);
         }
 
         [HttpPost]
         public IActionResult AddItem(int orderId, int menuItemId, int quantity)
         {
-            var order = _context.Orders.Include(o => o.OrderItems).FirstOrDefault(o => o.OrderId == orderId);
+            if (quantity <= 0)
+            {
+                TempData["Error"] = "Số lượng phải lớn hơn 0.";
+                return RedirectToAction("Details", new { id = orderId });
+            }
+
+            var order = _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefault(o => o.OrderId == orderId && o.StaffId == GetStaffId());
+
             if (order == null) return NotFound();
 
-            var existing = order.OrderItems.FirstOrDefault(i => i.MenuItemId == menuItemId);
-            if (existing != null)
-                existing.Quantity += quantity;
+            var existingItem = order.OrderItems.FirstOrDefault(i => i.MenuItemId == menuItemId);
+            if (existingItem != null)
+            {
+                existingItem.Quantity += quantity;
+            }
             else
+            {
                 _context.OrderItems.Add(new OrderItem
                 {
                     OrderId = orderId,
                     MenuItemId = menuItemId,
                     Quantity = quantity
                 });
+            }
 
             _context.SaveChanges();
             TempData["Success"] = "Thêm món thành công.";
@@ -136,7 +155,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
         public IActionResult UpdateItemQuantity(int orderItemId, int quantity)
         {
             var item = _context.OrderItems.FirstOrDefault(o => o.OrderItemId == orderItemId);
-            if (item == null) return NotFound();
+            if (item == null || quantity <= 0) return NotFound();
 
             item.Quantity = quantity;
             _context.SaveChanges();
@@ -152,20 +171,29 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             if (order == null || order.Status == OrderStatus.Paid)
             {
                 TempData["Error"] = "Không thể hủy đơn hàng.";
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
 
             order.Status = OrderStatus.Canceled;
-            _context.SaveChanges();
 
+            var table = _context.Tables.FirstOrDefault(t => t.TableId == order.TableId);
+            if (table != null && table.Status == TableStatus.InUse)
+            {
+                table.Status = TableStatus.Available;
+            }
+
+            _context.SaveChanges();
             TempData["Success"] = "Đã hủy đơn hàng.";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         public IActionResult Checkout(int id, string method)
         {
-            var order = _context.Orders.Include(o => o.OrderItems).FirstOrDefault(o => o.OrderId == id && o.StaffId == GetStaffId());
+            var order = _context.Orders
+                .Include(o => o.OrderItems).ThenInclude(i => i.MenuItem)
+                .FirstOrDefault(o => o.OrderId == id && o.StaffId == GetStaffId());
+
             if (order == null || order.Status == OrderStatus.Paid)
             {
                 TempData["Error"] = "Đơn hàng không hợp lệ.";
@@ -183,8 +211,14 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             });
 
             order.Status = OrderStatus.Paid;
-            _context.SaveChanges();
 
+            var table = _context.Tables.FirstOrDefault(t => t.TableId == order.TableId);
+            if (table != null)
+            {
+                table.Status = TableStatus.Available;
+            }
+
+            _context.SaveChanges();
             TempData["Success"] = "Thanh toán thành công.";
             return RedirectToAction("Details", new { id });
         }

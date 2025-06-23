@@ -1,54 +1,30 @@
-﻿@model RestaurantManagement.Models.Staffs
+﻿@model RestaurantManagement.Areas.Staff.Models.EditProfileViewModel
 @{
-    ViewData["Title"] = "Chỉnh sửa nhân viên";
+    ViewData["Title"] = "Chỉnh sửa thông tin";
     Layout = "_StaffLayout";
 }
 
-<h2>Chỉnh sửa nhân viên</h2>
+<h2>Chỉnh sửa thông tin cá nhân</h2>
 
-<form asp-area="Staff" asp-action="Edit" method="post" enctype="multipart/form-data">
+<form asp-action="Edit" method="post">
     <input type="hidden" asp-for="StaffId" />
-    <input type="hidden" asp-for="ImagePath" />
 
     <div class="mb-3">
-        <label asp-for="Name" class="form-label">Tên</label>
+        <label asp-for="Name" class="form-label"></label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="Phone" class="form-label">Số điện thoại</label>
+        <label asp-for="Phone" class="form-label"></label>
         <input asp-for="Phone" class="form-control" />
         <span asp-validation-for="Phone" class="text-danger"></span>
     </div>
 
-    <div class="mb-3">
-        <label class="form-label">Ảnh mới (nếu muốn thay)</label>
-        <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)" />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Ảnh hiện tại:</label><br />
-        <img id="previewImg" src="~/images/Staffs/@Model.ImagePath" width="150"
-             onerror="this.onerror=null;this.src='https://via.placeholder.com/150x150.png?text=No+Image';" />
-    </div>
-
-    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-    <a asp-area="Staff" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
 </form>
 
 @section Scripts {
-    <script>
-        function previewImage(input) {
-            const preview = document.getElementById('previewImg');
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-    </script>
+    <partial name="_ValidationScriptsPartial" />
 }

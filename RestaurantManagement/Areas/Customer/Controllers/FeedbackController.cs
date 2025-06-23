@@ -18,20 +18,22 @@ namespace RestaurantManagement.Areas.Customer.Controllers
             _context = context;
         }
 
-        private int GetCustomerId()
+        private int? GetCustomerIdFromClaims()
         {
-            var username = User.Identity.Name;
-            return _context.Customers.FirstOrDefault(c => c.Username == username)?.CustomerId ?? 0;
+            var customerIdStr = User.FindFirst("CustomerId")?.Value;
+            return int.TryParse(customerIdStr, out var id) ? id : null;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            var customerId = GetCustomerId();
+            var customerId = GetCustomerIdFromClaims();
+            if (customerId == null) return Unauthorized();
+
             var feedbacks = _context.Feedbacks
                 .Include(f => f.Reply)
                 .Include(f => f.Order)
-                .Where(f => f.Order.CustomerId == customerId)  // Sửa thành kiểm tra qua Order.CustomerId
+                .Where(f => f.Order.CustomerId == customerId)
                 .OrderByDescending(f => f.FeedbackId)
                 .ToList();
 
@@ -48,9 +50,9 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         [HttpPost]
         public IActionResult Create(int orderId, string content, int rating)
         {
-            var customerId = GetCustomerId();
+            var customerId = GetCustomerIdFromClaims();
+            if (customerId == null) return Unauthorized();
 
-            // Kiểm tra order thuộc khách
             var order = _context.Orders.FirstOrDefault(o => o.OrderId == orderId && o.CustomerId == customerId);
             if (order == null)
             {
@@ -82,7 +84,9 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            var customerId = GetCustomerId();
+            var customerId = GetCustomerIdFromClaims();
+            if (customerId == null) return Unauthorized();
+
             var feedback = _context.Feedbacks
                 .Include(f => f.Reply)
                 .Include(f => f.Order)
@@ -99,7 +103,9 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         [HttpPost]
         public IActionResult Edit(int id, string content, int rating)
         {
-            var customerId = GetCustomerId();
+            var customerId = GetCustomerIdFromClaims();
+            if (customerId == null) return Unauthorized();
+
             var feedback = _context.Feedbacks
                 .Include(f => f.Reply)
                 .Include(f => f.Order)
@@ -127,7 +133,9 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         [HttpPost]
         public IActionResult Delete(int id)
         {
-            var customerId = GetCustomerId();
+            var customerId = GetCustomerIdFromClaims();
+            if (customerId == null) return Unauthorized();
+
             var feedback = _context.Feedbacks
                 .Include(f => f.Reply)
                 .Include(f => f.Order)

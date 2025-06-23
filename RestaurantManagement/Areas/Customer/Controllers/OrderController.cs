@@ -20,8 +20,8 @@ namespace RestaurantManagement.Areas.Customer.Controllers
 
         private int GetCustomerId()
         {
-            var username = User.Identity.Name;
-            return _context.Customers.FirstOrDefault(c => c.Username == username)?.CustomerId ?? 0;
+            var idStr = User.FindFirst("CustomerId")?.Value;
+            return int.TryParse(idStr, out var id) ? id : 0;
         }
 
         public IActionResult Index(string statusFilter, DateTime? fromDate, DateTime? toDate)
@@ -33,20 +33,17 @@ namespace RestaurantManagement.Areas.Customer.Controllers
                 .Where(o => o.CustomerId == customerId)
                 .AsQueryable();
 
-            if (!string.IsNullOrEmpty(statusFilter) && Enum.TryParse<OrderStatus>(statusFilter, out var status))
+            if (!string.IsNullOrEmpty(statusFilter) &&
+                Enum.TryParse<OrderStatus>(statusFilter, out var status))
             {
                 orders = orders.Where(o => o.Status == status);
             }
 
             if (fromDate.HasValue)
-            {
                 orders = orders.Where(o => o.OrderTime >= fromDate.Value);
-            }
 
             if (toDate.HasValue)
-            {
                 orders = orders.Where(o => o.OrderTime <= toDate.Value);
-            }
 
             return View(orders.OrderByDescending(o => o.OrderTime).ToList());
         }
@@ -64,9 +61,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
 
             var feedback = _context.Feedbacks
                 .Include(f => f.Reply)
-                .Include(f => f.Order)
-                .FirstOrDefault(f => f.Order.CustomerId == customerId && f.OrderId == id);
-
+                .FirstOrDefault(f => f.OrderId == id);
 
             ViewBag.Feedback = feedback;
             return View(order);

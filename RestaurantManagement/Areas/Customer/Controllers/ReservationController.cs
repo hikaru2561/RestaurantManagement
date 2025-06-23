@@ -20,10 +20,11 @@ namespace RestaurantManagement.Areas.Customer.Controllers
             _context = context;
         }
 
+        // ✅ Lấy CustomerId từ Claim thay vì Username
         private int GetCustomerId()
         {
-            var username = User.FindFirst(ClaimTypes.Name)?.Value;
-            return _context.Customers.FirstOrDefault(c => c.Username == username)?.CustomerId ?? 0;
+            var customerIdStr = User.FindFirst("CustomerId")?.Value;
+            return int.TryParse(customerIdStr, out int id) ? id : 0;
         }
 
         [HttpGet]
@@ -44,13 +45,12 @@ namespace RestaurantManagement.Areas.Customer.Controllers
                     _context.Reservations.Add(reservation);
                     _context.SaveChanges();
 
-                    
                     var customer = _context.Customers.Find(reservation.CustomerId);
                     NotificationHelper.AddNotification(
                         _context,
                         "Đặt bàn mới",
                         $"Khách hàng {customer?.Name} đã đặt bàn {reservation.TableId} vào {reservation.ReservationTime:dd/MM/yyyy HH:mm}.",
-                        "admin", // bạn có thể thay bằng username Admin nếu cần
+                        "admin",
                         "Admin"
                     );
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RestaurantManagement.Areas.Staff.Models;
 using RestaurantManagement.Data;
 using RestaurantManagement.Models;
 using System.Security.Claims;
@@ -12,84 +13,99 @@ namespace RestaurantManagement.Areas.Staff.Controllers
     public class ProfileController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly IWebHostEnvironment _env;
 
-        public ProfileController(ApplicationDbContext context, IWebHostEnvironment env)
+        public ProfileController(ApplicationDbContext context)
         {
             _context = context;
-            _env = env;
         }
 
-        private Staffs? GetCurrentStaff()
+        private int? GetStaffIdFromClaims()
         {
             var username = User.FindFirstValue(ClaimTypes.Name);
-            return _context.Staffs.FirstOrDefault(s => s.Username == username);
+            return _context.Staffs.FirstOrDefault(s => s.Username == username)?.StaffId;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var staff = GetCurrentStaff();
-            if (staff == null) return Unauthorized();
+            var staffId = GetStaffIdFromClaims();
+            if (staffId == null) return Unauthorized();
+
+            var staff = await _context.Staffs.FindAsync(staffId);
+            if (staff == null) return NotFound();
+
             return View(staff);
         }
 
-        public IActionResult Edit()
+
+        [HttpGet]
+        public async Task<IActionResult> Edit()
         {
-            var staff = GetCurrentStaff();
-            if (staff == null) return Unauthorized();
-            return View(staff);
+            var staffId = GetStaffIdFromClaims();
+            if (staffId == null) return Unauthorized();
+
+            var staff = await _context.Staffs.FindAsync(staffId);
+            if (staff == null) return NotFound();
+
+            var vm = new EditProfileViewModel
+            {
+                StaffId = staff.StaffId,
+                Name = staff.Name,
+                Phone = staff.Phone
+            };
+
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int StaffId, Staffs model, IFormFile? imageFile)
+        public async Task<IActionResult> Edit(EditProfileViewModel model)
         {
-            var staff = await _context.Staffs.FindAsync(StaffId);
-            if (staff == null) return NotFound();
-
-            if (ModelState.IsValid)
+            var staffId = GetStaffIdFromClaims();
+            if (staffId == null || staffId != model.StaffId)
             {
-                try
-                {
-                    // Cập nhật chỉ các trường được phép sửa
-                    staff.Name = model.Name;
-                    staff.Phone = model.Phone;
-
-                    if (imageFile != null && imageFile.Length > 0)
-                    {
-                        var ext = Path.GetExtension(imageFile.FileName);
-                        var fileName = $"{staff.StaffId}{ext}";
-                        var folder = Path.Combine(_env.WebRootPath, "images", "Staffs");
-                        Directory.CreateDirectory(folder);
-                        var path = Path.Combine(folder, fileName);
-
-                        using (var stream = new FileStream(path, FileMode.Create))
-                        {
-                            await imageFile.CopyToAsync(stream);
-                        }
-
-                        staff.ImagePath = fileName;
-                    }
-
-                    // Không cập nhật các trường khác (Username, Role, v.v...)
-
-                    _context.Update(staff);
-                    await _context.SaveChangesAsync();
-
-                    TempData["Success"] = "Cập nhật thông tin thành công!";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Staffs.Any(e => e.StaffId == model.StaffId))
-                        return NotFound();
-                    else
-                        throw;
-                }
+                TempData["Error"] = "Không hợp lệ.";
+                return RedirectToAction(nameof(Index));
             }
 
-            TempData["Error"] = "Dữ liệu không hợp lệ.";
-            return View(model);
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Dữ liệu không hợp lệ.";
+                return View(model); // trả lại view cùng dữ liệu người dùng nhập
+            }
+
+            var staff = await _context.Staffs.FindAsync(model.StaffId);
+            if (staff == null)
+            {
+                TempData["Error"] = "Không tìm thấy nhân viên.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            bool hasChanges = false;
+
+            if (staff.Name != model.Name)
+            {
+                staff.Name = model.Name;
+                hasChanges = true;
+            }
+
+            if (staff.Phone != model.Phone)
+            {
+                staff.Phone = model.Phone;
+                hasChanges = true;
+            }
+
+            if (hasChanges)
+            {
+                _context.Update(staff);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Thông tin đã được cập nhật.";
+            }
+            else
+            {
+                TempData["Success"] = "Không có thay đổi nào.";
+            }
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

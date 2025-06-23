@@ -4,7 +4,8 @@
     Layout = "_CustomerLayout";
 }
 
-<h3>Thông tin tài khoản</h3>
+<h2 class="mb-4">Thông tin tài khoản</h2>
+
 <table class="table table-bordered">
     <tr>
         <th>Họ tên</th>
@@ -19,15 +20,15 @@
         <td>@Model.Phone</td>
     </tr>
     <tr>
-        <th>VIP</th>
+        <th>Hạng khách</th>
         <td>
             @if (Model.IsVIP)
             {
-                <span class="badge bg-warning text-dark">Khách VIP</span>
+                <span class="badge bg-warning text-dark">VIP</span>
             }
             else
             {
-                <span class="text-muted">Bình thường</span>
+                <span class="text-muted">Thường</span>
             }
         </td>
     </tr>

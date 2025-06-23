@@ -19,16 +19,17 @@ namespace RestaurantManagement.Areas.Customer.Controllers
             _context = context;
         }
 
-        private int GetCustomerId()
+        private int? GetCustomerIdFromClaims()
         {
-            var username = User.Identity?.Name;
-            var customer = _context.Customers.FirstOrDefault(c => c.Username == username);
-            return customer?.CustomerId ?? 0;
+            var customerIdStr = User.FindFirst("CustomerId")?.Value;
+            return int.TryParse(customerIdStr, out var id) ? id : null;
         }
 
         public async Task<IActionResult> Index()
         {
-            var customerId = GetCustomerId();
+            var customerId = GetCustomerIdFromClaims();
+            if (customerId == null) return Unauthorized();
+
             var orders = await _context.Orders
                 .Include(o => o.Payment)
                 .Include(o => o.Table)

@@ -22,14 +22,19 @@
         @foreach (var fb in Model)
         {
             <tr>
-                <td>@fb.Order.Customer.Name</td>
-                <td>@fb.Order?.OrderId</td>
+                <td>@fb.Order?.Customer?.Name ?? "(Không rõ)"</td>
+                <td>#@fb.Order?.OrderId</td>
                 <td>@fb.Rating / 5</td>
                 <td>@fb.Content</td>
                 <td>
                     @if (!string.IsNullOrEmpty(fb.ImagePath))
                     {
-                        <img src="~/images/feedback/@fb.ImagePath" alt="Ảnh" width="100" />
+                        <img src="~/images/feedback/@fb.ImagePath" alt="Ảnh" width="100"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/100x100?text=No+Image';" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">Không có</span>
                     }
                 </td>
                 <td>
@@ -43,7 +48,7 @@
                     }
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@fb.FeedbackId" class="btn btn-info btn-sm">Xem</a>
+                    <a asp-action="Details" asp-route-id="@fb.FeedbackId" class="btn btn-sm btn-outline-info">Xem</a>
                 </td>
             </tr>
         }
