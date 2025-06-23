@@ -9,7 +9,7 @@ namespace RestaurantManagement.Models
         [Required]
         public string Name { get; set; }
 
-        public int Quantity { get; set; }
+        public float Quantity { get; set; }
 
         public string Unit { get; set; }
 

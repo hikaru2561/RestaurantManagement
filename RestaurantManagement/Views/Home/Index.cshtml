@@ -3,42 +3,45 @@
     Layout = "_Layout";
 }
 
-<div class="hero bg-dark text-white text-center py-5" style="background-image: url('/images/restaurant-hero.jpg'); background-size: cover;">
+<!-- Hero Section -->
+<div class="text-white text-center py-5" style="background: linear-gradient(to right, #1f2d3d, #3c4f68); background-size: cover;">
     <div class="container">
-        <h1 class="display-4 fw-bold">Chào mừng đến với Nhà hàng Gourmet Palace</h1>
-        <p class="lead">Ẩm thực tinh tế - Phục vụ đẳng cấp - Trải nghiệm tuyệt vời</p>
-        <a href="@Url.Action("Index", "Reservation", new { area = "Customer" })" class="btn btn-warning btn-lg mt-3">Đặt bàn ngay</a>
+        <h1 class="display-4 fw-bold">Chào mừng đến với <span class="text-warning">Gourmet Palace</span></h1>
+        <p class="lead">Nơi kết hợp giữa tinh hoa ẩm thực và phong cách phục vụ đỉnh cao</p>
+        <a href="@Url.Action("RedirectToCustomerDashboard", "Home")" class="btn btn-warning btn-lg mt-3">Đặt bàn ngay</a>
     </div>
 </div>
 
-<div class="container mt-5">
-    <div class="row text-center mb-4">
+<!-- Why Choose Us -->
+<div class="container my-5">
+    <div class="text-center mb-5">
         <h2 class="fw-bold">Vì sao chọn chúng tôi?</h2>
-        <p class="text-muted">Trải nghiệm ẩm thực đáng nhớ với những tiện ích và dịch vụ hàng đầu</p>
+        <p class="text-muted">Chúng tôi mang đến không chỉ là món ăn mà là một trải nghiệm</p>
     </div>
     <div class="row text-center g-4">
         <div class="col-md-4">
             <i class="bi bi-star-fill text-warning display-4 mb-3"></i>
-            <h4>Đầu bếp chuyên nghiệp</h4>
-            <p>Đội ngũ đầu bếp hơn 10 năm kinh nghiệm, mang đến hương vị tuyệt vời và độc đáo.</p>
+            <h5>Đầu bếp đỉnh cao</h5>
+            <p>Hơn 10 năm kinh nghiệm trong lĩnh vực ẩm thực quốc tế.</p>
         </div>
         <div class="col-md-4">
-            <i class="bi bi-clock-fill text-primary display-4 mb-3"></i>
-            <h4>Phục vụ nhanh chóng</h4>
-            <p>Quy trình phục vụ tối ưu giúp món ăn đến bàn bạn nhanh nhất có thể.</p>
+            <i class="bi bi-clock-fill text-info display-4 mb-3"></i>
+            <h5>Phục vụ nhanh chóng</h5>
+            <p>Quy trình tối ưu, rút ngắn thời gian chờ đợi của bạn.</p>
         </div>
         <div class="col-md-4">
-            <i class="bi bi-emoji-heart-eyes-fill text-danger display-4 mb-3"></i>
-            <h4>Không gian sang trọng</h4>
-            <p>Thiết kế hiện đại, ấm cúng, phù hợp cho gia đình, tiệc tùng và hội họp.</p>
+            <i class="bi bi-emoji-smile-fill text-danger display-4 mb-3"></i>
+            <h5>Không gian đẳng cấp</h5>
+            <p>Thiết kế tinh tế, hiện đại, tạo cảm giác thoải mái như ở nhà.</p>
         </div>
     </div>
 </div>
 
-<div class="bg-light py-5 mt-5">
+<!-- Call to Action -->
+<div class="bg-warning text-dark py-5">
     <div class="container text-center">
-        <h3 class="fw-bold">Đặt bàn trực tuyến dễ dàng</h3>
-        <p>Chỉ với vài cú click, bạn đã có chỗ ngồi lý tưởng tại nhà hàng của chúng tôi.</p>
-        <a class="btn btn-outline-dark" asp-area="Customer" asp-controller="Reservation" asp-action="Index">Đặt bàn ngay</a>
+        <h3 class="fw-bold">Đặt bàn chỉ trong vài giây</h3>
+        <p>Gourmet Palace luôn sẵn sàng phục vụ bạn và người thân!</p>
+        <a class="btn btn-dark" href="@Url.Action("RedirectToCustomerDashboard", "Home")">Đặt bàn ngay</a>
     </div>
 </div>

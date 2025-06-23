@@ -1,23 +1,15 @@
 ﻿@model RestaurantManagement.Models.Customer
 @{
     ViewData["Title"] = "Xoá khách hàng";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    Layout = "_AdminLayout";
 }
 
-@if (User.IsInRole("Admin"))
-{
-    <h2>Xác nhận xoá</h2>
-    <div class="alert alert-danger">
-        Bạn có chắc chắn muốn xoá khách hàng: <strong>@Model.Name</strong>?
-    </div>
+<h2 class="text-danger">⚠️ Xác nhận xoá khách hàng</h2>
 
-    <form asp-area="Admin" asp-controller="Customer" asp-action="Delete" method="post">
-        <input type="hidden" asp-for="CustomerId" />
-        <button type="submit" class="btn btn-danger">Xoá</button>
-        <a asp-area="Admin" asp-controller="Customer" asp-action="Index" class="btn btn-secondary">Huỷ</a>
-    </form>
-}
-else
-{
-    <div class="alert alert-danger">Bạn không có quyền truy cập trang này.</div>
-}
+<div class="alert alert-warning">Bạn có chắc chắn muốn xoá khách hàng <strong>@Model.Name</strong> không?</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="CustomerId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-action="Index" class="btn btn-secondary">Huỷ</a>
+</form>

@@ -11,7 +11,7 @@ namespace RestaurantManagement.Models
         public int InventoryItemId { get; set; }
 
         [Required]
-        public int Quantity { get; set; }
+        public float Quantity { get; set; }
 
         [Required]
         public string Type { get; set; } // Nhập / Xuất / Huỷ

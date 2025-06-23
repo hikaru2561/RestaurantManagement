@@ -28,7 +28,6 @@
     <Folder Include="Areas\Customer\Models\" />
     <Folder Include="Areas\Staff\Data\" />
     <Folder Include="Data\" />
-    <Folder Include="wwwroot\css\" />
     <Folder Include="wwwroot\images\" />
     <Folder Include="wwwroot\images\MenuItem\" />
     <Folder Include="wwwroot\images\InventoryItem\" />

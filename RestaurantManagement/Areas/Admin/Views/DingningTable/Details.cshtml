@@ -1,0 +1,38 @@
+﻿@model RestaurantManagement.Models.DingningTable
+@{
+    ViewData["Title"] = "Chi tiết bàn";
+    Layout = "_AdminLayout";
+}
+
+<h2 class="mb-4">📋 Chi tiết bàn: @Model.Name</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Tên bàn</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Sức chứa</dt>
+    <dd class="col-sm-9">@Model.Capacity</dd>
+
+    <dt class="col-sm-3">VIP</dt>
+    <dd class="col-sm-9">@((Model.IsVIP) ? "Có" : "Không")</dd>
+
+    <dt class="col-sm-3">Trạng thái</dt>
+    <dd class="col-sm-9">
+        @{
+            var status = Model.Status switch
+            {
+                TableStatus.Available => "Trống",
+                TableStatus.InUse => "Đang sử dụng",
+                TableStatus.Reserved => "Đã đặt",
+                _ => "Không rõ"
+            };
+        }
+        @status
+    </dd>
+</dl>
+
+<div class="d-flex gap-2 mt-3">
+    <a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.DingningTableId" class="btn btn-warning">Sửa</a>
+    <a asp-area="Admin" asp-action="Delete" asp-route-id="@Model.DingningTableId" class="btn btn-danger">Xoá</a>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</div>

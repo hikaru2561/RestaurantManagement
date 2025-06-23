@@ -1,0 +1,26 @@
+﻿@model RestaurantManagement.Models.DingningTable
+@{
+    ViewData["Title"] = "Xác nhận xoá bàn";
+    Layout = "_AdminLayout";
+}
+
+<h2 class="mb-4 text-danger">🗑️ Xoá bàn: @Model.Name</h2>
+
+<p>Bạn có chắc chắn muốn xoá bàn <strong>@Model.Name</strong> không?</p>
+
+<dl class="row">
+    <dt class="col-sm-3">Sức chứa</dt>
+    <dd class="col-sm-9">@Model.Capacity</dd>
+
+    <dt class="col-sm-3">Trạng thái</dt>
+    <dd class="col-sm-9">@Model.Status</dd>
+
+    <dt class="col-sm-3">VIP</dt>
+    <dd class="col-sm-9">@((Model.IsVIP) ? "Có" : "Không")</dd>
+</dl>
+
+<form asp-area="Admin" asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="DingningTableId" />
+    <button type="submit" class="btn btn-danger">Xoá</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
+</form>

@@ -4,46 +4,61 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Chỉnh sửa món ăn</h2>
+<h2 class="fw-bold mb-4">🛠️ Chỉnh sửa món ăn</h2>
 
-<form asp-area="Admin" asp-action="Edit" method="post" enctype="multipart/form-data">
-    <input type="hidden" asp-for="MenuItemId" />
-    <input type="hidden" asp-for="MenuCategoryId" />
-    <input type="hidden" asp-for="ImagePath" />
+<div class="card shadow-sm p-4">
+    <form asp-area="Admin" asp-action="Edit" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="MenuItemId" />
+        <input type="hidden" asp-for="MenuCategoryId" />
+        <input type="hidden" asp-for="ImagePath" />
 
-    <div class="mb-3">
-        <label class="form-label">Tên món</label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Tên món</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Giá</label>
-        <input asp-for="Price" class="form-control" />
-        <span asp-validation-for="Price" class="text-danger"></span>
-    </div>
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label">Giá</label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger small"></span>
+                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Trạng thái</label>
-        <select asp-for="Status" class="form-control">
-            <option value="true">Còn bán</option>
-            <option value="false">Ngừng bán</option>
-        </select>
-    </div>
+                <div class="mb-3">
+                    <label asp-for="Status" class="form-label">Trạng thái</label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="true">Còn bán</option>
+                        <option value="false">Ngừng bán</option>
+                    </select>
+                </div>
 
-    <div class="mb-3">
-        <label class="form-label">Ảnh mới (nếu muốn thay)</label>
-        <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)" />
-    </div>
+                <div class="mb-3">
+                    <label class="form-label">Ảnh mới (nếu muốn thay)</label>
+                    <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)" />
+                </div>
+            </div>
 
-    <div class="mb-3">
-        <label class="form-label">Ảnh hiển thị:</label><br />
-        <img id="previewImg" src="~/images/MenuItem/@Model.ImagePath" width="150" />
-    </div>
+            <div class="col-md-6 d-flex align-items-center justify-content-center">
+                <div class="text-center">
+                    <label class="form-label">Ảnh hiển thị hiện tại:</label><br />
+                    <img id="previewImg" src="~/images/MenuItem/@Model.ImagePath?v=@DateTime.Now.Ticks"
+                         class="img-thumbnail mt-2 shadow-sm" style="max-height: 250px;" />
+                </div>
+            </div>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-    <a asp-area="Admin" asp-controller="Menu" asp-action="Items" asp-route-id="@ViewBag.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
-</form>
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Lưu thay đổi
+            </button>
+            <a asp-area="Admin" asp-controller="MenuItem" asp-action="Details" asp-route-id="@Model.MenuItemId" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <script>
