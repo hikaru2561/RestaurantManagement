@@ -31,9 +31,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         public IActionResult Create()
         {
             ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name");
-            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name");
-            ViewBag.Customers = new SelectList(_context.Customers
-    .Select(c => new { c.CustomerId, Name = c.Name + " - " + c.Phone }), "CustomerId", "Name");
+            ViewBag.Tables = new SelectList(_context.DingningTables, "DingningTableId", "Name");
             return View();
         }
 
@@ -45,43 +43,78 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             {
                 _context.Add(reservation);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã đặt bàn thành công!";
+                TempData["Success"] = "Tạo đặt bàn thành công.";
                 return RedirectToAction(nameof(Index));
             }
 
             ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name", reservation.CustomerId);
-            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.DingningTableId);
+            ViewBag.Tables = new SelectList(_context.DingningTables, "DingningTableId", "Name", reservation.DingningTableId);
+            TempData["Error"] = "Tạo đặt bàn thất bại. Vui lòng kiểm tra lại.";
             return View(reservation);
         }
 
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int? id)
         {
-            var reservation = await _context.Reservations.FindAsync(id);
-            if (reservation == null) return NotFound();
+            if (id == null)
+            {
+                TempData["Error"] = "Không tìm thấy đặt bàn.";
+                return RedirectToAction(nameof(Index));
+            }
 
-            ViewBag.Customers = new SelectList(_context.Customers
-      .Select(c => new { c.CustomerId, Name = c.Name + " - " + c.Phone }), "CustomerId", "Name");
-            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.DingningTableId);
+            var reservation = await _context.Reservations
+                .Include(r => r.Customer)
+                .Include(r => r.DingningTable)
+                .FirstOrDefaultAsync(r => r.ReservationId == id);
 
+            if (reservation == null)
+            {
+                TempData["Error"] = "Không tìm thấy đặt bàn.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name", reservation.CustomerId);
+            ViewBag.Tables = new SelectList(_context.DingningTables, "DingningTableId", "Name", reservation.DingningTableId);
             return View(reservation);
         }
 
+        // POST: Admin/Reservation/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Reservation reservation)
         {
-            if (id != reservation.ReservationId) return NotFound();
-
-            if (ModelState.IsValid)
+            if (id != reservation.ReservationId)
             {
-                _context.Update(reservation);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Cập nhật đặt bàn thành công!";
+                TempData["Error"] = "Dữ liệu không hợp lệ.";
                 return RedirectToAction(nameof(Index));
             }
 
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(reservation);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Cập nhật đặt bàn thành công.";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_context.Reservations.Any(e => e.ReservationId == reservation.ReservationId))
+                    {
+                        TempData["Error"] = "Đặt bàn không tồn tại.";
+                        return RedirectToAction(nameof(Index));
+                    }
+                    else
+                    {
+                        TempData["Error"] = "Đã xảy ra lỗi khi cập nhật.";
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Nếu ModelState không hợp lệ, load lại danh sách
             ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name", reservation.CustomerId);
-            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.DingningTableId);
+            ViewBag.Tables = new SelectList(_context.DingningTables, "DingningTableId", "Name", reservation.DingningTableId);
             return View(reservation);
         }
 

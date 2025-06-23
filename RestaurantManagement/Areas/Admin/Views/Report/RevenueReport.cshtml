@@ -1,69 +1,26 @@
 ﻿@{
-    ViewData["Title"] = "Báo cáo doanh thu theo ngày";
+    ViewData["Title"] = "Báo cáo doanh thu";
     Layout = "_AdminLayout";
 }
 
-<h2>Báo cáo doanh thu (Line Chart)</h2>
+<h2 class="mb-4">📈 Báo cáo doanh thu</h2>
 
-<form method="get" class="row g-3 mb-4">
-    <div class="col-md-3">
-        <label>Ngày bắt đầu</label>
-        <input type="date" name="from" class="form-control" value="@ViewBag.From" />
-    </div>
-    <div class="col-md-3">
-        <label>Ngày kết thúc</label>
-        <input type="date" name="to" class="form-control" value="@ViewBag.To" />
-    </div>
-    <div class="col-md-3 align-self-end">
-        <button type="submit" class="btn btn-primary">Lọc</button>
-    </div>
-    <div class="col-md-3 align-self-end text-end">
-        <a asp-area="Admin" asp-action="ExportRevenue" asp-route-from="@ViewBag.From" asp-route-to="@ViewBag.To" class="btn btn-success">📤 Xuất CSV</a>
-    </div>
-</form>
-
-<canvas id="lineChart" height="100"></canvas>
-
-<h5 class="mt-4">Tổng doanh thu: <strong>@ViewBag.Total.ToString("N0") VNĐ</strong></h5>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('lineChart').getContext('2d');
-    const labels = @Html.Raw(Json.Serialize(ViewBag.Labels));
-    const data = @Html.Raw(Json.Serialize(ViewBag.Data));
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Doanh thu (VNĐ)',
-                data: data,
-                fill: true,
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'top' },
-                title: {
-                    display: true,
-                    text: 'Biểu đồ doanh thu theo ngày'
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('vi-VN') + ' VNĐ';
-                        }
-                    }
-                }
-            }
+<table class="table table-bordered text-center">
+    <thead class="table-light">
+        <tr>
+            <th>Ngày</th>
+            <th>Số đơn</th>
+            <th>Doanh thu (VNĐ)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in (List<(DateTime Date, int Count, decimal Revenue)>)ViewBag.Report)
+        {
+            <tr>
+                <td>@item.Date.ToString("dd/MM/yyyy")</td>
+                <td>@item.Count</td>
+                <td>@item.Revenue.ToString("N0")</td>
+            </tr>
         }
-    });
-</script>
+    </tbody>
+</table>

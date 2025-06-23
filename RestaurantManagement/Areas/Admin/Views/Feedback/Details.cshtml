@@ -1,43 +1,41 @@
 ﻿@model RestaurantManagement.Models.Feedback
-
 @{
     ViewData["Title"] = "Chi tiết phản hồi";
     Layout = "_AdminLayout";
 }
 
-<h3>Chi tiết phản hồi từ khách hàng: @Model.Order.Customer.Name</h3>
+<h2 class="mb-4">Chi tiết phản hồi</h2>
 
-<div class="card mb-3">
+<div class="card mb-4">
     <div class="card-body">
-        <p><strong>Đánh giá:</strong> @Model.Rating / 5</p>
-        <p><strong>Nội dung phản hồi:</strong> @Model.Content</p>
+        <h5 class="card-title">Thông tin khách hàng</h5>
+        <p><strong>Họ tên:</strong> @Model.Order.Customer?.Name</p>
+        <p><strong>Đơn hàng:</strong> #@Model.Order?.OrderId</p>
+        <p><strong>Thời gian đặt:</strong> @Model.Order.OrderTime.ToString("HH:mm dd/MM/yyyy")</p>
+    </div>
+</div>
 
-        @if (!string.IsNullOrEmpty(Model.ImagePath))
-        {
-            <img src="~/images/feedback/@Model.ImagePath" width="300" />
-        }
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">Nội dung phản hồi</h5>
+        <p><strong>Đánh giá:</strong> <span class="text-warning">@Model.Rating / 5 ⭐</span></p>
+        <p><strong>Nội dung:</strong> @Model.Content</p>
     </div>
 </div>
 
 @if (Model.Reply != null)
 {
-    <div class="card border-success mt-4">
-        <div class="card-header bg-success text-white">Đã phản hồi</div>
+    <div class="card mb-4 border-success">
         <div class="card-body">
+            <h5 class="card-title text-success">Phản hồi của quản lý</h5>
             <p>@Model.Reply.Content</p>
-            <small class="text-muted">Thời gian: @Model.Reply.RepliedAt.ToString("HH:mm dd/MM/yyyy")</small>
+            <p><small class="text-muted">Trả lời lúc: @Model.Reply.RepliedAt.ToString("HH:mm dd/MM/yyyy")</small></p>
         </div>
     </div>
 }
 else
 {
-    <form asp-action="Reply" method="post" class="mt-4">
-        <input type="hidden" name="feedbackId" value="@Model.FeedbackId" />
-        <div class="mb-3">
-            <label for="content" class="form-label">Nội dung phản hồi</label>
-            <textarea name="content" class="form-control" required rows="4"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
-        <a asp-action="Index" class="btn btn-secondary ms-2">Quay lại</a>
-    </form>
+    <a asp-action="Reply" asp-route-id="@Model.FeedbackId" class="btn btn-primary">Trả lời phản hồi</a>
 }
+
+<a asp-action="Index" class="btn btn-secondary">← Quay lại</a>

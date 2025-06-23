@@ -5,30 +5,57 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Thêm nguyên liệu</h2>
+<h2 class="mb-4">➕ Thêm nguyên liệu</h2>
 
-<form asp-area="Admin" asp-action="Create" enctype="multipart/form-data">
-    <div class="form-group">
-        <label asp-for="Name"></label>
+<form asp-area="Admin" asp-action="Create" enctype="multipart/form-data" method="post">
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Tên nguyên liệu</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Quantity"></label>
+    <div class="mb-3">
+        <label asp-for="Quantity" class="form-label">Số lượng ban đầu</label>
         <input asp-for="Quantity" class="form-control" />
+        <span asp-validation-for="Quantity" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Unit"></label>
+    <div class="mb-3">
+        <label asp-for="Unit" class="form-label">Đơn vị</label>
         <input asp-for="Unit" class="form-control" />
+        <span asp-validation-for="Unit" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label>Ảnh</label>
-        <input type="file" name="image" class="form-control-file" />
+    <div class="mb-3">
+        <label class="form-label">Ảnh nguyên liệu (tuỳ chọn)</label>
+        <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(this)" />
     </div>
 
-    <button type="submit" class="btn btn-success">Lưu</button>
-    <a asp-area="Admin" asp-action="Index" class="btn btn-light">← Quay lại</a>
+    <div class="mb-4">
+        <label class="form-label">Xem trước ảnh:</label><br />
+        <img id="previewImg" src="#" alt="Ảnh nguyên liệu" class="img-thumbnail" style="display:none; max-height:150px;" />
+    </div>
+
+    <button type="submit" class="btn btn-success">💾 Lưu</button>
+    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">← Quay lại</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('previewImg');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+    </script>
+}

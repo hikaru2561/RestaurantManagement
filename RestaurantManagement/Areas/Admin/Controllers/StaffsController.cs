@@ -101,56 +101,82 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             return View(staff);
         }
 
-        // GET: Staffs/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: Admin/Staffs/Edit/5
+        public IActionResult Edit(int id)
         {
-            if (id == null) return NotFound();
-
-            var staff = await _context.Staffs.FindAsync(id);
-            if (staff == null) return NotFound();
-
+            var staff = _context.Staffs.FirstOrDefault(s => s.StaffId == id);
+            if (staff == null)
+            {
+                TempData["Error"] = "Không tìm thấy nhân viên.";
+                return RedirectToAction("Index");
+            }
             return View(staff);
         }
 
-        // POST: Staffs/Edit/5
+        // POST: Admin/Staffs/Edit/5
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, Staffs staff, IFormFile imageFile)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Staffs model, IFormFile? imageFile)
         {
-            if (id != staff.StaffId) return NotFound();
+            var staff = _context.Staffs.FirstOrDefault(s => s.StaffId == model.StaffId);
+            if (staff == null)
+            {
+                TempData["Error"] = "Không tìm thấy nhân viên cần cập nhật.";
+                return RedirectToAction("Index");
+            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Cập nhật thông tin cơ bản
+                    staff.Name = model.Name;
+                    staff.Phone = model.Phone;
+                    staff.Username = model.Username;
+
+                    // Nếu có ảnh mới
                     if (imageFile != null && imageFile.Length > 0)
                     {
                         var ext = Path.GetExtension(imageFile.FileName);
                         var fileName = $"{staff.StaffId}{ext}";
                         var folder = Path.Combine(_env.WebRootPath, "images", "Staffs");
                         Directory.CreateDirectory(folder);
-                        var path = Path.Combine(folder, fileName);
-                        using (var stream = new FileStream(path, FileMode.Create))
+
+                        // Xoá ảnh cũ nếu tồn tại
+                        if (!string.IsNullOrEmpty(staff.ImagePath))
+                        {
+                            var oldImagePath = Path.Combine(folder, staff.ImagePath);
+                            if (System.IO.File.Exists(oldImagePath))
+                                System.IO.File.Delete(oldImagePath);
+                        }
+
+                        // Lưu ảnh mới
+                        var fullPath = Path.Combine(folder, fileName);
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
                         {
                             await imageFile.CopyToAsync(stream);
                         }
+
+                        // Cập nhật đường dẫn ảnh
                         staff.ImagePath = fileName;
                     }
 
-                    _context.Update(staff);
+                    _context.Staffs.Update(staff);
                     await _context.SaveChangesAsync();
+
                     TempData["Success"] = "Cập nhật nhân viên thành công!";
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!_context.Staffs.Any(e => e.StaffId == id))
-                        return NotFound();
-                    else
-                        throw;
+                    TempData["Error"] = $"Đã xảy ra lỗi khi cập nhật: {ex.Message}";
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(staff);
+
+            return View(model);
         }
+
+
 
         // GET: Staffs/Delete/5
         public async Task<IActionResult> Delete(int? id)

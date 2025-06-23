@@ -17,17 +17,25 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int? rating, string status)
         {
             var feedbacks = _context.Feedbacks
-                .Include(f => f.Order)
-                    .ThenInclude(o => o.Customer) // load Customer qua Order
+                .Include(f => f.Order).ThenInclude(o => o.Customer)
                 .Include(f => f.Reply)
-                .OrderByDescending(f => f.FeedbackId)
-                .ToList();
+                .AsQueryable();
 
-            return View(feedbacks);
+            if (rating.HasValue)
+                feedbacks = feedbacks.Where(f => f.Rating == rating.Value);
+
+            if (status == "Replied")
+                feedbacks = feedbacks.Where(f => f.Reply != null);
+            else if (status == "Pending")
+                feedbacks = feedbacks.Where(f => f.Reply == null);
+
+            var list = feedbacks.OrderByDescending(f => f.FeedbackId).ToList();
+            return View(list);
         }
+
 
         public IActionResult Details(int id)
         {

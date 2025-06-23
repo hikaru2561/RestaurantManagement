@@ -5,48 +5,72 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Chỉnh sửa nguyên liệu</h2>
+<h2 class="mb-4">✏️ Chỉnh sửa nguyên liệu</h2>
 
 <form asp-area="Admin" asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="InventoryItemId" />
 
-    <div class="form-group">
-        <label asp-for="Name" class="control-label">Tên nguyên liệu</label>
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Tên nguyên liệu</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Quantity" class="control-label">Số lượng</label>
+    <div class="mb-3">
+        <label asp-for="Quantity" class="form-label">Số lượng</label>
         <input asp-for="Quantity" class="form-control" />
         <span asp-validation-for="Quantity" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Unit" class="control-label">Đơn vị</label>
+    <div class="mb-3">
+        <label asp-for="Unit" class="form-label">Đơn vị</label>
         <input asp-for="Unit" class="form-control" />
         <span asp-validation-for="Unit" class="text-danger"></span>
     </div>
 
     @if (!string.IsNullOrEmpty(Model.ImagePath))
     {
-        <div class="form-group">
-            <label>Ảnh hiện tại:</label><br />
-            <img src="@Model.ImagePath" alt="Ảnh nguyên liệu" style="max-height:150px;" />
+        <div class="mb-3">
+            <label class="form-label">Ảnh hiện tại</label><br />
+            <img src="@Model.ImagePath?v=@DateTime.Now.Ticks" alt="Ảnh nguyên liệu"
+                 class="border" style="max-height: 150px;" />
         </div>
     }
 
-    <div class="form-group">
-        <label>Chọn ảnh mới (tuỳ chọn)</label>
-        <input type="file" name="imageFile" class="form-control" />
+    <div class="mb-3">
+        <label class="form-label">Ảnh mới (tuỳ chọn)</label>
+        <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImage(this)" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <div class="mb-3" id="previewContainer" style="display:none;">
+        <label class="form-label">Xem trước ảnh mới:</label><br />
+        <img id="previewImg" style="max-height:150px;" class="border" />
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">💾 Lưu thay đổi</button>
+        <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">← Quay lại</a>
+    </div>
 </form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('previewImg');
+            const container = document.getElementById('previewContainer');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    container.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                container.style.display = 'none';
+                preview.src = '';
+            }
+        }
+    </script>
+    <partial name="_ValidationScriptsPartial" />
 }

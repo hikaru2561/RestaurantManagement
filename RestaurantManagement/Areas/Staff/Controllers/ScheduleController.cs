@@ -31,19 +31,40 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             var staffId = GetStaffId();
             if (staffId == null) return Unauthorized();
 
+            var monday = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (DateTime.Today.DayOfWeek == DayOfWeek.Sunday ? -6 : 1));
+            var sunday = monday.AddDays(6);
+
             var attendances = _context.Attendances
                 .Include(a => a.Shift)
-                .Where(a => a.StaffId == staffId)
-                .OrderByDescending(a => a.Date)
+                .Where(a => a.StaffId == staffId && a.Date >= monday && a.Date <= sunday)
                 .ToList();
+
+            ViewBag.Shifts = _context.Shifts.OrderBy(s => s.StartTime).ToList();
 
             return View(attendances);
         }
 
         // Hiển thị form đăng ký ca làm
-        public IActionResult Register()
+        // GET: Staff/Schedule/Register
+        public IActionResult Register(int weekOffset = 1)
         {
-            ViewBag.Shifts = _context.Shifts.ToList();
+            var staffId = GetStaffId();
+            if (staffId == null) return Unauthorized();
+
+            var startDate = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + 1).AddDays(weekOffset * 7); // Thứ 2 tuần offset
+            var endDate = startDate.AddDays(6);
+
+            ViewBag.WeekStart = startDate;
+            ViewBag.WeekEnd = endDate;
+            ViewBag.Shifts = _context.Shifts.OrderBy(s => s.StartTime).ToList();
+
+            // Lấy các đăng ký hiện tại của nhân viên trong tuần đã chọn
+            var registered = _context.Attendances
+                .Where(a => a.StaffId == staffId && a.Date >= startDate && a.Date <= endDate)
+                .ToList();
+
+            ViewBag.Registered = registered;
+
             return View();
         }
 
@@ -113,13 +134,51 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             if (attendance == null || attendance.Date < DateTime.Today)
             {
                 TempData["Error"] = "Không thể huỷ ca đã diễn ra hoặc không tồn tại.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Register));
             }
 
             _context.Attendances.Remove(attendance);
             _context.SaveChanges();
             TempData["Success"] = "Đã huỷ lịch làm việc.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Register));
         }
+
+        [HttpPost]
+        public IActionResult SendRequest([FromBody] RequestModel model)
+        {
+            var staffId = GetStaffId();
+            if (staffId == null) return Unauthorized();
+
+            var attendance = _context.Attendances
+                .Include(a => a.Staff)
+                .FirstOrDefault(a => a.AttendanceId == model.AttendanceId && a.StaffId == staffId);
+
+            if (attendance == null || !attendance.IsApproved)
+                return Json(new { success = false });
+
+            var username = attendance.Staff?.Username ?? User.Identity.Name;
+
+            var notification = new Notification
+            {
+                Title = $"[YÊU CẦU] Thay đổi ca làm: {attendance.Shift?.Name ?? "Ca"} - {attendance.Date:dd/MM/yyyy}",
+                Content = model.Content,
+                RecipientUsername = "admin", // bạn có thể thay bằng username thật của admin
+                Role = "Admin",
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            };
+
+            _context.Notifications.Add(notification);
+            _context.SaveChanges();
+
+            return Json(new { success = true });
+        }
+
+        public class RequestModel
+        {
+            public int AttendanceId { get; set; }
+            public string Content { get; set; }
+        }
+
     }
 }

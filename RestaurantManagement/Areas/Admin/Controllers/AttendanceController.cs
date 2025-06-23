@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantManagement.Data;
+using RestaurantManagement.Models;
 
 namespace RestaurantManagement.Areas.Admin.Controllers
 {
@@ -16,40 +17,77 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int weekOffset = 0)
         {
-            var nextWeek = DateTime.Today.AddDays(7 - (int)DateTime.Today.DayOfWeek);
-            var endOfWeek = nextWeek.AddDays(6);
+            DateTime today = DateTime.Today;
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)today.DayOfWeek + 7) % 7;
+            var startOfWeek = today.AddDays(-((int)today.DayOfWeek - 1) + weekOffset * 7);
+            var endOfWeek = startOfWeek.AddDays(6);
 
-            var pendingAttendances = _context.Attendances
+            var shifts = _context.Shifts.OrderBy(s => s.StartTime).ToList();
+            var attendances = _context.Attendances
                 .Include(a => a.Staff)
                 .Include(a => a.Shift)
-                .Where(a => !a.IsApproved && a.Date >= nextWeek && a.Date <= endOfWeek)
-                .OrderBy(a => a.Date)
-                .ThenBy(a => a.Shift.StartTime)
+                .Where(a => a.Date >= startOfWeek && a.Date <= endOfWeek)
                 .ToList();
 
-            return View(pendingAttendances);
+            ViewBag.StartOfWeek = startOfWeek;
+            ViewBag.EndOfWeek = endOfWeek;
+            ViewBag.WeekOffset = weekOffset;
+            ViewBag.Shifts = shifts;
+
+            return View(attendances);
         }
 
-        [HttpPost]
-        public IActionResult Approve(List<int> selectedIds)
+        [HttpGet]
+        public IActionResult GetRegistrations(int shiftId, string date)
         {
-            if (selectedIds == null || !selectedIds.Any())
-            {
-                TempData["Error"] = "Không có lịch nào được chọn.";
-                return RedirectToAction(nameof(Index));
-            }
+            if (!DateTime.TryParse(date, out var parsedDate))
+                return BadRequest();
 
-            var records = _context.Attendances.Where(a => selectedIds.Contains(a.AttendanceId)).ToList();
+            var registrations = _context.Attendances
+                .Include(a => a.Staff)
+                .Include(a => a.Shift)
+                .Where(a => a.ShiftId == shiftId && a.Date.Date == parsedDate.Date)
+                .ToList();
 
-            foreach (var a in records)
+            return PartialView("_ApproveModal", registrations); // View này phải nằm đúng path
+        }
+
+
+        [HttpPost]
+        public IActionResult ApproveSelected([FromBody] List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+                return Json(new { success = false, message = "Không có nhân viên nào được chọn." });
+
+            var attendances = _context.Attendances
+                .Where(a => ids.Contains(a.AttendanceId))
+                .ToList();
+
+            foreach (var att in attendances)
             {
-                a.IsApproved = true;
+                att.IsApproved = true;
             }
 
             _context.SaveChanges();
-            TempData["Success"] = "Duyệt lịch làm việc thành công!";
+            return Json(new { success = true });
+        }
+
+
+        [HttpPost]
+        public IActionResult CancelAttendance(int id)
+        {
+            var att = _context.Attendances.Include(a => a.Staff).FirstOrDefault(a => a.AttendanceId == id);
+            if (att == null)
+            {
+                TempData["Error"] = "Không tìm thấy lịch làm việc.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            _context.Attendances.Remove(att);
+            _context.SaveChanges();
+            TempData["Success"] = $"Đã huỷ lịch làm việc cho {att.Staff?.Name} vào {att.Date:dd/MM}.";
             return RedirectToAction(nameof(Index));
         }
     }

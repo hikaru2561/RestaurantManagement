@@ -1,40 +1,98 @@
 ﻿@model IEnumerable<RestaurantManagement.Models.Attendance>
+@using RestaurantManagement.Models
 @{
-    ViewData["Title"] = "Duyệt lịch làm việc tuần sau";
+    ViewData["Title"] = "Duyệt lịch làm việc";
     Layout = "_AdminLayout";
+    var weekStart = (DateTime)ViewBag.StartOfWeek;
+    var weekEnd = (DateTime)ViewBag.EndOfWeek;
+    var shifts = (List<Shift>)ViewBag.Shifts;
+    int offset = (int)ViewBag.WeekOffset;
 }
 
-<h2>Duyệt lịch làm việc tuần sau</h2>
+<h2>Duyệt lịch làm việc (@weekStart:dd/MM - @weekEnd:dd/MM)</h2>
 
-<form asp-action="Approve" method="post">
-    <a class="btn btn-primary" asp-area="Admin" asp-controller="Shift" asp-action="Index">
-        <i class="bi bi-diagram-3-fill me-2"></i> Ca làm
-    </a>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Nhân viên</th>
-                <th>Ngày</th>
-                <th>Ca làm</th>
-                <th>Thời gian</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+<div class="mb-3">
+    <a class="btn btn-secondary" asp-action="Index" asp-route-weekOffset="@(offset - 1)">← Tuần trước</a>
+    <a class="btn btn-primary" asp-action="Index" asp-route-weekOffset="0">Tuần này</a>
+    <a class="btn btn-secondary" asp-action="Index" asp-route-weekOffset="@(offset + 1)">Tuần sau →</a>
+</div>
+
+<table class="table table-bordered table-hover text-center align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Ca làm \ Ngày</th>
+            @for (int i = 0; i < 7; i++)
             {
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="selectedIds" value="@item.AttendanceId" />
-                        </td>
-                        <td>@item.Staff?.Name</td>
-                        <td>@item.Date.ToString("dddd, dd/MM/yyyy")</td>
-                        <td>@item.Shift?.Name</td>
-                        <td>@item.Shift?.StartTime.ToString(@"hh\:mm") - @item.Shift?.EndTime.ToString(@"hh\:mm")</td>
-                    </tr>
+                var date = weekStart.AddDays(i);
+                <th>@date.ToString("ddd dd/MM")</th>
             }
-        </tbody>
-    </table>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var shift in shifts)
+        {
+            <tr>
+                <td>@shift.Name<br /><small>@shift.StartTime - @shift.EndTime</small></td>
+                @for (int i = 0; i < 7; i++)
+                {
+                    var day = weekStart.AddDays(i);
+                    var items = Model.Where(a => a.ShiftId == shift.ShiftId && a.Date.Date == day.Date).ToList();
 
-    <button type="submit" class="btn btn-success">Duyệt lịch đã chọn</button>
-</form>
+                    <td style="cursor:pointer" onclick="loadModal(@shift.ShiftId, '@day.ToString("yyyy-MM-dd")')">
+                        @foreach (var item in items)
+                        {
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="@(item.IsApproved ? "text-success fw-bold" : "text-muted")">
+                                    @item.Staff?.Name
+                                </span>
+                                @if (item.IsApproved)
+                                {
+                                    <form asp-action="CancelAttendance" method="post" asp-route-id="@item.AttendanceId" class="d-inline ms-1">
+                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0"
+                                                title="Huỷ lịch"
+                                                onclick="event.stopPropagation(); return confirm('Bạn có chắc muốn huỷ lịch của @item.Staff?.Name không?');">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="approveModalContent"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadModal(shiftId, date) {
+            $("#approveModalContent").html("<div class='p-4 text-center'>Đang tải...</div>");
+            $("#approveModal").modal('show');
+            $("#approveModalContent").load(`/Admin/Attendance/GetRegistrations?shiftId=${shiftId}&date=${date}`);
+        }
+
+        function approveSelected() {
+            const ids = [];
+            document.querySelectorAll('input[name="approveIds"]:checked').forEach(c => ids.push(c.value));
+
+            fetch('/Admin/Attendance/ApproveSelected', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ids)
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) location.reload();
+                else alert("Lỗi khi duyệt.");
+            });
+        }
+    </script>
+}

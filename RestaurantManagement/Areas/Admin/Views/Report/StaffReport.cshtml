@@ -1,22 +1,23 @@
 ﻿@{
-    ViewData["Title"] = "Báo cáo nhân viên phục vụ";
+    ViewData["Title"] = "Báo cáo nhân viên";
     Layout = "_AdminLayout";
 }
 
-<h2>Thống kê nhân viên phục vụ nhiều đơn hàng</h2>
-<table class="table table-bordered">
-    <thead>
+<h2 class="mb-4">👨‍🍳 Hiệu suất phục vụ nhân viên</h2>
+
+<table class="table table-bordered text-center">
+    <thead class="table-light">
         <tr>
-            <th>Tên nhân viên</th>
-            <th>Số đơn phục vụ</th>
+            <th>Nhân viên</th>
+            <th>Số đơn đã phục vụ</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in ViewBag.Data)
+        @foreach (var item in (List<(string Name, int OrderCount)>)ViewBag.StaffOrders)
         {
             <tr>
-                <td>@item.StaffName</td>
-                <td>@item.TotalOrders</td>
+                <td>@item.Name</td>
+                <td>@item.OrderCount</td>
             </tr>
         }
     </tbody>

@@ -1,0 +1,43 @@
+﻿@model List<RestaurantManagement.Models.Attendance>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="modal-header">
+        <h5 class="modal-title">Không có đăng ký</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <p>Không có nhân viên nào đăng ký làm việc cho ca này.</p>
+    </div>
+}
+else
+{
+    var first = Model.First();
+    <div class="modal-header">
+        <h5 class="modal-title">@first.Shift?.Name - @first.Date.ToString("dd/MM/yyyy")</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <div class="modal-body">
+        <form id="approveForm">
+            <table class="table table-bordered">
+                <thead>
+                    <tr><th>✔</th><th>Nhân viên</th><th>Trạng thái</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><input type="checkbox" name="approveIds" value="@item.AttendanceId" @(item.IsApproved ? "checked" : "") /></td>
+                            <td>@item.Staff?.Name</td>
+                            <td>@(item.IsApproved ? "✅ Đã duyệt" : "❌ Chưa duyệt")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" onclick="approveSelected()">✔ Xác nhận</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+    </div>
+}
