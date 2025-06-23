@@ -37,7 +37,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         public IActionResult Create() => View();
 
         [HttpPost]
-        public IActionResult Create(Table model)
+        public IActionResult Create(DingningTable model)
         {
             if (ModelState.IsValid)
             {
@@ -58,7 +58,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Table model)
+        public IActionResult Edit(DingningTable model)
         {
             if (ModelState.IsValid)
             {
@@ -79,7 +79,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
         public IActionResult Delete(int id)
         {
-            var table = _context.DingningTables.Include(t => t.Orders).Include(t => t.Reservations).FirstOrDefault(t => t.TableId == id);
+            var table = _context.DingningTables.Include(t => t.Orders).Include(t => t.Reservations).FirstOrDefault(t => t.DingningTableId == id);
             if (table == null) return NotFound();
             return View(table);
         }
@@ -91,7 +91,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             var table = _context.DingningTables
                 .Include(t => t.Orders)
                 .Include(t => t.Reservations)
-                .FirstOrDefault(t => t.TableId == id);
+                .FirstOrDefault(t => t.DingningTableId == id);
 
             if (table == null)
                 return NotFound();

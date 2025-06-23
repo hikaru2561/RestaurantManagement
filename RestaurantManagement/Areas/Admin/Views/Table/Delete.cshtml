@@ -1,4 +1,4 @@
-﻿@model RestaurantManagement.Models.Table
+﻿@model RestaurantManagement.Models.DingningTable
 @{
     ViewData["Title"] = "Xoá bàn";
     Layout = "_AdminLayout";
@@ -18,7 +18,7 @@
 </dl>
 
 <form asp-area="Admin" asp-action="Delete">
-    <input type="hidden" asp-for="TableId" />
+    <input type="hidden" asp-for="DingningTableId" />
     <button type="submit" class="btn btn-danger">Xoá</button>
     <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
 </form>

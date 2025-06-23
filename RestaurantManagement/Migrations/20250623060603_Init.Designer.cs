@@ -12,8 +12,8 @@ using RestaurantManagement.Data;
 namespace RestaurantManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250621170415_UpdateModel7")]
-    partial class UpdateModel7
+    [Migration("20250623060603_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -114,6 +114,32 @@ namespace RestaurantManagement.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("RestaurantManagement.Models.DingningTable", b =>
+                {
+                    b.Property<int>("DingningTableId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DingningTableId"));
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsVIP")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("DingningTableId");
+
+                    b.ToTable("DingningTables");
+                });
+
             modelBuilder.Entity("RestaurantManagement.Models.Feedback", b =>
                 {
                     b.Property<int>("FeedbackId")
@@ -124,9 +150,6 @@ namespace RestaurantManagement.Migrations
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
 
                     b.Property<string>("ImagePath")
                         .HasColumnType("nvarchar(max)");
@@ -139,9 +162,8 @@ namespace RestaurantManagement.Migrations
 
                     b.HasKey("FeedbackId");
 
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("OrderId");
+                    b.HasIndex("OrderId")
+                        .IsUnique();
 
                     b.ToTable("Feedbacks");
                 });
@@ -321,6 +343,9 @@ namespace RestaurantManagement.Migrations
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("DingningTableId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("OrderTime")
                         .HasColumnType("datetime2");
 
@@ -337,9 +362,9 @@ namespace RestaurantManagement.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("StaffId");
+                    b.HasIndex("DingningTableId");
 
-                    b.HasIndex("TableId");
+                    b.HasIndex("StaffId");
 
                     b.ToTable("Orders");
                 });
@@ -499,6 +524,9 @@ namespace RestaurantManagement.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("DingningTableId")
+                        .HasColumnType("int");
+
                     b.Property<int>("NumberOfPeople")
                         .HasColumnType("int");
 
@@ -512,7 +540,7 @@ namespace RestaurantManagement.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("TableId");
+                    b.HasIndex("DingningTableId");
 
                     b.ToTable("Reservations");
                 });
@@ -573,32 +601,6 @@ namespace RestaurantManagement.Migrations
                     b.ToTable("Staffs");
                 });
 
-            modelBuilder.Entity("RestaurantManagement.Models.Table", b =>
-                {
-                    b.Property<int>("TableId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TableId"));
-
-                    b.Property<int>("Capacity")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsVIP")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("TableId");
-
-                    b.ToTable("Tables");
-                });
-
             modelBuilder.Entity("RestaurantManagement.Models.Attendance", b =>
                 {
                     b.HasOne("RestaurantManagement.Models.Shift", "Shift")
@@ -620,19 +622,11 @@ namespace RestaurantManagement.Migrations
 
             modelBuilder.Entity("RestaurantManagement.Models.Feedback", b =>
                 {
-                    b.HasOne("RestaurantManagement.Models.Customer", "Customer")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("RestaurantManagement.Models.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
+                        .WithOne("Feedback")
+                        .HasForeignKey("RestaurantManagement.Models.Feedback", "OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Customer");
 
                     b.Navigation("Order");
                 });
@@ -685,23 +679,21 @@ namespace RestaurantManagement.Migrations
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("RestaurantManagement.Models.DingningTable", "DingningTable")
+                        .WithMany("Orders")
+                        .HasForeignKey("DingningTableId");
+
                     b.HasOne("RestaurantManagement.Models.Staffs", "Staff")
                         .WithMany("Orders")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RestaurantManagement.Models.Table", "Table")
-                        .WithMany("Orders")
-                        .HasForeignKey("TableId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Customer");
 
-                    b.Navigation("Staff");
+                    b.Navigation("DingningTable");
 
-                    b.Navigation("Table");
+                    b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("RestaurantManagement.Models.OrderItem", b =>
@@ -752,15 +744,13 @@ namespace RestaurantManagement.Migrations
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("RestaurantManagement.Models.Table", "Table")
+                    b.HasOne("RestaurantManagement.Models.DingningTable", "DingningTable")
                         .WithMany("Reservations")
-                        .HasForeignKey("TableId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DingningTableId");
 
                     b.Navigation("Customer");
 
-                    b.Navigation("Table");
+                    b.Navigation("DingningTable");
                 });
 
             modelBuilder.Entity("RestaurantManagement.Models.Shift", b =>
@@ -772,8 +762,13 @@ namespace RestaurantManagement.Migrations
 
             modelBuilder.Entity("RestaurantManagement.Models.Customer", b =>
                 {
-                    b.Navigation("Feedbacks");
+                    b.Navigation("Orders");
 
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("RestaurantManagement.Models.DingningTable", b =>
+                {
                     b.Navigation("Orders");
 
                     b.Navigation("Reservations");
@@ -805,6 +800,8 @@ namespace RestaurantManagement.Migrations
 
             modelBuilder.Entity("RestaurantManagement.Models.Order", b =>
                 {
+                    b.Navigation("Feedback");
+
                     b.Navigation("OrderItems");
 
                     b.Navigation("Payment");
@@ -822,13 +819,6 @@ namespace RestaurantManagement.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Shifts");
-                });
-
-            modelBuilder.Entity("RestaurantManagement.Models.Table", b =>
-                {
-                    b.Navigation("Orders");
-
-                    b.Navigation("Reservations");
                 });
 #pragma warning restore 612, 618
         }

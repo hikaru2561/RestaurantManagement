@@ -9,8 +9,8 @@ namespace RestaurantManagement.Models
         public int? CustomerId { get; set; }
         public Customer? Customer { get; set; }
 
-        public int TableId { get; set; }
-        public Table? Table { get; set; }
+        public int DingningTableId { get; set; }
+        public DingningTable? DingningTable { get; set; }
 
         public DateTime ReservationTime { get; set; }
 

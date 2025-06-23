@@ -22,7 +22,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         {
             var reservations = await _context.Reservations
                 .Include(r => r.Customer)
-                .Include(r => r.Table)
+                .Include(r => r.DingningTable)
                 .OrderByDescending(r => r.ReservationTime)
                 .ToListAsync();
             return View(reservations);
@@ -50,7 +50,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             }
 
             ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name", reservation.CustomerId);
-            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.TableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.DingningTableId);
             return View(reservation);
         }
 
@@ -61,7 +61,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
             ViewBag.Customers = new SelectList(_context.Customers
       .Select(c => new { c.CustomerId, Name = c.Name + " - " + c.Phone }), "CustomerId", "Name");
-            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.TableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.DingningTableId);
 
             return View(reservation);
         }
@@ -81,7 +81,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             }
 
             ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name", reservation.CustomerId);
-            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.TableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.DingningTableId);
             return View(reservation);
         }
 
@@ -89,7 +89,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         {
             var reservation = await _context.Reservations
                 .Include(r => r.Customer)
-                .Include(r => r.Table)
+                .Include(r => r.DingningTable)
                 .FirstOrDefaultAsync(r => r.ReservationId == id);
 
             if (reservation == null) return NotFound();

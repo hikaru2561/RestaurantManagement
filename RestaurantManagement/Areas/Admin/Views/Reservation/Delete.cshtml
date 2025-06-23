@@ -8,7 +8,7 @@
 
 <div class="alert alert-warning">
     Bạn có chắc chắn muốn xoá đặt bàn lúc <strong>@Model.ReservationTime.ToString("HH:mm dd/MM/yyyy")</strong>
-    của khách hàng <strong>@Model.Customer?.Name</strong> tại bàn <strong>@Model.Table?.Name</strong>?
+    của khách hàng <strong>@Model.Customer?.Name</strong> tại bàn <strong>@Model.DingningTable?.Name</strong>?
 </div>
 
 <form asp-area="Admin" asp-action="DeleteConfirmed" method="post">

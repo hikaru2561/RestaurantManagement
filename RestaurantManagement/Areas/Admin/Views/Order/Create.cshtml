@@ -9,10 +9,10 @@
 <form asp-area="Admin" asp-action="Create" method="post">
     <div class="mb-3">
         <label class="form-label">Bàn</label>
-        <select asp-for="TableId" class="form-select">
-            @foreach (var table in (List<RestaurantManagement.Models.Table>)ViewBag.Tables)
+        <select asp-for="DingningTableId" class="form-select">
+            @foreach (var table in (List<RestaurantManagement.Models.DingningTable>)ViewBag.Tables)
             {
-                <option value="@table.TableId">@table.Name</option>
+                <option value="@table.DingningTableId">@table.Name</option>
             }
         </select>
     </div>

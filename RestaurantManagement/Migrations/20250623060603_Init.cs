@@ -44,6 +44,22 @@ namespace RestaurantManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "DingningTables",
+                columns: table => new
+                {
+                    DingningTableId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsVIP = table.Column<bool>(type: "bit", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Capacity = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DingningTables", x => x.DingningTableId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "InventoryItems",
                 columns: table => new
                 {
@@ -70,6 +86,24 @@ namespace RestaurantManagement.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MenuCategories", x => x.MenuCategoryId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Notifications",
+                columns: table => new
+                {
+                    NotificationId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false),
+                    RecipientUsername = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notifications", x => x.NotificationId);
                 });
 
             migrationBuilder.CreateTable(
@@ -123,41 +157,32 @@ namespace RestaurantManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Tables",
+                name: "Reservations",
                 columns: table => new
                 {
-                    TableId = table.Column<int>(type: "int", nullable: false)
+                    ReservationId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsVIP = table.Column<bool>(type: "bit", nullable: false),
-                    Status = table.Column<bool>(type: "bit", nullable: false),
-                    Capacity = table.Column<int>(type: "int", nullable: false)
+                    CustomerId = table.Column<int>(type: "int", nullable: true),
+                    TableId = table.Column<int>(type: "int", nullable: false),
+                    DingningTableId = table.Column<int>(type: "int", nullable: true),
+                    ReservationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    NumberOfPeople = table.Column<int>(type: "int", nullable: false),
+                    DepositAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Tables", x => x.TableId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Feedbacks",
-                columns: table => new
-                {
-                    FeedbackId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Rating = table.Column<int>(type: "int", nullable: false),
-                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Feedbacks", x => x.FeedbackId);
+                    table.PrimaryKey("PK_Reservations", x => x.ReservationId);
                     table.ForeignKey(
-                        name: "FK_Feedbacks_Customers_CustomerId",
+                        name: "FK_Reservations_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "CustomerId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Reservations_DingningTables_DingningTableId",
+                        column: x => x.DingningTableId,
+                        principalTable: "DingningTables",
+                        principalColumn: "DingningTableId");
                 });
 
             migrationBuilder.CreateTable(
@@ -206,6 +231,41 @@ namespace RestaurantManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    OrderId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CustomerId = table.Column<int>(type: "int", nullable: true),
+                    TableId = table.Column<int>(type: "int", nullable: false),
+                    DingningTableId = table.Column<int>(type: "int", nullable: true),
+                    OrderTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.OrderId);
+                    table.ForeignKey(
+                        name: "FK_Orders_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "CustomerId",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Orders_DingningTables_DingningTableId",
+                        column: x => x.DingningTableId,
+                        principalTable: "DingningTables",
+                        principalColumn: "DingningTableId");
+                    table.ForeignKey(
+                        name: "FK_Orders_Staffs_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staffs",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Shifts",
                 columns: table => new
                 {
@@ -224,91 +284,6 @@ namespace RestaurantManagement.Migrations
                         column: x => x.StaffsStaffId,
                         principalTable: "Staffs",
                         principalColumn: "StaffId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    OrderId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerId = table.Column<int>(type: "int", nullable: true),
-                    TableId = table.Column<int>(type: "int", nullable: false),
-                    OrderTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StaffId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.OrderId);
-                    table.ForeignKey(
-                        name: "FK_Orders_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "CustomerId",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Orders_Staffs_StaffId",
-                        column: x => x.StaffId,
-                        principalTable: "Staffs",
-                        principalColumn: "StaffId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Orders_Tables_TableId",
-                        column: x => x.TableId,
-                        principalTable: "Tables",
-                        principalColumn: "TableId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Reservations",
-                columns: table => new
-                {
-                    ReservationId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CustomerId = table.Column<int>(type: "int", nullable: true),
-                    TableId = table.Column<int>(type: "int", nullable: false),
-                    ReservationTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    NumberOfPeople = table.Column<int>(type: "int", nullable: false),
-                    DepositAmount = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Reservations", x => x.ReservationId);
-                    table.ForeignKey(
-                        name: "FK_Reservations_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "CustomerId",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_Reservations_Tables_TableId",
-                        column: x => x.TableId,
-                        principalTable: "Tables",
-                        principalColumn: "TableId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Replies",
-                columns: table => new
-                {
-                    ReplyId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FeedbackId = table.Column<int>(type: "int", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RepliedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Replies", x => x.ReplyId);
-                    table.ForeignKey(
-                        name: "FK_Replies_Feedbacks_FeedbackId",
-                        column: x => x.FeedbackId,
-                        principalTable: "Feedbacks",
-                        principalColumn: "FeedbackId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -339,30 +314,24 @@ namespace RestaurantManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Attendances",
+                name: "Feedbacks",
                 columns: table => new
                 {
-                    AttendanceId = table.Column<int>(type: "int", nullable: false)
+                    FeedbackId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    StaffId = table.Column<int>(type: "int", nullable: false),
-                    ShiftId = table.Column<int>(type: "int", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsPresent = table.Column<bool>(type: "bit", nullable: false)
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Rating = table.Column<int>(type: "int", nullable: false),
+                    ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Attendances", x => x.AttendanceId);
+                    table.PrimaryKey("PK_Feedbacks", x => x.FeedbackId);
                     table.ForeignKey(
-                        name: "FK_Attendances_Shifts_ShiftId",
-                        column: x => x.ShiftId,
-                        principalTable: "Shifts",
-                        principalColumn: "ShiftId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Attendances_Staffs_StaffId",
-                        column: x => x.StaffId,
-                        principalTable: "Staffs",
-                        principalColumn: "StaffId",
+                        name: "FK_Feedbacks_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "OrderId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -415,6 +384,56 @@ namespace RestaurantManagement.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Attendances",
+                columns: table => new
+                {
+                    AttendanceId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    ShiftId = table.Column<int>(type: "int", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsPresent = table.Column<bool>(type: "bit", nullable: false),
+                    IsApproved = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Attendances", x => x.AttendanceId);
+                    table.ForeignKey(
+                        name: "FK_Attendances_Shifts_ShiftId",
+                        column: x => x.ShiftId,
+                        principalTable: "Shifts",
+                        principalColumn: "ShiftId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Attendances_Staffs_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staffs",
+                        principalColumn: "StaffId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Replies",
+                columns: table => new
+                {
+                    ReplyId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FeedbackId = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RepliedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Replies", x => x.ReplyId);
+                    table.ForeignKey(
+                        name: "FK_Replies_Feedbacks_FeedbackId",
+                        column: x => x.FeedbackId,
+                        principalTable: "Feedbacks",
+                        principalColumn: "FeedbackId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Attendances_ShiftId",
                 table: "Attendances",
@@ -426,9 +445,10 @@ namespace RestaurantManagement.Migrations
                 column: "StaffId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Feedbacks_CustomerId",
+                name: "IX_Feedbacks_OrderId",
                 table: "Feedbacks",
-                column: "CustomerId");
+                column: "OrderId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_InventoryTransactions_InventoryItemId",
@@ -466,14 +486,14 @@ namespace RestaurantManagement.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Orders_DingningTableId",
+                table: "Orders",
+                column: "DingningTableId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Orders_StaffId",
                 table: "Orders",
                 column: "StaffId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_TableId",
-                table: "Orders",
-                column: "TableId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_OrderId",
@@ -493,9 +513,9 @@ namespace RestaurantManagement.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Reservations_TableId",
+                name: "IX_Reservations_DingningTableId",
                 table: "Reservations",
-                column: "TableId");
+                column: "DingningTableId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Shifts_StaffsStaffId",
@@ -517,6 +537,9 @@ namespace RestaurantManagement.Migrations
 
             migrationBuilder.DropTable(
                 name: "InventoryUsages");
+
+            migrationBuilder.DropTable(
+                name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "OrderItemHistories");
@@ -546,22 +569,22 @@ namespace RestaurantManagement.Migrations
                 name: "MenuItems");
 
             migrationBuilder.DropTable(
-                name: "Orders");
-
-            migrationBuilder.DropTable(
                 name: "Feedbacks");
 
             migrationBuilder.DropTable(
                 name: "MenuCategories");
 
             migrationBuilder.DropTable(
-                name: "Staffs");
-
-            migrationBuilder.DropTable(
-                name: "Tables");
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "Customers");
+
+            migrationBuilder.DropTable(
+                name: "DingningTables");
+
+            migrationBuilder.DropTable(
+                name: "Staffs");
         }
     }
 }

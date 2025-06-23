@@ -32,7 +32,7 @@
                         @foreach (var order in orders)
                         {
                             <li class="list-group-item d-flex justify-content-between">
-                                <span>Bàn @order.Table?.Name</span>
+                                <span>Bàn @order.DingningTable?.Name</span>
                                 <span>@order.Status</span>
                             </li>
                         }
@@ -56,7 +56,7 @@
                         @foreach (var res in reservations)
                         {
                             <li class="list-group-item">
-                                Bàn @res.Table?.Name - @res.ReservationTime.ToString("dd/MM/yyyy HH:mm")
+                                Bàn @res.DingningTable?.Name - @res.ReservationTime.ToString("dd/MM/yyyy HH:mm")
                             </li>
                         }
                     </ul>

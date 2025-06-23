@@ -8,11 +8,11 @@
 
 <form asp-action="Create" method="post" class="needs-validation" novalidate>
     <div class="mb-3">
-        <label asp-for="TableId" class="form-label">Chọn bàn</label>
-        <select asp-for="TableId" class="form-select" asp-items="ViewBag.Tables">
+        <label asp-for="DingningTableId" class="form-label">Chọn bàn</label>
+        <select asp-for="DingningTableId" class="form-select" asp-items="ViewBag.Tables">
             <option value="">-- Chọn bàn --</option>
         </select>
-        <span asp-validation-for="TableId" class="text-danger"></span>
+        <span asp-validation-for="DingningTableId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">

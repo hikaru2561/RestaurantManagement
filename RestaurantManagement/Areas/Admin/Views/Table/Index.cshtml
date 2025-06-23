@@ -1,4 +1,4 @@
-﻿@model IEnumerable<RestaurantManagement.Models.Table>
+﻿@model IEnumerable<RestaurantManagement.Models.DingningTable>
 @using RestaurantManagement.Models
 @{
     ViewData["Title"] = "Danh sách bàn";
@@ -61,15 +61,15 @@
                 </td>
                 <td>@table.Capacity</td>
                 <td>
-                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@table.TableId" class="btn btn-warning btn-sm">Sửa</a>
-                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@table.TableId" class="btn btn-danger btn-sm">Xoá</a>
-                    <a asp-area="Admin" asp-action="Details" asp-route-id="@table.TableId" class="btn btn-info btn-sm">Chi tiết</a>
+                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@table.DingningTableId" class="btn btn-warning btn-sm">Sửa</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@table.DingningTableId" class="btn btn-danger btn-sm">Xoá</a>
+                    <a asp-area="Admin" asp-action="Details" asp-route-id="@table.DingningTableId" class="btn btn-info btn-sm">Chi tiết</a>
 
                     @if (table.Status == TableStatus.InUse)
                     {
-                        <a asp-area="Admin" asp-action="InitSplitTable" asp-route-id="@table.TableId" class="btn btn-secondary btn-sm mt-1">Tách bàn</a>
-                        <a asp-area="Admin" asp-action="InitChangeTable" asp-route-id="@table.TableId" class="btn btn-warning btn-sm mt-1">Chuyển bàn</a>
-                        <a asp-area="Admin" asp-action="MergeTable" asp-route-sourceTableId="@table.TableId" class="btn btn-sm btn-outline-success">Gộp bàn</a>
+                        <a asp-area="Admin" asp-action="InitSplitTable" asp-route-id="@table.DingningTableId" class="btn btn-secondary btn-sm mt-1">Tách bàn</a>
+                        <a asp-area="Admin" asp-action="InitChangeTable" asp-route-id="@table.DingningTableId" class="btn btn-warning btn-sm mt-1">Chuyển bàn</a>
+                        <a asp-area="Admin" asp-action="MergeTable" asp-route-sourceTableId="@table.DingningTableId" class="btn btn-sm btn-outline-success">Gộp bàn</a>
                     }
                 </td>
             </tr>

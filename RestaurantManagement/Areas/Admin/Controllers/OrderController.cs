@@ -57,14 +57,14 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         public IActionResult Index(string searchTable, OrderStatus? statusFilter, DateTime? dateFilter)
         {
             var orders = _context.Orders
-                .Include(o => o.Table)
+                .Include(o => o.DingningTable)
                 .Include(o => o.Staff)
                 .Include(o => o.Customer)
                 .Include(o => o.OrderItems).ThenInclude(oi => oi.MenuItem)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchTable))
-                orders = orders.Where(o => o.Table.Name.Contains(searchTable));
+                orders = orders.Where(o => o.DingningTable.Name.Contains(searchTable));
 
             if (statusFilter.HasValue)
                 orders = orders.Where(o => o.Status == statusFilter);
@@ -154,7 +154,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             var order = _context.Orders
                 .Include(o => o.Customer)
                 .Include(o => o.Staff)
-                .Include(o => o.Table)
+                .Include(o => o.DingningTable)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.MenuItem)
                 .FirstOrDefault(o => o.OrderId == id);

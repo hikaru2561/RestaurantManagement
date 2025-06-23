@@ -1,4 +1,6 @@
-﻿namespace RestaurantManagement.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RestaurantManagement.Models
 {
 
     public enum TableStatus
@@ -7,9 +9,10 @@
         Reserved = 1,
         InUse = 2
     }
-    public class Table
+    public class DingningTable
     {
-        public int TableId { get; set; }
+        
+        public int DingningTableId { get; set; }
 
         public string Name { get; set; }
 

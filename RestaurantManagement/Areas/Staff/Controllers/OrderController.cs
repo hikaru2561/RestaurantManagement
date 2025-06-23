@@ -28,7 +28,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
         {
             int staffId = GetStaffId();
             var orders = _context.Orders
-                .Include(o => o.Table)
+                .Include(o => o.DingningTable)
                 .Include(o => o.Customer)
                 .Where(o => o.StaffId == staffId)
                 .OrderByDescending(o => o.OrderTime)
@@ -75,7 +75,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 }
             }
 
-            var table = _context.DingningTables.FirstOrDefault(t => t.TableId == order.TableId);
+            var table = _context.DingningTables.FirstOrDefault(t => t.DingningTableId == order.DingningTableId);
             if (table != null)
             {
                 table.Status = TableStatus.InUse;
@@ -90,7 +90,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
         {
             int staffId = GetStaffId();
             var order = _context.Orders
-                .Include(o => o.Table)
+                .Include(o => o.DingningTable)
                 .Include(o => o.Customer)
                 .Include(o => o.OrderItems).ThenInclude(oi => oi.MenuItem)
                 .Include(o => o.Payment)
@@ -176,7 +176,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
             order.Status = OrderStatus.Canceled;
 
-            var table = _context.DingningTables.FirstOrDefault(t => t.TableId == order.TableId);
+            var table = _context.DingningTables.FirstOrDefault(t => t.DingningTableId == order.DingningTableId);
             if (table != null && table.Status == TableStatus.InUse)
             {
                 table.Status = TableStatus.Available;
@@ -212,7 +212,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
             order.Status = OrderStatus.Paid;
 
-            var table = _context.DingningTables.FirstOrDefault(t => t.TableId == order.TableId);
+            var table = _context.DingningTables.FirstOrDefault(t => t.DingningTableId == order.DingningTableId);
             if (table != null)
             {
                 table.Status = TableStatus.Available;
