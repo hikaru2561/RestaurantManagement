@@ -20,7 +20,7 @@ namespace RestaurantManagement.Data
         public DbSet<Notification> Notifications { get; set; }
 
         // Bàn ăn và đặt bàn
-        public DbSet<Table> Tables { get; set; }
+        public DbSet<Table> DingningTables { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<OrderItemHistory> OrderItemHistories { get; set; }
 

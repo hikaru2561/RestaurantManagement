@@ -30,7 +30,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.Tables = new SelectList(_context.Tables.ToList(), "TableId", "Name");
+            ViewBag.DingningTables = new SelectList(_context.DingningTables.ToList(), "TableId", "Name");
             return View();
         }
 
@@ -67,7 +67,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
                 TempData["Error"] = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
             }
 
-            ViewBag.Tables = new SelectList(_context.Tables.ToList(), "TableId", "Name", reservation.TableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables.ToList(), "TableId", "Name", reservation.TableId);
             return View(reservation);
         }
 

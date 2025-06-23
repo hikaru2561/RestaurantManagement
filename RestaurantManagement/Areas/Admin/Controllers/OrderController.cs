@@ -79,7 +79,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
         public IActionResult Create()
         {
-            ViewBag.Tables = _context.Tables.ToList();
+            ViewBag.Tables = _context.DingningTables.ToList();
             ViewBag.Staffs = _context.Staffs.ToList();
             ViewBag.Customers = _context.Customers.ToList();
             ViewBag.MenuItems = _context.MenuItems.Where(m => m.Status).ToList();
@@ -128,7 +128,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
             if (order == null) return NotFound();
 
-            ViewBag.Tables = _context.Tables.ToList();
+            ViewBag.Tables = _context.DingningTables.ToList();
             ViewBag.MenuItems = _context.MenuItems.ToList();
             ViewBag.Staffs = _context.Staffs.ToList();
             ViewBag.Customers = _context.Customers.ToList();

@@ -20,7 +20,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
         public IActionResult Index(string search, TableStatus? statusFilter, string vipFilter)
         {
-            var tables = _context.Tables.AsQueryable();
+            var tables = _context.DingningTables.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
                 tables = tables.Where(t => t.Name.Contains(search));
@@ -42,7 +42,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 model.Status = TableStatus.Available;
-                _context.Tables.Add(model);
+                _context.DingningTables.Add(model);
                 _context.SaveChanges();
                 TempData["Success"] = "Thêm bàn thành công!";
                 return RedirectToAction("Index");
@@ -52,7 +52,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
         public IActionResult Edit(int id)
         {
-            var table = _context.Tables.Find(id);
+            var table = _context.DingningTables.Find(id);
             if (table == null) return NotFound();
             return View(table);
         }
@@ -62,7 +62,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Tables.Update(model);
+                _context.DingningTables.Update(model);
                 _context.SaveChanges();
                 TempData["Success"] = "Cập nhật bàn thành công!";
                 return RedirectToAction("Index");
@@ -72,14 +72,14 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
         public IActionResult Details(int id)
         {
-            var table = _context.Tables.Find(id);
+            var table = _context.DingningTables.Find(id);
             if (table == null) return NotFound();
             return View(table);
         }
 
         public IActionResult Delete(int id)
         {
-            var table = _context.Tables.Include(t => t.Orders).Include(t => t.Reservations).FirstOrDefault(t => t.TableId == id);
+            var table = _context.DingningTables.Include(t => t.Orders).Include(t => t.Reservations).FirstOrDefault(t => t.TableId == id);
             if (table == null) return NotFound();
             return View(table);
         }
@@ -88,7 +88,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var table = _context.Tables
+            var table = _context.DingningTables
                 .Include(t => t.Orders)
                 .Include(t => t.Reservations)
                 .FirstOrDefault(t => t.TableId == id);
@@ -105,7 +105,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
-            _context.Tables.Remove(table);
+            _context.DingningTables.Remove(table);
             _context.SaveChanges();
 
             TempData["Success"] = "Xoá bàn thành công!";

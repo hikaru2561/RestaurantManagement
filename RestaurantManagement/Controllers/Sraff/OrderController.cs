@@ -23,7 +23,7 @@ namespace RestaurantManagement.Controllers.Staff
         [HttpGet("Create")]
         public IActionResult Create()
         {
-            ViewBag.Tables = _context.Tables.ToList();
+            ViewBag.Tables = _context.DingningTables.ToList();
             ViewBag.MenuItems = _context.MenuItems.Where(m => m.Status).ToList();
             ViewBag.Customers = _context.Customers.ToList();
 

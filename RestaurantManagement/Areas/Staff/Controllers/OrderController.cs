@@ -38,7 +38,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
         public IActionResult Add()
         {
-            ViewBag.Tables = _context.Tables.Where(t => t.Status == TableStatus.Available).ToList();
+            ViewBag.DingningTables = _context.DingningTables.Where(t => t.Status == TableStatus.Available).ToList();
             ViewBag.Customers = _context.Customers.ToList();
             ViewBag.MenuItems = _context.MenuItems.Where(m => m.Status).ToList();
             return View(new Order { OrderTime = DateTime.Now });
@@ -75,7 +75,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 }
             }
 
-            var table = _context.Tables.FirstOrDefault(t => t.TableId == order.TableId);
+            var table = _context.DingningTables.FirstOrDefault(t => t.TableId == order.TableId);
             if (table != null)
             {
                 table.Status = TableStatus.InUse;
@@ -176,7 +176,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
             order.Status = OrderStatus.Canceled;
 
-            var table = _context.Tables.FirstOrDefault(t => t.TableId == order.TableId);
+            var table = _context.DingningTables.FirstOrDefault(t => t.TableId == order.TableId);
             if (table != null && table.Status == TableStatus.InUse)
             {
                 table.Status = TableStatus.Available;
@@ -212,7 +212,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
             order.Status = OrderStatus.Paid;
 
-            var table = _context.Tables.FirstOrDefault(t => t.TableId == order.TableId);
+            var table = _context.DingningTables.FirstOrDefault(t => t.TableId == order.TableId);
             if (table != null)
             {
                 table.Status = TableStatus.Available;
