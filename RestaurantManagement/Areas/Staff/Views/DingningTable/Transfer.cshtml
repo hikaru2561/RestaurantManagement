@@ -1,0 +1,27 @@
+﻿@model int
+@{
+    ViewData["Title"] = "Chuyển bàn";
+    Layout = "_StaffLayout";
+    var tables = ViewBag.Tables as List<RestaurantManagement.Models.DingningTable>;
+    int fromTableId = ViewBag.FromTableId;
+}
+
+<h2>Chuyển bàn từ bàn @fromTableId</h2>
+
+<form asp-action="Transfer" method="post">
+    <input type="hidden" name="fromTableId" value="@fromTableId" />
+
+    <div class="mb-3">
+        <label class="form-label">Chuyển sang bàn:</label>
+        <select class="form-select" name="toTableId" required>
+            <option value="">-- Chọn bàn --</option>
+            @foreach (var table in tables)
+            {
+                <option value="@table.DingningTableId">@table.Name</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Chuyển bàn</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

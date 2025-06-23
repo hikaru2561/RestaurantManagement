@@ -180,8 +180,8 @@ namespace RestaurantManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                    b.Property<float>("Quantity")
+                        .HasColumnType("real");
 
                     b.Property<string>("Unit")
                         .IsRequired()
@@ -206,8 +206,8 @@ namespace RestaurantManagement.Migrations
                     b.Property<int>("InventoryItemId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                    b.Property<float>("Quantity")
+                        .HasColumnType("real");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -234,8 +234,8 @@ namespace RestaurantManagement.Migrations
                     b.Property<int>("MenuItemId")
                         .HasColumnType("int");
 
-                    b.Property<int>("QuantityUsed")
-                        .HasColumnType("int");
+                    b.Property<float>("QuantityUsed")
+                        .HasColumnType("real");
 
                     b.HasKey("InventoryUsageId");
 

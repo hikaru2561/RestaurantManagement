@@ -7,7 +7,9 @@
 
 <h2>Nguyên liệu sử dụng cho món: @ViewBag.MenuItemName</h2>
 <div class="mb-3">
-    <a asp-area="Admin" asp-controller="Menu" asp-action="Items" asp-route-id="@ViewBag.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+    <a asp-area="Admin" asp-controller="MenuItem" asp-action="Details" asp-route-id="@menuItemId" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
     <a asp-area="Admin" asp-action="Create" asp-route-menuItemId="@menuItemId" class="btn btn-success">+ Thêm nguyên liệu</a>
 </div>
 
@@ -28,7 +30,7 @@
                 <td>
                     <a asp-area="Admin" asp-action="Details" asp-route-id="@usage.InventoryUsageId" class="btn btn-info btn-sm">Chi tiết</a>
                     <a asp-area="Admin" asp-action="Edit" asp-route-id="@usage.InventoryUsageId" class="btn btn-warning btn-sm">Sửa</a>
-                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@usage.InventoryUsageId" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xoá nguyên liệu này không?');">Xoá</a>
+                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@usage.InventoryUsageId" class="btn btn-danger btn-sm">Xoá</a>
                 </td>
             </tr>
         }

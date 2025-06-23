@@ -77,7 +77,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
                 _context.SaveChanges();
 
                 TempData["Success"] = "Thêm món ăn thành công!";
-                return RedirectToAction("Items", "Menu", new { id = model.MenuCategoryId });
+                return RedirectToAction("Items", "MenuCategory", new { id = model.MenuCategoryId });
             }
 
             var category = _context.MenuCategories.Find(model.MenuCategoryId);
@@ -138,7 +138,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
                 _context.SaveChanges();
                 TempData["Success"] = "Cập nhật món ăn thành công!";
-                return RedirectToAction("Items", "Menu", new { id = item.MenuCategoryId });
+                return RedirectToAction("Items", "MenuCategory", new { id = item.MenuCategoryId });
             }
             ViewBag.MenuCategoryId = model.MenuCategoryId;
             ViewBag.CategoryName = _context.MenuCategories
@@ -186,9 +186,9 @@ namespace RestaurantManagement.Areas.Admin.Controllers
                 _context.SaveChanges();
 
                 TempData["Success"] = "Xoá món ăn và nguyên liệu thành công!";
-                return RedirectToAction("Items", "Menu", new { id = catId });
+                return RedirectToAction("Items", "MenuCategory", new { id = catId });
             }
-            return RedirectToAction("Index", "Menu");
+            return RedirectToAction("Details", "MenuItem");
         }
     }
 }

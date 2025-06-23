@@ -28,7 +28,7 @@
     </div>
 
     <button type="submit" class="btn btn-success">Thêm</button>
-    <a asp-area="Admin" asp-controller="MenuItem" asp-action="Index" asp-route-id="@ViewBag.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+    <a asp-area="Admin" asp-action="Index" asp-route-menuItemId="@Model.MenuItemId" class="btn btn-secondary">Quay lại</a>
 </form>
 
 @section Scripts {

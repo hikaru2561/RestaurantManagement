@@ -22,5 +22,7 @@
 <form asp-area="Admin" asp-action="Delete">
     <input type="hidden" asp-for="MenuItemId" />
     <button type="submit" class="btn btn-danger">Xoá</button>
-    <a asp-area="Admin" asp-controller="Menu" asp-action="Items" asp-route-id="@Model.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+    <a asp-area="Admin" asp-controller="MenuItem" asp-action="Details" asp-route-id="@Model.MenuItemId" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Quay lại
+    </a>
 </form>

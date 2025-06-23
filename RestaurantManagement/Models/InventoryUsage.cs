@@ -8,7 +8,7 @@
        
         public int MenuItemId { get; set; }
 
-        public int QuantityUsed { get; set; }
+        public float QuantityUsed { get; set; }
 
         // Navigation
         public InventoryItem? InventoryItem { get; set; }

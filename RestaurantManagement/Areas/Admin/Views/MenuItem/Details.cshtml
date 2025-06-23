@@ -4,28 +4,53 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Chi tiết món ăn</h2>
+<h2 class="fw-bold mb-4">🍛 Chi tiết món ăn</h2>
 
-<dl class="row">
-    <dt class="col-sm-2">Tên món</dt>
-    <dd class="col-sm-10">@Model.Name</dd>
+<div class="card shadow-sm p-4">
+    <div class="row mb-3">
+        <div class="col-md-4 text-center">
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img src="~/images/MenuItem/@Model.ImagePath?@DateTime.Now.Ticks" class="img-fluid rounded border" style="max-height: 250px;" />
+            }
+            else
+            {
+                <div class="text-muted">Không có ảnh</div>
+            }
+        </div>
+        <div class="col-md-8">
+            <dl class="row">
+                <dt class="col-sm-4">Tên món</dt>
+                <dd class="col-sm-8 fw-semibold">@Model.Name</dd>
 
-    <dt class="col-sm-2">Giá</dt>
-    <dd class="col-sm-10">@Model.Price.ToString("N0") đ</dd>
+                <dt class="col-sm-4">Giá</dt>
+                <dd class="col-sm-8">@Model.Price.ToString("N0") đ</dd>
 
-    <dt class="col-sm-2">Trạng thái</dt>
-    <dd class="col-sm-10">@(Model.Status ? "Còn bán" : "Ngừng bán")</dd>
+                <dt class="col-sm-4">Trạng thái</dt>
+                <dd class="col-sm-8">
+                    <span class="badge bg-@(Model.Status ? "success" : "secondary")">
+                        @(Model.Status ? "Còn bán" : "Ngừng bán")
+                    </span>
+                </dd>
 
-    <dt class="col-sm-2">Danh mục</dt>
-    <dd class="col-sm-10">@Model.MenuCategory?.Name</dd>
+                <dt class="col-sm-4">Danh mục</dt>
+                <dd class="col-sm-8">@Model.MenuCategory?.Name</dd>
+            </dl>
+        </div>
+    </div>
 
-    <dt class="col-sm-2">Ảnh món</dt>
-    <dd class="col-sm-10">
-        @if (!string.IsNullOrEmpty(Model.ImagePath))
-        {
-            <img src="~/images/MenuItem/@Model.ImagePath?@DateTime.Now.Ticks" width="150" />
-        }
-    </dd>
-</dl>
-
-<a asp-area="Admin" asp-controller="Menu" asp-action="Items" asp-route-id="@Model.MenuCategoryId" class="btn btn-secondary">Quay lại</a>
+    <div class="d-flex gap-2 mt-3">
+        <a asp-area="Admin" asp-controller="MenuItem" asp-action="Edit" asp-route-id="@Model.MenuItemId" class="btn btn-warning">
+            <i class="bi bi-pencil-square"></i> Sửa
+        </a>
+        <a asp-area="Admin" asp-controller="MenuItem" asp-action="Delete" asp-route-id="@Model.MenuItemId" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Xoá
+        </a>
+        <a asp-area="Admin" asp-controller="InventoryUsage" asp-action="Index" asp-route-menuItemId="@Model.MenuItemId" class="btn btn-secondary">
+            <i class="bi bi-box-seam"></i> Xem nguyên liệu
+        </a>
+        <a asp-area="Admin" asp-controller="MenuCategory" asp-action="Items" asp-route-id="@Model.MenuCategoryId" class="btn btn-light">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
+    </div>
+</div>

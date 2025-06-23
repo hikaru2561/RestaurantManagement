@@ -96,5 +96,22 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             return RedirectToAction("Index");
 
         }
+
+        public IActionResult Items(int id, string search)
+        {
+            var category = _context.MenuCategories.FirstOrDefault(c => c.MenuCategoryId == id);
+            if (category == null) return NotFound();
+
+            var items = _context.MenuItems.Where(m => m.MenuCategoryId == id);
+
+            if (!string.IsNullOrEmpty(search))
+                items = items.Where(m => m.Name.Contains(search));
+
+            ViewBag.CategoryId = id;
+            ViewBag.CategoryName = category.Name;
+            ViewBag.Search = search;
+
+            return View(items.ToList());
+        }
     }
 }

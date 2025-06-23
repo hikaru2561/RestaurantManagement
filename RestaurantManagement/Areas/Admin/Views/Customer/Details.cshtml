@@ -1,36 +1,25 @@
 ﻿@model RestaurantManagement.Models.Customer
 @{
     ViewData["Title"] = "Chi tiết khách hàng";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    Layout = "_AdminLayout";
 }
 
-@if (User.IsInRole("Admin"))
-{
-    <h2>Chi tiết khách hàng</h2>
+<h2>📄 Chi tiết khách hàng</h2>
 
-    <table class="table table-bordered">
-        <tr>
-            <th>Tên</th>
-            <td>@Model.Name</td>
-        </tr>
-        <tr>
-            <th>SĐT</th>
-            <td>@Model.Phone</td>
-        </tr>
-        <tr>
-            <th>Email</th>
-            <td>@Model.Email</td>
-        </tr>
-        <tr>
-            <th>VIP</th>
-            <td>@(Model.IsVIP ? "✔ VIP" : "Thường")</td>
-        </tr>
-    </table>
+<dl class="row">
+    <dt class="col-sm-2">Tên</dt>
+    <dd class="col-sm-10">@Model.Name</dd>
 
-    <a asp-area="Admin" asp-controller="Customer" asp-action="Edit" asp-route-id="@Model.CustomerId" class="btn btn-warning">Sửa</a>
-    <a asp-area="Admin" asp-controller="Customer" asp-action="Index" class="btn btn-secondary">Quay lại</a>
-}
-else
-{
-    <div class="alert alert-danger">Bạn không có quyền truy cập trang này.</div>
-}
+    <dt class="col-sm-2">SĐT</dt>
+    <dd class="col-sm-10">@Model.Phone</dd>
+
+    <dt class="col-sm-2">Email</dt>
+    <dd class="col-sm-10">@Model.Email</dd>
+
+    <dt class="col-sm-2">Khách VIP</dt>
+    <dd class="col-sm-10">@Model.IsVIP</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.CustomerId" class="btn btn-warning">Sửa</a>
+<a asp-action="Delete" asp-route-id="@Model.CustomerId" class="btn btn-danger">Xóa</a>
+<a asp-action="Index" class="btn btn-secondary">Quay lại</a>

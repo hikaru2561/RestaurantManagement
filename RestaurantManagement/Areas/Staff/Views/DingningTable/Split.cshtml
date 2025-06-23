@@ -1,0 +1,52 @@
+﻿@model int
+@using RestaurantManagement.Models
+@{
+    ViewData["Title"] = "Tách bàn";
+    Layout = "_StaffLayout";
+
+    var tables = ViewBag.Tables as List<DingningTable>;
+    var orderItems = ViewBag.OrderItems as List<OrderItem>;
+    int fromTableId = ViewBag.FromTableId;
+}
+
+<h2>Tách bàn từ bàn @fromTableId</h2>
+
+<form asp-action="Split" method="post">
+    <input type="hidden" name="fromTableId" value="@fromTableId" />
+
+    <div class="mb-3">
+        <label class="form-label">Chuyển sang bàn:</label>
+        <select class="form-select" name="toTableId" required>
+            <option value="">-- Chọn bàn trống --</option>
+            @foreach (var table in tables)
+            {
+                <option value="@table.DingningTableId">@table.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Chọn món để tách:</label>
+        <div class="form-check">
+            @if (orderItems != null && orderItems.Any())
+            {
+                foreach (var item in orderItems)
+                {
+                    <div class="form-check mb-1">
+                        <input class="form-check-input" type="checkbox" name="selectedOrderItemIds" value="@item.OrderItemId" id="item_@item.OrderItemId" />
+                        <label class="form-check-label" for="item_@item.OrderItemId">
+                            @item.MenuItem?.Name - SL: @item.Quantity
+                        </label>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted">Không có món nào để tách.</p>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-danger">Tách bàn</button>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+</form>

@@ -1,0 +1,84 @@
+﻿@model IEnumerable<RestaurantManagement.Models.DingningTable>
+@using RestaurantManagement.Models
+@{
+    ViewData["Title"] = "Quản lý bàn";
+    Layout = "_AdminLayout";
+}
+
+<h2 class="mb-4">📋 Danh sách bàn</h2>
+
+<form id="filterForm" method="get" class="row g-2 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="search" class="form-control" placeholder="🔍 Tìm tên bàn..."
+               value="@Context.Request.Query["search"]" oninput="submitFilter()" />
+    </div>
+    <div class="col-md-3">
+        <select name="statusFilter" class="form-select" onchange="submitFilter()">
+            <option value="">-- Tất cả trạng thái --</option>
+            <option value="Available" selected="@(Context.Request.Query["statusFilter"] == "Available")">Trống</option>
+            <option value="InUse" selected="@(Context.Request.Query["statusFilter"] == "InUse")">Đang sử dụng</option>
+            <option value="Reserved" selected="@(Context.Request.Query["statusFilter"] == "Reserved")">Đã đặt</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="vipFilter" class="form-select" onchange="submitFilter()">
+            <option value="">-- Tất cả bàn --</option>
+            <option value="true" selected="@(Context.Request.Query["vipFilter"] == "True")">VIP</option>
+            <option value="false" selected="@(Context.Request.Query["vipFilter"] == "False")">Thường</option>
+        </select>
+    </div>
+</form>
+
+<div class="mb-3 d-flex gap-2">
+    <a asp-area="Admin" asp-action="Create" class="btn btn-success"><i class="bi bi-plus-circle"></i> Thêm bàn</a>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var table in Model)
+    {
+        var status = table.Status switch
+        {
+            TableStatus.Available => ("Trống", "success"),
+            TableStatus.InUse => ("Đang sử dụng", "warning"),
+            TableStatus.Reserved => ("Đã đặt", "info"),
+            _ => ("Không rõ", "secondary")
+        };
+        <div class="col">
+            <div class="card border shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@table.Name @if (table.IsVIP)
+                        {
+                            <span class="badge bg-danger ms-1">VIP</span>
+                        }</h5>
+                    <p class="card-text mb-1"><strong>Sức chứa:</strong> @table.Capacity</p>
+                    <p class="card-text"><strong>Trạng thái:</strong> <span class="badge bg-@status.Item2">@status.Item1</span></p>
+
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <a asp-area="Admin" asp-action="Details" asp-route-id="@table.DingningTableId" class="btn btn-sm btn-outline-info">Chi tiết</a>
+                        <a asp-area="Admin" asp-action="Edit" asp-route-id="@table.DingningTableId" class="btn btn-sm btn-outline-warning">Sửa</a>
+                        <a asp-area="Admin" asp-action="Delete" asp-route-id="@table.DingningTableId" class="btn btn-sm btn-outline-danger">Xoá</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="mt-4">
+    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">
+        <i class="bi bi-arrow-left-circle"></i> Quay lại Dashboard
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        let timer;
+        function submitFilter() {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 800);
+        }
+    </script>
+}

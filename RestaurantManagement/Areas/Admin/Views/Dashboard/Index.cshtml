@@ -1,77 +1,100 @@
 ﻿@model RestaurantManagement.Models.ViewModels.DashboardViewModel
 @{
-    ViewData["Title"] = "Tổng quan hệ thống";
+    ViewData["Title"] = "Bảng điều khiển";
     Layout = "_AdminLayout";
 }
-@if (User.IsInRole("Admin"))
-{
-    <h2>Dashboard quản lý</h2>
 
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Đơn hôm nay</h5>
-                    <p class="card-text">@Model.TodayOrderCount</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Doanh thu hôm nay</h5>
-                    <p class="card-text">@Model.TodayRevenue.ToString("N0") đ</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Đặt bàn hôm nay</h5>
-                    <p class="card-text">@Model.TodayReservationCount</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Đánh giá TB</h5>
-                    <p class="card-text">@Model.AverageRating.ToString("0.0") / 5</p>
-                </div>
+<h2 class="fw-bold mb-4"> Bảng điều khiển hệ thống</h2>
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white shadow h-100">
+            <div class="card-body">
+                <h5 class="card-title">Đơn hôm nay</h5>
+                <h3 class="card-text fw-bold">@Model.TodayOrderCount</h3>
             </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white shadow h-100">
+            <div class="card-body">
+                <h5 class="card-title">Doanh thu hôm nay</h5>
+                <h3 class="card-text fw-bold">@Model.TodayRevenue.ToString("N0") đ</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark shadow h-100">
+            <div class="card-body">
+                <h5 class="card-title">Đặt bàn hôm nay</h5>
+                <h3 class="card-text fw-bold">@Model.TodayReservationCount</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white shadow h-100">
+            <div class="card-body">
+                <h5 class="card-title">Đánh giá TB</h5>
+                <h3 class="card-text fw-bold">@Model.AverageRating.ToString("0.0") / 5</h3>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <h5>Doanh thu 7 ngày gần nhất</h5>
-            <table class="table table-bordered">
-                <thead>
-                    <tr><th>Ngày</th><th>Doanh thu</th></tr>
-                </thead>
-                <tbody>
-                    @foreach (var rev in Model.WeeklyRevenue)
-                    {
+<hr class="my-5" />
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-white fw-semibold">
+                📈 Doanh thu 7 ngày gần nhất
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered table-hover mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <td>@rev.Date.ToString("dd/MM")</td>
-                            <td>@rev.Revenue.ToString("N0") đ</td>
+                            <th>Ngày</th>
+                            <th>Doanh thu</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-md-6">
-            <h5>Top 5 món bán chạy</h5>
-            <table class="table table-striped">
-                <thead><tr><th>Món ăn</th><th>Số lượng</th></tr></thead>
-                <tbody>
-                    @foreach (var item in Model.TopMenuItems)
-                    {
-                        <tr><td>@item.Name</td><td>@item.TotalSold</td></tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var rev in Model.WeeklyRevenue)
+                        {
+                            <tr>
+                                <td>@rev.Date.ToString("dd/MM")</td>
+                                <td>@rev.Revenue.ToString("N0") đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-}
+
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-white fw-semibold">
+                🍽️ Top 5 món bán chạy
+            </div>
+            <div class="card-body">
+                <table class="table table-striped mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Món ăn</th>
+                            <th>Số lượng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TopMenuItems)
+                        {
+                            <tr>
+                                <td>@item.Name</td>
+                                <td>@item.TotalSold</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
