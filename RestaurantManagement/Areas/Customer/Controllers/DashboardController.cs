@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantManagement.Data;
+using RestaurantManagement.Models;
 using System.Security.Claims;
-using System.Linq;
 
 namespace RestaurantManagement.Areas.Customer.Controllers
 {
@@ -18,16 +18,21 @@ namespace RestaurantManagement.Areas.Customer.Controllers
             _context = context;
         }
 
-        private string GetUsername() => User.FindFirst(ClaimTypes.Name)?.Value ?? "";
+        private int? GetCustomerId()
+        {
+            var customerIdStr = User.FindFirst("CustomerId")?.Value;
+            return int.TryParse(customerIdStr, out int id) ? id : null;
+        }
 
         public IActionResult Index()
         {
-            var username = GetUsername();
+            var customerId = GetCustomerId();
+            if (customerId == null) return Unauthorized();
+
             var customer = _context.Customers
-                .Include(c => c.Orders)
-                    .ThenInclude(o => o.Feedback)  // Load Feedback qua Order
+                .Include(c => c.Orders).ThenInclude(o => o.Feedback)
                 .Include(c => c.Reservations)
-                .FirstOrDefault(c => c.Username == username);
+                .FirstOrDefault(c => c.CustomerId == customerId);
 
             if (customer == null) return NotFound();
 
@@ -41,7 +46,6 @@ namespace RestaurantManagement.Areas.Customer.Controllers
                 .Take(5)
                 .ToList();
 
-            // Lấy Feedback cuối cùng qua Orders
             var lastFeedback = customer.Orders?
                 .Where(o => o.Feedback != null)
                 .OrderByDescending(o => o.OrderTime)

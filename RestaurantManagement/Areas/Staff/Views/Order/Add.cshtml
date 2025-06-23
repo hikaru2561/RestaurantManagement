@@ -1,18 +1,19 @@
 ﻿@model RestaurantManagement.Models.Order
+@using RestaurantManagement.Models
 @{
     ViewData["Title"] = "Tạo đơn hàng";
     Layout = "_StaffLayout";
-    var tables = ViewBag.Tables as List<RestaurantManagement.Models.Table>;
-    var customers = ViewBag.Customers as List<RestaurantManagement.Models.Customer>;
-    var menuItems = ViewBag.MenuItems as List<RestaurantManagement.Models.MenuItem>;
+    var tables = ViewBag.Tables as List<Table>;
+    var customers = ViewBag.Customers as List<Customer>;
+    var menuItems = ViewBag.MenuItems as List<MenuItem>;
 }
 
-<h2>@ViewData["Title"]</h2>
+<h2 class="mb-4">@ViewData["Title"]</h2>
 
 <form asp-action="Add" method="post">
     <div class="mb-3">
         <label asp-for="TableId" class="form-label">Chọn bàn</label>
-        <select asp-for="TableId" class="form-select" asp-items="@(new SelectList(tables, "TableId", "Name"))">
+        <select asp-for="TableId" class="form-select" asp-items="@(new SelectList(tables, "TableId", "Name"))" required>
             <option value="">-- Chọn bàn --</option>
         </select>
     </div>
@@ -24,14 +25,14 @@
         </select>
     </div>
 
-    <div class="mb-3">
+    <div class="mb-4">
         <label class="form-label">Chọn món ăn</label>
-        <table class="table table-bordered">
-            <thead>
+        <table class="table table-bordered align-middle">
+            <thead class="table-light">
                 <tr>
                     <th>Tên món</th>
                     <th>Giá</th>
-                    <th>Số lượng</th>
+                    <th style="width:120px;">Số lượng</th>
                 </tr>
             </thead>
             <tbody>
@@ -52,6 +53,8 @@
         </table>
     </div>
 
-    <button type="submit" class="btn btn-success">Tạo đơn hàng</button>
-    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Tạo đơn hàng</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Quay lại</a>
+    </div>
 </form>

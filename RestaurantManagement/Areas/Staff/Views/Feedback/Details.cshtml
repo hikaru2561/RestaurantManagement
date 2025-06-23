@@ -8,7 +8,7 @@
 
 <div class="card mb-3">
     <div class="card-header">
-        Khách: @Model.Order.Customer.Name | Đơn hàng: #@Model.Order?.OrderId
+        Khách: @Model.Order?.Customer?.Name ?? "(Không rõ)" | Đơn hàng: #@Model.Order?.OrderId
     </div>
     <div class="card-body">
         <p><strong>Đánh giá:</strong> @Model.Rating / 5</p>
@@ -16,7 +16,10 @@
 
         @if (!string.IsNullOrEmpty(Model.ImagePath))
         {
-            <p><img src="~/images/feedback/@Model.ImagePath" width="300" /></p>
+            <p>
+                <img src="~/images/feedback/@Model.ImagePath" width="300"
+                     onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Image';" />
+            </p>
         }
 
         <hr />
@@ -43,4 +46,4 @@
     </div>
 </div>
 
-<a asp-actio
+<a asp-action="Index" class="btn btn-secondary">Quay lại</a>

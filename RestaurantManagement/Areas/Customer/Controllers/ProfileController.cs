@@ -17,12 +17,16 @@ namespace RestaurantManagement.Areas.Customer.Controllers
             _context = context;
         }
 
-        private string GetUsername() => User.FindFirst(ClaimTypes.Name)?.Value ?? "";
+        private int GetCustomerId()
+        {
+            var idStr = User.FindFirst("CustomerId")?.Value;
+            return int.TryParse(idStr, out var id) ? id : 0;
+        }
 
         public IActionResult Index()
         {
-            var username = GetUsername();
-            var customer = _context.Customers.FirstOrDefault(c => c.Username == username);
+            var customerId = GetCustomerId();
+            var customer = _context.Customers.FirstOrDefault(c => c.CustomerId == customerId);
             if (customer == null)
             {
                 return NotFound();
@@ -33,8 +37,8 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         [HttpGet]
         public IActionResult Edit()
         {
-            var username = GetUsername();
-            var customer = _context.Customers.FirstOrDefault(c => c.Username == username);
+            var customerId = GetCustomerId();
+            var customer = _context.Customers.FirstOrDefault(c => c.CustomerId == customerId);
             if (customer == null)
             {
                 return NotFound();
@@ -43,18 +47,25 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(Models.Customer updated)
+        public IActionResult Edit([Bind("Name,Email,Phone")] Models.Customer updated)
         {
-            var username = GetUsername();
-            var customer = _context.Customers.FirstOrDefault(c => c.Username == username);
+            var customerId = GetCustomerId();
+            var customer = _context.Customers.FirstOrDefault(c => c.CustomerId == customerId);
             if (customer == null)
             {
                 return NotFound();
             }
 
+            if (!ModelState.IsValid)
+            {
+                return View(customer); // Giữ dữ liệu cũ để tránh mất thông tin
+            }
+
+            // Chỉ cập nhật những trường cho phép
             customer.Name = updated.Name;
             customer.Email = updated.Email;
             customer.Phone = updated.Phone;
+
             _context.SaveChanges();
 
             TempData["Success"] = "Cập nhật thông tin thành công!";

@@ -4,24 +4,31 @@
     Layout = "_CustomerLayout";
 }
 
-<h2>Lịch sử đặt bàn</h2>
+<h2 class="mb-4">Lịch sử đặt bàn</h2>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Bàn</th>
-            <th>Thời gian</th>
-            <th>Số người</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+@if (!Model.Any())
+{
+    <p class="text-muted">Bạn chưa có đặt bàn nào.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="table-light">
             <tr>
-                <td>@item.Table?.Name</td>
-                <td>@item.ReservationTime.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@item.NumberOfPeople</td>
+                <th>Bàn</th>
+                <th>Thời gian</th>
+                <th>Số người</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Table?.Name</td>
+                    <td>@item.ReservationTime.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@item.NumberOfPeople</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

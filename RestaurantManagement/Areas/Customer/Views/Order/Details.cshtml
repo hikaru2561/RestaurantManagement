@@ -2,8 +2,9 @@
 @using RestaurantManagement.Models
 @{
     ViewData["Title"] = "Chi tiết đơn hàng";
-    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    Layout = "_CustomerLayout";
     var feedback = ViewBag.Feedback as Feedback;
+    var total = Model.Payment?.TotalAmount ?? 0;
 }
 
 <h2>Chi tiết đơn hàng #@Model.OrderId</h2>
@@ -11,7 +12,7 @@
 <p><strong>Bàn:</strong> @Model.Table?.Name</p>
 <p><strong>Ngày:</strong> @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</p>
 <p><strong>Trạng thái:</strong> @Model.Status</p>
-<p><strong>Tổng tiền:</strong> @Model.Payment?.TotalAmount.ToString("N0") đ</p>
+<p><strong>Tổng tiền:</strong> @total.ToString("N0") đ</p>
 
 <h4>Danh sách món</h4>
 <table class="table table-sm">
@@ -36,8 +37,10 @@
 {
     if (feedback == null)
     {
-        <a asp-area="Customer" asp-controller="Feedback" asp-action="Create" asp-route-orderId="@Model.OrderId"
-           class="btn btn-success mt-3">Gửi phản hồi</a>
+        <a asp-area="Customer" asp-controller="Feedback" asp-action="Create"
+           asp-route-orderId="@Model.OrderId" class="btn btn-success mt-3">
+            Gửi phản hồi
+        </a>
     }
     else
     {
@@ -49,15 +52,15 @@
             @if (feedback.Reply == null)
             {
                 <a asp-area="Customer" asp-controller="Feedback" asp-action="Edit"
-                   asp-route-id="@feedback.FeedbackId"
-                   class="btn btn-warning btn-sm">Sửa phản hồi</a>
+                   asp-route-id="@feedback.FeedbackId" class="btn btn-warning btn-sm me-2">
+                    Sửa phản hồi
+                </a>
                 <form asp-area="Customer" asp-controller="Feedback" asp-action="Delete"
                       asp-route-id="@feedback.FeedbackId" method="post"
                       onsubmit="return confirm('Bạn có chắc chắn muốn xoá phản hồi này?');"
                       class="d-inline">
                     <button type="submit" class="btn btn-danger btn-sm">Xoá phản hồi</button>
                 </form>
-
             }
             else
             {

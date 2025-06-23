@@ -58,11 +58,35 @@ namespace RestaurantManagement.Controllers
             }
 
             var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.Role, user.Role),
+        new Claim("Role", user.Role)
+    };
+
+            // Gắn thêm claims nếu là Staff
+            if (user.Role == "Staff")
             {
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim("Role", user.Role)
-            };
+                var staff = _context.Staffs.FirstOrDefault(s => s.Username == user.Username);
+                if (staff != null)
+                {
+                    claims.Add(new Claim("StaffId", staff.StaffId.ToString()));
+                    claims.Add(new Claim("FullName", staff.Name ?? ""));
+                    claims.Add(new Claim("Phone", staff.Phone ?? ""));
+                }
+            }
+
+            // Gắn thêm claims nếu là Customer
+            if (user.Role == "Customer")
+            {
+                var customer = _context.Customers.FirstOrDefault(c => c.Username == user.Username);
+                if (customer != null)
+                {
+                    claims.Add(new Claim("CustomerId", customer.CustomerId.ToString()));
+                    claims.Add(new Claim("FullName", customer.Name ?? ""));
+                    claims.Add(new Claim("Phone", customer.Phone ?? ""));
+                }
+            }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
@@ -76,7 +100,7 @@ namespace RestaurantManagement.Controllers
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);
 
-            // Nếu có ReturnUrl (điều hướng về trang bị yêu cầu đăng nhập)
+            // Nếu có ReturnUrl
             var returnUrl = Request.Query["ReturnUrl"].ToString();
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
@@ -92,6 +116,7 @@ namespace RestaurantManagement.Controllers
                 _ => RedirectToAction("Login")
             };
         }
+
 
         [HttpGet]
         public IActionResult Register()

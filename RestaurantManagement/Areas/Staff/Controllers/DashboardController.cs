@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RestaurantManagement.Data;
-using System.Linq;
 using System.Security.Claims;
+using System.Linq;
 
 namespace RestaurantManagement.Areas.Staff.Controllers
 {
@@ -19,28 +19,27 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
         public IActionResult Index()
         {
-            var username = User.Identity.Name;
+            // Lấy thông tin từ Claims
+            var staffIdStr = User.FindFirst("StaffId")?.Value;
+            var staffName = User.FindFirst("FullName")?.Value;
 
-            // Lấy thông tin nhân viên hiện tại
-            var staff = _context.Staffs.FirstOrDefault(s => s.Username == username);
-            if (staff == null)
+            if (string.IsNullOrEmpty(staffIdStr) || !int.TryParse(staffIdStr, out var staffId))
             {
-                TempData["Error"] = "Không tìm thấy thông tin nhân viên.";
-                return RedirectToAction("Logout", "Account", new { area = "" });
+                TempData["Error"] = "Không xác định được nhân viên.";
+                return RedirectToAction("Logout", "Login", new { area = "" });
             }
 
-            // Truyền thông tin xuống ViewBag
-            ViewBag.StaffName = staff.Name;
+            ViewBag.StaffName = staffName ?? "(Không rõ tên)";
 
             // Thống kê đơn hàng hôm nay
             var today = DateTime.Today;
             ViewBag.TodayOrders = _context.Orders
-                .Where(o => o.OrderTime.Date == today && o.StaffId == staff.StaffId)
+                .Where(o => o.OrderTime.Date == today && o.StaffId == staffId)
                 .Count();
 
             // Lượt chấm công gần nhất
             var lastAttendance = _context.Attendances
-                .Where(a => a.StaffId == staff.StaffId)
+                .Where(a => a.StaffId == staffId)
                 .OrderByDescending(a => a.Date)
                 .FirstOrDefault();
             ViewBag.LastAttendance = lastAttendance;

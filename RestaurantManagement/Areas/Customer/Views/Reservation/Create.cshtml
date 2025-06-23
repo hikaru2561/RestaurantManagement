@@ -4,20 +4,32 @@
     Layout = "_CustomerLayout";
 }
 
-<h2>Đặt bàn</h2>
+<h2 class="mb-4">Đặt bàn</h2>
 
-<form asp-action="Create" method="post" class="mt-3">
+<form asp-action="Create" method="post" class="needs-validation" novalidate>
     <div class="mb-3">
         <label asp-for="TableId" class="form-label">Chọn bàn</label>
-        <select asp-for="TableId" class="form-select" asp-items="ViewBag.Tables"></select>
+        <select asp-for="TableId" class="form-select" asp-items="ViewBag.Tables">
+            <option value="">-- Chọn bàn --</option>
+        </select>
+        <span asp-validation-for="TableId" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="NumberOfPeople" class="form-label">Số người</label>
-        <input asp-for="NumberOfPeople" class="form-control" type="number" min="1" required />
+        <input asp-for="NumberOfPeople" class="form-control" type="number" min="1" />
+        <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
     </div>
+
     <div class="mb-3">
         <label asp-for="ReservationTime" class="form-label">Thời gian đặt</label>
-        <input asp-for="ReservationTime" class="form-control" type="datetime-local" required />
+        <input asp-for="ReservationTime" class="form-control" type="datetime-local" />
+        <span asp-validation-for="ReservationTime" class="text-danger"></span>
     </div>
+
     <button type="submit" class="btn btn-primary">Gửi yêu cầu đặt bàn</button>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

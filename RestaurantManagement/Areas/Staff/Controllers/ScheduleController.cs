@@ -18,16 +18,19 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             _context = context;
         }
 
-        private int GetStaffId()
+        // Lấy StaffId từ Claims (chắc chắn hơn là Username)
+        private int? GetStaffId()
         {
-            var username = User.FindFirstValue(ClaimTypes.Name);
-            return _context.Staffs.FirstOrDefault(s => s.Username == username)?.StaffId ?? 0;
+            var staffIdStr = User.FindFirst("StaffId")?.Value;
+            return int.TryParse(staffIdStr, out int id) ? id : null;
         }
 
         // Danh sách lịch làm việc cá nhân
         public IActionResult Index()
         {
-            int staffId = GetStaffId();
+            var staffId = GetStaffId();
+            if (staffId == null) return Unauthorized();
+
             var attendances = _context.Attendances
                 .Include(a => a.Shift)
                 .Where(a => a.StaffId == staffId)
@@ -48,7 +51,9 @@ namespace RestaurantManagement.Areas.Staff.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Register(string SelectedShiftsJson)
         {
-            int staffId = GetStaffId();
+            var staffId = GetStaffId();
+            if (staffId == null) return Unauthorized();
+
             if (string.IsNullOrWhiteSpace(SelectedShiftsJson))
             {
                 TempData["Error"] = "Vui lòng chọn ít nhất một ca làm để đăng ký.";
@@ -65,8 +70,8 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
             foreach (var item in selected)
             {
-                var date = DateTime.Parse(item.date);
-                int shiftId = int.Parse(item.shiftId);
+                if (!DateTime.TryParse(item.date, out DateTime date) || !int.TryParse(item.shiftId, out int shiftId))
+                    continue;
 
                 // Kiểm tra trùng lịch
                 bool exists = _context.Attendances.Any(a =>
@@ -79,7 +84,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 {
                     _context.Attendances.Add(new Attendance
                     {
-                        StaffId = staffId,
+                        StaffId = staffId.Value,
                         ShiftId = shiftId,
                         Date = date,
                         IsPresent = false
@@ -101,7 +106,10 @@ namespace RestaurantManagement.Areas.Staff.Controllers
         // Cho phép hủy lịch chưa diễn ra
         public IActionResult Cancel(int id)
         {
-            var attendance = _context.Attendances.Find(id);
+            var staffId = GetStaffId();
+            if (staffId == null) return Unauthorized();
+
+            var attendance = _context.Attendances.FirstOrDefault(a => a.AttendanceId == id && a.StaffId == staffId);
             if (attendance == null || attendance.Date < DateTime.Today)
             {
                 TempData["Error"] = "Không thể huỷ ca đã diễn ra hoặc không tồn tại.";

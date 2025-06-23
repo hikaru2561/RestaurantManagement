@@ -3,53 +3,68 @@
 @{
     ViewData["Title"] = "Lịch sử đơn hàng";
     Layout = "_CustomerLayout";
+
+    var statusFilter = Context.Request.Query["statusFilter"].ToString();
+    var fromDate = Context.Request.Query["fromDate"].ToString();
+    var toDate = Context.Request.Query["toDate"].ToString();
 }
 
-<h2>Lịch sử đơn hàng</h2>
+<h2 class="mb-3">Lịch sử đơn hàng</h2>
 
 <form method="get" class="row mb-3">
     <div class="col-md-3">
         <select class="form-select" name="statusFilter">
             <option value="">-- Trạng thái --</option>
-            @foreach (var status in Enum.GetValues(typeof(OrderStatus)))
+            @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
             {
-                <option value="@status">@status</option>
+                var statusStr = status.ToString();
+                <option value="@statusStr" selected="@(statusStr == statusFilter ? "selected" : null)">
+                    @statusStr
+                </option>
             }
         </select>
     </div>
     <div class="col-md-3">
-        <input type="date" name="fromDate" class="form-control" />
+        <input type="date" name="fromDate" value="@fromDate" class="form-control" />
     </div>
     <div class="col-md-3">
-        <input type="date" name="toDate" class="form-control" />
+        <input type="date" name="toDate" value="@toDate" class="form-control" />
     </div>
     <div class="col-md-3">
         <button type="submit" class="btn btn-primary">Lọc</button>
     </div>
 </form>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Ngày đặt</th>
-            <th>Bàn</th>
-            <th>Tổng tiền</th>
-            <th>Trạng thái</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var order in Model)
-        {
+@if (!Model.Any())
+{
+    <p class="text-muted">Không tìm thấy đơn hàng phù hợp.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
             <tr>
-                <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@order.Table?.Name</td>
-                <td>@order.Payment?.TotalAmount.ToString("N0") đ</td>
-                <td>@order.Status</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-info">Chi tiết</a>
-                </td>
+                <th>Ngày đặt</th>
+                <th>Bàn</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                var amount = order.Payment?.TotalAmount ?? 0;
+                <tr>
+                    <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@order.Table?.Name</td>
+                    <td>@amount.ToString("N0") đ</td>
+                    <td>@order.Status</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-info">Chi tiết</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

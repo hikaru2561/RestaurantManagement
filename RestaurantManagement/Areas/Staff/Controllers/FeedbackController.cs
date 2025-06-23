@@ -18,18 +18,18 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             _context = context;
         }
 
-        private int GetStaffId()
+        private int? GetStaffIdFromClaims()
         {
-            var username = User.FindFirstValue(ClaimTypes.Name);
-            return _context.Staffs.FirstOrDefault(s => s.Username == username)?.StaffId ?? 0;
+            var staffIdStr = User.FindFirst("StaffId")?.Value;
+            return int.TryParse(staffIdStr, out var id) ? id : null;
         }
 
         public IActionResult Index()
         {
-            int staffId = GetStaffId();
+            var staffId = GetStaffIdFromClaims();
+            if (staffId == null) return Unauthorized();
 
             var feedbacks = _context.Feedbacks
-                // Bỏ .Include(f => f.Customer) vì Feedback không có Customer navigation nữa
                 .Include(f => f.Order)
                 .Include(f => f.Reply)
                 .Where(f => f.Order != null && f.Order.StaffId == staffId)
@@ -40,7 +40,8 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
         public IActionResult Details(int id)
         {
-            int staffId = GetStaffId();
+            var staffId = GetStaffIdFromClaims();
+            if (staffId == null) return Unauthorized();
 
             var feedback = _context.Feedbacks
                 .Include(f => f.Order)
@@ -61,25 +62,31 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 return RedirectToAction("Details", new { id = feedbackId });
             }
 
+            var staffId = GetStaffIdFromClaims();
+            if (staffId == null) return Unauthorized();
+
             var feedback = _context.Feedbacks
                 .Include(f => f.Order)
                 .Include(f => f.Reply)
-                .FirstOrDefault(f => f.FeedbackId == feedbackId);
+                .FirstOrDefault(f => f.FeedbackId == feedbackId && f.Order.StaffId == staffId);
 
-            if (feedback == null || feedback.Reply != null)
+            if (feedback == null)
             {
-                TempData["Error"] = "Phản hồi không hợp lệ hoặc đã được trả lời.";
+                TempData["Error"] = "Phản hồi không hợp lệ hoặc không thuộc quyền truy cập.";
                 return RedirectToAction("Index");
             }
 
-            int staffId = GetStaffId();
+            if (feedback.Reply != null)
+            {
+                TempData["Error"] = "Phản hồi này đã được trả lời trước đó.";
+                return RedirectToAction("Details", new { id = feedbackId });
+            }
 
             var reply = new Reply
             {
                 FeedbackId = feedbackId,
                 Content = content,
                 RepliedAt = DateTime.Now
-                // Bạn có thể thêm thông tin staffId hoặc staff nếu cần mở rộng
             };
 
             _context.Replies.Add(reply);
