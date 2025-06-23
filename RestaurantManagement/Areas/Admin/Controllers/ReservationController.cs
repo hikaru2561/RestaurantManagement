@@ -31,7 +31,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         public IActionResult Create()
         {
             ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name");
-            ViewBag.Tables = new SelectList(_context.Tables, "TableId", "Name");
+            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name");
             ViewBag.Customers = new SelectList(_context.Customers
     .Select(c => new { c.CustomerId, Name = c.Name + " - " + c.Phone }), "CustomerId", "Name");
             return View();
@@ -50,7 +50,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             }
 
             ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name", reservation.CustomerId);
-            ViewBag.Tables = new SelectList(_context.Tables, "TableId", "Name", reservation.TableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.TableId);
             return View(reservation);
         }
 
@@ -61,7 +61,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
 
             ViewBag.Customers = new SelectList(_context.Customers
       .Select(c => new { c.CustomerId, Name = c.Name + " - " + c.Phone }), "CustomerId", "Name");
-            ViewBag.Tables = new SelectList(_context.Tables, "TableId", "Name", reservation.TableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.TableId);
 
             return View(reservation);
         }
@@ -81,7 +81,7 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             }
 
             ViewBag.Customers = new SelectList(_context.Customers, "CustomerId", "Name", reservation.CustomerId);
-            ViewBag.Tables = new SelectList(_context.Tables, "TableId", "Name", reservation.TableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables, "TableId", "Name", reservation.TableId);
             return View(reservation);
         }
 
