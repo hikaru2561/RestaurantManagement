@@ -12,32 +12,18 @@ namespace RestaurantManagement.Areas.Customer.Controllers
     public class FeedbackController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public FeedbackController(ApplicationDbContext context)
+        public FeedbackController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         private int? GetCustomerIdFromClaims()
         {
             var customerIdStr = User.FindFirst("CustomerId")?.Value;
             return int.TryParse(customerIdStr, out var id) ? id : null;
-        }
-
-        [HttpGet]
-        public IActionResult Index()
-        {
-            var customerId = GetCustomerIdFromClaims();
-            if (customerId == null) return Unauthorized();
-
-            var feedbacks = _context.Feedbacks
-                .Include(f => f.Reply)
-                .Include(f => f.Order)
-                .Where(f => f.Order.CustomerId == customerId)
-                .OrderByDescending(f => f.FeedbackId)
-                .ToList();
-
-            return View(feedbacks);
         }
 
         [HttpGet]
@@ -48,23 +34,23 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(int orderId, string content, int rating)
+        public IActionResult Create(int orderId, string content, int rating, IFormFile? imageFile)
         {
             var customerId = GetCustomerIdFromClaims();
             if (customerId == null) return Unauthorized();
+
+            if (string.IsNullOrWhiteSpace(content) || rating < 1 || rating > 5)
+            {
+                ModelState.AddModelError("", "Vui lòng nhập nội dung và đánh giá hợp lệ.");
+                ViewBag.OrderId = orderId;
+                return View();
+            }
 
             var order = _context.Orders.FirstOrDefault(o => o.OrderId == orderId && o.CustomerId == customerId);
             if (order == null)
             {
                 TempData["Error"] = "Đơn hàng không tồn tại hoặc không thuộc về bạn.";
                 return RedirectToAction("Index", "Order");
-            }
-
-            if (string.IsNullOrWhiteSpace(content) || rating < 1 || rating > 5)
-            {
-                ModelState.AddModelError("", "Vui lòng nhập đầy đủ nội dung và đánh giá.");
-                ViewBag.OrderId = orderId;
-                return View();
             }
 
             var feedback = new Feedback
@@ -76,6 +62,22 @@ namespace RestaurantManagement.Areas.Customer.Controllers
 
             _context.Feedbacks.Add(feedback);
             _context.SaveChanges();
+
+            // Xử lý ảnh nếu có
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(imageFile.FileName);
+                var fileName = $"{feedback.FeedbackId}{ext}";
+                var path = Path.Combine(_env.WebRootPath, "images", "Feedback", fileName);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    imageFile.CopyTo(stream);
+                }
+
+                feedback.ImagePath = $"/images/Feedback/{fileName}";
+                _context.SaveChanges();
+            }
 
             TempData["Success"] = "Gửi phản hồi thành công!";
             return RedirectToAction("Details", "Order", new { id = orderId });
@@ -101,29 +103,44 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(int id, string content, int rating)
+        public IActionResult Edit(int id, string content, int rating, IFormFile? imageFile)
         {
             var customerId = GetCustomerIdFromClaims();
             if (customerId == null) return Unauthorized();
 
             var feedback = _context.Feedbacks
-                .Include(f => f.Reply)
                 .Include(f => f.Order)
                 .FirstOrDefault(f => f.FeedbackId == id && f.Order.CustomerId == customerId);
 
-            if (feedback == null || feedback.Reply != null)
+            if (feedback == null)
             {
                 return RedirectToAction("Index", "Order");
             }
 
             if (string.IsNullOrWhiteSpace(content) || rating < 1 || rating > 5)
             {
-                ModelState.AddModelError("", "Vui lòng nhập nội dung hợp lệ.");
+                ModelState.AddModelError("", "Vui lòng nhập nội dung và đánh giá hợp lệ.");
                 return View(feedback);
             }
 
             feedback.Content = content;
             feedback.Rating = rating;
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var ext = Path.GetExtension(imageFile.FileName);
+                var fileName = $"{feedback.FeedbackId}{ext}";
+                var path = Path.Combine(_env.WebRootPath, "images", "Feedback", fileName);
+
+                // Ghi đè ảnh cũ
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    imageFile.CopyTo(stream);
+                }
+
+                feedback.ImagePath = $"/images/Feedback/{fileName}";
+            }
+
             _context.SaveChanges();
 
             TempData["Success"] = "Cập nhật phản hồi thành công!";
@@ -137,13 +154,22 @@ namespace RestaurantManagement.Areas.Customer.Controllers
             if (customerId == null) return Unauthorized();
 
             var feedback = _context.Feedbacks
-                .Include(f => f.Reply)
                 .Include(f => f.Order)
                 .FirstOrDefault(f => f.FeedbackId == id && f.Order.CustomerId == customerId);
 
-            if (feedback == null || feedback.Reply != null)
+            if (feedback == null)
             {
                 return RedirectToAction("Index", "Order");
+            }
+
+            // Xóa ảnh nếu có
+            if (!string.IsNullOrEmpty(feedback.ImagePath))
+            {
+                var filePath = Path.Combine(_env.WebRootPath, feedback.ImagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
             }
 
             _context.Feedbacks.Remove(feedback);
@@ -151,6 +177,22 @@ namespace RestaurantManagement.Areas.Customer.Controllers
 
             TempData["Success"] = "Đã xoá phản hồi.";
             return RedirectToAction("Details", "Order", new { id = feedback.OrderId });
+        }
+
+        [HttpGet]
+        public IActionResult Index()
+        {
+            var customerId = GetCustomerIdFromClaims();
+            if (customerId == null) return Unauthorized();
+
+            var feedbacks = _context.Feedbacks
+                .Include(f => f.Reply)
+                .Include(f => f.Order)
+                .Where(f => f.Order.CustomerId == customerId)
+                .OrderByDescending(f => f.FeedbackId)
+                .ToList();
+
+            return View(feedbacks);
         }
     }
 }
