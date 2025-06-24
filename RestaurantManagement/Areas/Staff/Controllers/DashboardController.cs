@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RestaurantManagement.Data;
 using System.Security.Claims;
 using System.Linq;
+using RestaurantManagement.Models;
 
 namespace RestaurantManagement.Areas.Staff.Controllers
 {
@@ -19,7 +20,6 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
         public IActionResult Index()
         {
-            // Lấy thông tin từ Claims
             var staffIdStr = User.FindFirst("StaffId")?.Value;
             var staffName = User.FindFirst("FullName")?.Value;
 
@@ -29,22 +29,33 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 return RedirectToAction("Logout", "Login", new { area = "" });
             }
 
-            ViewBag.StaffName = staffName ?? "(Không rõ tên)";
-
-            // Thống kê đơn hàng hôm nay
             var today = DateTime.Today;
-            ViewBag.TodayOrders = _context.Orders
-                .Where(o => o.OrderTime.Date == today && o.StaffId == staffId)
-                .Count();
 
-            // Lượt chấm công gần nhất
-            var lastAttendance = _context.Attendances
-                .Where(a => a.StaffId == staffId)
-                .OrderByDescending(a => a.Date)
+            ViewBag.TodayOrders = _context.Orders
+                .Count(o => o.StaffId == staffId && o.OrderTime.Date == today);
+
+            ViewBag.TablesInUse = _context.DingningTables
+                .Count(t => t.Status == TableStatus.InUse);
+
+            ViewBag.PendingOrders = _context.Orders
+                .Count(o => o.StaffId == staffId && o.Status == OrderStatus.Ordered);
+
+            ViewBag.TodayShift = _context.Attendances
+                .Where(a => a.StaffId == staffId && a.Date == today)
+                .Select(a => a.Shift)
                 .FirstOrDefault();
-            ViewBag.LastAttendance = lastAttendance;
+
+            ViewBag.NextShift = _context.Attendances
+                .Where(a => a.StaffId == staffId && a.Date > today)
+                .OrderBy(a => a.Date)
+                .Select(a => a.Date.ToString("dd/MM/yyyy") + " - Ca " + a.Shift)
+                .FirstOrDefault();
 
             return View();
         }
+
+
+
+
     }
 }

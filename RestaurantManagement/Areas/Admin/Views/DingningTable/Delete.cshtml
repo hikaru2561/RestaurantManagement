@@ -19,7 +19,7 @@
     <dd class="col-sm-9">@((Model.IsVIP) ? "Có" : "Không")</dd>
 </dl>
 
-<form asp-area="Admin" asp-action="DeleteConfirmed" method="post">
+<form asp-area="Admin" asp-action="Delete" method="post">
     <input type="hidden" asp-for="DingningTableId" />
     <button type="submit" class="btn btn-danger">Xoá</button>
     <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>

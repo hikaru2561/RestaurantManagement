@@ -1,26 +1,68 @@
 ﻿@{
     ViewData["Title"] = "Báo cáo doanh thu";
     Layout = "_AdminLayout";
+    var labels = ViewBag.Labels as List<string>;
+    var data = ViewBag.Data as List<decimal>;
 }
 
-<h2 class="mb-4">📈 Báo cáo doanh thu</h2>
+<h2 class="fw-bold mb-4">📊 Báo cáo doanh thu</h2>
 
-<table class="table table-bordered text-center">
-    <thead class="table-light">
-        <tr>
-            <th>Ngày</th>
-            <th>Số đơn</th>
-            <th>Doanh thu (VNĐ)</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in (List<(DateTime Date, int Count, decimal Revenue)>)ViewBag.Report)
-        {
-            <tr>
-                <td>@item.Date.ToString("dd/MM/yyyy")</td>
-                <td>@item.Count</td>
-                <td>@item.Revenue.ToString("N0")</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<form method="get" class="row g-2 mb-4">
+    <div class="col-md-3">
+        <label for="from" class="form-label">Từ ngày</label>
+        <input type="date" id="from" name="from" class="form-control" value="@ViewBag.From" />
+    </div>
+    <div class="col-md-3">
+        <label for="to" class="form-label">Đến ngày</label>
+        <input type="date" id="to" name="to" class="form-control" value="@ViewBag.To" />
+    </div>
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+    </div>
+    <div class="col-md-2 align-self-end">
+        <a class="btn btn-success w-100"
+           asp-action="ExportRevenue"
+           asp-route-from="@ViewBag.From"
+           asp-route-to="@ViewBag.To">
+            <i class="bi bi-download"></i> Xuất CSV
+        </a>
+    </div>
+</form>
+
+<canvas id="revenueChart" height="100"></canvas>
+
+<h5 class="mt-4">Tổng doanh thu: <strong class="text-success">@ViewBag.Total.ToString("N0") đ</strong></h5>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(labels)),
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: @Html.Raw(Json.Serialize(data)),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: '#007bff',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' đ';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

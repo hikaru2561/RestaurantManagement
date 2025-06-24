@@ -1,4 +1,6 @@
 ﻿@model RestaurantManagement.Models.Shift
+@using RestaurantManagement.Models
+
 @{
     ViewData["Title"] = "Chi tiết ca làm";
     Layout = "_AdminLayout";
@@ -22,7 +24,7 @@
         <tr>
             <th>Nhân viên</th>
             <th>Ngày</th>
-            <th>Đi làm?</th>
+            <th>Trạng thái</th>
         </tr>
     </thead>
     <tbody>
@@ -31,10 +33,29 @@
             <tr>
                 <td>@att.Staff?.Name</td>
                 <td>@att.Date.ToString("dd/MM/yyyy")</td>
-                <td>@(att.IsPresent ? "✅ Có mặt" : "❌ Vắng")</td>
+                <td>
+                    @switch (att.Status)
+                    {
+                        case AttendanceStatus.Registered:
+                            <span class="text-warning">📝 Đã đăng ký</span>
+                            break;
+                        case AttendanceStatus.Approved:
+                            <span class="text-primary">✔ Đã duyệt</span>
+                            break;
+                        case AttendanceStatus.Present:
+                            <span class="text-success">✅ Có mặt</span>
+                            break;
+                        case AttendanceStatus.Absent:
+                            <span class="text-danger">❌ Vắng</span>
+                            break;
+                        default:
+                            <span class="text-muted">Không xác định</span>
+                            break;
+                    }
+                </td>
             </tr>
         }
     </tbody>
 </table>
 
-<a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+<a asp-area="Admin" asp-action="Index" class="btn btn-secondary">← Quay lại</a>

@@ -44,8 +44,8 @@ namespace RestaurantManagement.Areas.Staff.Controllers
         [HttpPost]
         public IActionResult Transfer(int fromTableId, int toTableId)
         {
-            var fromTable = _context.DingningTables.FirstOrDefault(t => t.DingningTableId == fromTableId);
-            var toTable = _context.DingningTables.FirstOrDefault(t => t.DingningTableId == toTableId);
+            var fromTable = _context.DingningTables.Find(fromTableId);
+            var toTable = _context.DingningTables.Find(toTableId);
 
             if (fromTable == null || toTable == null || fromTable.Status != TableStatus.InUse || toTable.Status != TableStatus.Available)
             {
@@ -53,22 +53,20 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 return RedirectToAction("Index");
             }
 
-            var order = _context.Orders
-                .FirstOrDefault(o => o.DingningTableId == fromTableId && o.Status != OrderStatus.Paid && o.Status != OrderStatus.Canceled);
+            var orders = _context.Orders
+                .Where(o => o.DingningTableId == fromTableId && o.Status != OrderStatus.Paid && o.Status != OrderStatus.Canceled)
+                .ToList();
 
-            if (order != null)
+            foreach (var order in orders)
             {
                 order.DingningTableId = toTableId;
-                fromTable.Status = TableStatus.Available;
-                toTable.Status = TableStatus.InUse;
-                _context.SaveChanges();
-                TempData["Success"] = "Chuyển bàn thành công.";
-            }
-            else
-            {
-                TempData["Error"] = "Không tìm thấy đơn hàng để chuyển.";
             }
 
+            fromTable.Status = TableStatus.Available;
+            toTable.Status = TableStatus.InUse;
+            _context.SaveChanges();
+
+            TempData["Success"] = "Chuyển bàn thành công.";
             return RedirectToAction("Index");
         }
 
@@ -100,7 +98,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 return RedirectToAction("Index");
             }
 
-            foreach (var item in mergeOrder.OrderItems!)
+            foreach (var item in mergeOrder.OrderItems)
             {
                 item.OrderId = mainOrder.OrderId;
             }
@@ -115,10 +113,8 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             return RedirectToAction("Index");
         }
 
-
         // TÁCH BÀN
         [HttpGet]
-        // GET: Staff/Table/Split/5
         public IActionResult Split(int fromTableId)
         {
             var fromTable = _context.DingningTables.Find(fromTableId);
@@ -128,17 +124,13 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Danh sách bàn trống để chọn tách sang
             var emptyTables = _context.DingningTables
                 .Where(t => t.Status == TableStatus.Available && t.DingningTableId != fromTableId)
                 .ToList();
 
-            // Lấy Order đang hoạt động trên bàn
             var order = _context.Orders
-                .Include(o => o.OrderItems)
-                    .ThenInclude(oi => oi.MenuItem)
-                .FirstOrDefault(o => o.DingningTableId == fromTableId &&
-                                    (o.Status == OrderStatus.Ordered || o.Status == OrderStatus.Preparing));
+                .Include(o => o.OrderItems).ThenInclude(oi => oi.MenuItem)
+                .FirstOrDefault(o => o.DingningTableId == fromTableId && (o.Status == OrderStatus.Ordered || o.Status == OrderStatus.Preparing));
 
             ViewBag.Tables = emptyTables;
             ViewBag.FromTableId = fromTableId;
@@ -147,7 +139,6 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             return View(fromTableId);
         }
 
-        // POST: Staff/Table/Split
         [HttpPost]
         public IActionResult Split(int fromTableId, int toTableId, List<int> selectedOrderItemIds)
         {
@@ -159,8 +150,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
             var fromOrder = _context.Orders
                 .Include(o => o.OrderItems)
-                .FirstOrDefault(o => o.DingningTableId == fromTableId &&
-                                    (o.Status == OrderStatus.Ordered || o.Status == OrderStatus.Preparing));
+                .FirstOrDefault(o => o.DingningTableId == fromTableId && (o.Status == OrderStatus.Ordered || o.Status == OrderStatus.Preparing));
 
             if (fromOrder == null || selectedOrderItemIds == null || !selectedOrderItemIds.Any())
             {
@@ -168,10 +158,8 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 return RedirectToAction("Split", new { fromTableId });
             }
 
-            // Lấy thông tin Staff hiện tại
             var staffId = GetStaffId();
 
-            // Tạo Order mới cho bàn mới
             var newOrder = new Order
             {
                 DingningTableId = toTableId,
@@ -181,9 +169,8 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 StaffId = staffId
             };
             _context.Orders.Add(newOrder);
-            _context.SaveChanges(); // để có OrderId mới
+            _context.SaveChanges();
 
-            // Di chuyển món được chọn sang Order mới
             foreach (var itemId in selectedOrderItemIds)
             {
                 var item = fromOrder.OrderItems.FirstOrDefault(oi => oi.OrderItemId == itemId);
@@ -193,7 +180,6 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 }
             }
 
-            // Cập nhật trạng thái bàn mới
             var toTable = _context.DingningTables.Find(toTableId);
             if (toTable != null)
             {
@@ -204,6 +190,5 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             TempData["Success"] = "Tách món sang bàn mới thành công!";
             return RedirectToAction("Index");
         }
-
     }
 }

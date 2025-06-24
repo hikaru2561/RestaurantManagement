@@ -1,70 +1,100 @@
-﻿@model IEnumerable<RestaurantManagement.Models.Order>
+﻿@model List<RestaurantManagement.Models.Order>
 @using RestaurantManagement.Models
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
 @{
     ViewData["Title"] = "Lịch sử đơn hàng";
-    Layout = "_CustomerLayout";
-
-    var statusFilter = Context.Request.Query["statusFilter"].ToString();
-    var fromDate = Context.Request.Query["fromDate"].ToString();
-    var toDate = Context.Request.Query["toDate"].ToString();
+    Layout = "~/Areas/Customer/Views/Shared/_CustomerLayout.cshtml";
 }
 
-<h2 class="mb-3">Lịch sử đơn hàng</h2>
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-receipt-cutoff me-2"></i>Lịch sử đơn hàng</h2>
 
-<form method="get" class="row mb-3">
-    <div class="col-md-3">
-        <select class="form-select" name="statusFilter">
-            <option value="">-- Trạng thái --</option>
-            @foreach (OrderStatus status in Enum.GetValues(typeof(OrderStatus)))
-            {
-                var statusStr = status.ToString();
-                <option value="@statusStr" selected="@(statusStr == statusFilter ? "selected" : null)">
-                    @statusStr
-                </option>
-            }
-        </select>
-    </div>
-    <div class="col-md-3">
-        <input type="date" name="fromDate" value="@fromDate" class="form-control" />
-    </div>
-    <div class="col-md-3">
-        <input type="date" name="toDate" value="@toDate" class="form-control" />
-    </div>
-    <div class="col-md-3">
-        <button type="submit" class="btn btn-primary">Lọc</button>
-    </div>
-</form>
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">Lọc theo trạng thái</label>
+            <select name="statusFilter" class="form-select">
+                <option value="">-- Tất cả --</option>
+                @foreach (var status in Enum.GetValues(typeof(OrderStatus)))
+                {
+                    <option value="@status" selected="@(HttpContextAccessor.HttpContext.Request.Query["statusFilter"] == status.ToString() ? "selected" : null)">
+                        @status
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Từ ngày</label>
+            <input type="date" name="fromDate" class="form-control" value="@HttpContextAccessor.HttpContext.Request.Query["fromDate"]" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Đến ngày</label>
+            <input type="date" name="toDate" class="form-control" value="@HttpContextAccessor.HttpContext.Request.Query["toDate"]" />
+        </div>
+        <div class="col-md-3 align-self-end">
+            <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="bi bi-funnel me-1"></i>Lọc
+            </button>
+        </div>
+    </form>
 
-@if (!Model.Any())
-{
-    <p class="text-muted">Không tìm thấy đơn hàng phù hợp.</p>
-}
-else
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Ngày đặt</th>
-                <th>Bàn</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
-                var amount = order.Payment?.TotalAmount ?? 0;
-                <tr>
-                    <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@order.DingningTable?.Name</td>
-                    <td>@amount.ToString("N0") đ</td>
-                    <td>@order.Status</td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-sm btn-info">Chi tiết</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>Chưa có đơn hàng nào được tìm thấy.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered shadow-sm rounded-4">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Bàn</th>
+                        <th>Thời gian</th>
+                        <th>Trạng thái</th>
+                        <th>Tổng tiền</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model)
+                    {
+                        <tr class="text-center align-middle">
+                            <td>#@o.OrderId</td>
+                            <td>@o.DingningTable?.Name</td>
+                            <td>@o.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @switch (o.Status)
+                                {
+                                    case OrderStatus.Ordered:
+                                        <span class="badge bg-secondary">Đã đặt</span>
+                                        break;
+                                    case OrderStatus.Preparing:
+                                        <span class="badge bg-warning text-dark">Đang chuẩn bị</span>
+                                        break;
+                                    case OrderStatus.Paid:
+                                        <span class="badge bg-success">Đã thanh toán</span>
+                                        break;
+                                    case OrderStatus.Completed:
+                                        <span class="badge bg-primary">Hoàn tất</span>
+                                        break;
+                                    case OrderStatus.Canceled:
+                                        <span class="badge bg-danger">Đã huỷ</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@($"{o.Payment?.TotalAmount.ToString("N0")} đ")</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@o.OrderId" class="btn btn-sm btn-outline-dark">
+                                    <i class="bi bi-eye me-1"></i>Xem
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

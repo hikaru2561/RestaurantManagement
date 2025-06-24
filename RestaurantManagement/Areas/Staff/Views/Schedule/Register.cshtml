@@ -29,7 +29,10 @@
             @foreach (var shift in shifts)
             {
                 <tr>
-                    <td>@shift.Name <br /><small>@shift.StartTime.ToString(@"hh\:mm") - @shift.EndTime.ToString(@"hh\:mm")</small></td>
+                    <td>
+                        @shift.Name <br />
+                        <small>@shift.StartTime.ToString("HH:mm") - @shift.EndTime.ToString("HH:mm")</small>
+                    </td>
                     @for (var date = weekStart; date <= weekEnd; date = date.AddDays(1))
                     {
                         var record = registered.FirstOrDefault(r => r.ShiftId == shift.ShiftId && r.Date.Date == date.Date);
@@ -42,23 +45,30 @@
                             }
                             else
                             {
-                                if (!record.IsApproved)
+                                switch (record.Status)
                                 {
-                                    <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                                    case RestaurantManagement.Models.AttendanceStatus.Registered:
+                                        <span class="badge bg-secondary">Chờ duyệt</span>
 
-                                    <br />
-                                    <a asp-action="Cancel" asp-route-id="@record.AttendanceId" class="btn btn-sm btn-danger mt-1">Huỷ</a>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-success">Đã duyệt</span>
+                                        <br />
+                                        <a asp-action="Cancel" asp-route-id="@record.AttendanceId" class="btn btn-sm btn-danger mt-1">Huỷ</a>
+                                        break;
+                                    case RestaurantManagement.Models.AttendanceStatus.Approved:
+                                        <span class="badge bg-success">Đã duyệt</span>
 
-                                    <br />
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-secondary mt-1"
-                                            onclick="openRequestModal(@record.AttendanceId, '@shift.Name', '@date.ToString("dd/MM/yyyy")')">
-                                        Gửi yêu cầu
-                                    </button>
+                                        <br />
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary mt-1"
+                                                onclick="openRequestModal(@record.AttendanceId, '@shift.Name', '@date.ToString("dd/MM/yyyy")')">
+                                            Gửi yêu cầu
+                                        </button>
+                                        break;
+                                    case RestaurantManagement.Models.AttendanceStatus.Present:
+                                        <span class="badge bg-success">Đã làm</span>
+                                        break;
+                                    case RestaurantManagement.Models.AttendanceStatus.Absent:
+                                        <span class="badge bg-danger">Vắng</span>
+                                        break;
                                 }
                             }
                         </td>
@@ -71,7 +81,6 @@
     <button type="submit" class="btn btn-success">Đăng ký</button>
     <a asp-action="Index" class="btn btn-secondary">← Quay lại</a>
 </form>
-
 
 <!-- Modal Gửi yêu cầu -->
 <div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
@@ -111,9 +120,7 @@
             });
             document.getElementById("SelectedShiftsJson").value = JSON.stringify(data);
         });
-    </script>
 
-    <script>
         function openRequestModal(attendanceId, shiftName, dateStr) {
             document.getElementById('attendanceId').value = attendanceId;
             document.getElementById('shiftInfo').innerText = `${shiftName} - ${dateStr}`;
@@ -128,9 +135,7 @@
 
             fetch('/Staff/Schedule/SendRequest', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ attendanceId: id, content: content })
             })
             .then(res => res.json())

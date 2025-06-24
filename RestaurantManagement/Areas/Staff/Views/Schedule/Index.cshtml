@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<RestaurantManagement.Models.Attendance>
+@using RestaurantManagement.Models
 @using System.Globalization
+
 @{
     ViewData["Title"] = "Lịch làm việc tuần này";
     Layout = "_StaffLayout";
 
-    // Tính thứ 2 của tuần hiện tại
     var today = DateTime.Today;
     var monday = today.AddDays(-(int)today.DayOfWeek + (today.DayOfWeek == DayOfWeek.Sunday ? -6 : 1));
     var weekDates = Enumerable.Range(0, 7).Select(i => monday.AddDays(i)).ToList();
 
-    // Lấy danh sách ca làm từ ViewBag
-    var shifts = ViewBag.Shifts as List<RestaurantManagement.Models.Shift>;
+    var shifts = ViewBag.Shifts as List<Shift>;
 }
 
 <h2 class="mb-3">Lịch làm việc tuần này</h2>
@@ -33,7 +33,7 @@
             <tr>
                 <td>
                     <strong>@shift.Name</strong><br />
-                    <small>@shift.StartTime.ToString(@"hh\:mm") - @shift.EndTime.ToString(@"hh\:mm")</small>
+                    <small>@shift.StartTime.ToString("HH:mm") - @shift.EndTime.ToString("HH:mm")</small>
                 </td>
                 @foreach (var date in weekDates)
                 {
@@ -41,17 +41,27 @@
                     <td>
                         @if (attendance != null)
                         {
-                            if (attendance.IsPresent)
+                            switch (attendance.Status)
                             {
-                                <span class="badge bg-success">Đã làm</span>
+                                case AttendanceStatus.Present:
+                                    <span class="badge bg-success">Đã làm</span>
+                                    break;
+
+                                case AttendanceStatus.Absent:
+                                    <span class="badge bg-danger">Vắng</span>
+                                    break;
+
+                                case AttendanceStatus.Approved:
+                                    <span class="badge bg-warning text-dark">Đã duyệt</span>
+                                    break;
+
+                                case AttendanceStatus.Registered:
+                                    <span class="badge bg-secondary">Chờ duyệt</span>
+                                    break;
                             }
-                            else if (attendance.Date < DateTime.Today)
+
+                            if (attendance.Date >= DateTime.Today && attendance.Status == AttendanceStatus.Registered)
                             {
-                                <span class="badge bg-danger">Vắng</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">Chờ</span>
                                 <br />
                                 <a asp-action="Cancel" asp-route-id="@attendance.AttendanceId" class="btn btn-sm btn-outline-danger mt-1">Huỷ</a>
                             }

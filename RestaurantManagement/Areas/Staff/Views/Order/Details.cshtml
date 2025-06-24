@@ -1,101 +1,165 @@
 ﻿@model RestaurantManagement.Models.Order
 @using RestaurantManagement.Models
+
 @{
     ViewData["Title"] = "Chi tiết đơn hàng";
     Layout = "_StaffLayout";
     var menuItems = ViewBag.MenuItems as List<MenuItem>;
-    decimal total = Model.OrderItems.Sum(i => i.Quantity * (i.MenuItem?.Price ?? 0));
+    bool isFinalized = Model.Status == OrderStatus.Paid || Model.Status == OrderStatus.Completed;
+    bool isCanceled = Model.Status == OrderStatus.Canceled;
+    decimal total = Model.OrderItems?.Sum(i => i.Quantity * i.MenuItem.Price) ?? 0;
 }
 
-<h2 class="mb-3">Chi tiết đơn hàng #@Model.OrderId</h2>
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
-<p><strong>Bàn:</strong> @Model.DingningTable?.Name</p>
-<p><strong>Khách hàng:</strong> @Model.Customer?.Name</p>
+<h2 class="fw-bold mb-3">🧾 Đơn hàng #@Model.OrderId</h2>
+<p><strong>Bàn:</strong> @Model.DingningTable?.Name | <strong>Khách:</strong> @Model.Customer?.Name</p>
 <p><strong>Thời gian:</strong> @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</p>
-<p><strong>Trạng thái:</strong> <span class="badge bg-info">@Model.Status</span></p>
+<p>
+    <strong>Trạng thái:</strong>
+    <span class="badge bg-@(Model.Status switch {
+        OrderStatus.Ordered => "secondary",
+        OrderStatus.Preparing => "info",
+        OrderStatus.Paid => "success",
+        OrderStatus.Completed => "dark",
+        OrderStatus.Canceled => "danger",
+        _ => "light"
+    })">@Model.Status</span>
+</p>
 
-<hr />
-<h4>Danh sách món</h4>
-<table class="table table-bordered">
-    <thead class="table-light">
-        <tr>
-            <th>Món</th>
-            <th>Số lượng</th>
-            <th>Giá</th>
-            <th>Thành tiền</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.OrderItems)
-        {
-            <tr>
-                <td>@item.MenuItem?.Name</td>
-                <td>
-                    <form asp-action="UpdateItemQuantity" method="post" class="d-flex">
-                        <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
-                        <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control me-2" style="width:80px;" />
-                        <button type="submit" class="btn btn-sm btn-success">✔</button>
-                    </form>
-                </td>
-                <td>@(item.MenuItem?.Price ?? 0).ToString("N0") đ</td>
-                <td>@(item.Quantity * (item.MenuItem?.Price ?? 0)).ToString("N0") đ</td>
-                <td>
-                    <form asp-action="RemoveItem" method="post">
-                        <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
-                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-    <tfoot>
-        <tr>
-            <th colspan="3" class="text-end">Tổng cộng:</th>
-            <th colspan="2">@total.ToString("N0") đ</th>
-        </tr>
-    </tfoot>
-</table>
-
-<hr />
-<h4>Thêm món</h4>
-<form asp-action="AddItem" method="post" class="row g-3">
-    <input type="hidden" name="orderId" value="@Model.OrderId" />
-    <div class="col-md-6">
-        <select name="menuItemId" class="form-select">
-            @foreach (var item in menuItems)
-            {
-                <option value="@item.MenuItemId">@item.Name</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-3">
-        <input type="number" name="quantity" class="form-control" min="1" value="1" />
-    </div>
-    <div class="col-md-3">
-        <button type="submit" class="btn btn-primary">Thêm</button>
-    </div>
-</form>
-
-<hr />
-@if (Model.Status != OrderStatus.Paid)
+@if (Model.OrderItems != null && Model.OrderItems.Any())
 {
-    <form asp-action="Checkout" method="post" class="mt-4">
-        <input type="hidden" name="id" value="@Model.OrderId" />
-        <label class="form-label">Phương thức thanh toán:</label>
-        <select name="method" class="form-select w-25 d-inline-block">
-            <option>Tiền mặt</option>
-            <option>Thẻ</option>
-        </select>
-        <button type="submit" class="btn btn-success ms-2">Thanh toán</button>
+    <h5 class="mt-4">🍽️ Danh sách món:</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Tên món</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
+                @if (!isFinalized && !isCanceled)
+                {
+                    <th></th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr id="row-@item.OrderItemId">
+                    <td>@item.MenuItem.Name</td>
+                    <td>
+                        @if (!isFinalized && !isCanceled)
+                        {
+                            <form class="d-flex update-quantity-form" data-item-id="@item.OrderItemId">
+                                <input type="number" name="quantity" value="@item.Quantity" min="1" class="form-control form-control-sm w-50 me-2 quantity-input" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Cập nhật</button>
+                            </form>
+                        }
+                        else
+                        {
+                            @item.Quantity
+                        }
+                    </td>
+                    <td>@item.MenuItem.Price.ToString("N0") đ</td>
+                    <td id="amount-@item.OrderItemId">@((item.MenuItem.Price * item.Quantity).ToString("N0")) đ</td>
+                    @if (!isFinalized && !isCanceled)
+                    {
+                        <td>
+                            <form asp-action="RemoveItem" method="post">
+                                <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Xoá món này?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    }
+                </tr>
+            }
+            <tr class="fw-bold">
+                <td colspan="3" class="text-end">Tổng cộng:</td>
+                <td colspan="@((!isFinalized && !isCanceled) ? 2 : 1)" id="total-amount">@total.ToString("N0") đ</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@if (!isFinalized && !isCanceled)
+{
+    <h5 class="mt-4">➕ Thêm món vào đơn</h5>
+    <form asp-action="AddItem" method="post" class="row g-2 mb-4">
+        <input type="hidden" name="orderId" value="@Model.OrderId" />
+        <div class="col-md-6">
+            <select name="menuItemId" class="form-select" required>
+                <option disabled selected>-- Chọn món --</option>
+                @foreach (var item in menuItems)
+                {
+                    <option value="@item.MenuItemId">@item.Name - @item.Price.ToString("N0") đ</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="number" name="quantity" class="form-control" placeholder="Số lượng" required min="1" />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">Thêm món</button>
+        </div>
     </form>
+
+    <div class="mt-4">
+        <form asp-action="Checkout" asp-route-id="@Model.OrderId" method="post" class="d-inline">
+            <input type="hidden" name="method" value="Tiền mặt" />
+            <button type="submit" class="btn btn-success me-2">
+                <i class="bi bi-cash-coin"></i> Thanh toán
+            </button>
+        </form>
+
+        <form asp-action="Cancel" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@Model.OrderId" />
+            <button type="submit" class="btn btn-danger" onclick="return confirm('Xác nhận hủy đơn hàng?')">
+                <i class="bi bi-x-circle"></i> Hủy đơn
+            </button>
+        </form>
+    </div>
+}
+
+@if (isCanceled)
+{
+    <div class="alert alert-warning mt-4">
+        Đơn hàng này đã bị <strong>hủy</strong>. Không thể thực hiện các thao tác chỉnh sửa.
+    </div>
+}
+
+<a asp-action="Index" class="btn btn-secondary mt-4">← Quay lại danh sách</a>
+
+@section Scripts {
+    @if (!isFinalized && !isCanceled)
+    {
+        <script>
+            $('.update-quantity-form').submit(function (e) {
+                e.preventDefault();
+                const form = $(this);
+                const orderItemId = form.data('item-id');
+                const quantity = form.find('input[name="quantity"]').val();
+
+                $.ajax({
+                    url: '/Staff/Order/UpdateItemQuantity',
+                    method: 'POST',
+                    data: {
+                        orderItemId: orderItemId,
+                        quantity: quantity
+                    },
+                    success: function (res) {
+                        if (res.success) {
+                            $('#amount-' + orderItemId).text(res.itemTotal + ' đ');
+                            $('#total-amount').text(res.totalAmount + ' đ');
+                        } else {
+                            alert('Lỗi: ' + res.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Đã xảy ra lỗi khi cập nhật.");
+                    }
+                });
+            });
+        </script>
+    }
 }

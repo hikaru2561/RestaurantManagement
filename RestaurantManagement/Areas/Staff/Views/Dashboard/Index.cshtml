@@ -1,36 +1,62 @@
 ﻿@{
-    ViewData["Title"] = "Trang chính của nhân viên";
+    ViewData["Title"] = "Trang chủ nhân viên";
     Layout = "_StaffLayout";
 }
 
-    <h2>Xin chào, @ViewBag.StaffName!</h2>
-    <p><strong>Hôm nay:</strong> @DateTime.Now.ToString("dd/MM/yyyy")</p>
+<div class="mb-4">
+    <h2 class="fw-bold">👋 Xin chào, <span class="text-primary">@User.Identity?.Name</span></h2>
+    <p class="text-muted">Chúc bạn một ngày làm việc hiệu quả tại <strong>Gourmet Palace</strong>!</p>
+</div>
 
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h4 class="card-title">Đơn hàng hôm nay</h4>
-                    <p class="card-text display-4">@ViewBag.TodayOrders</p>
+<div class="row g-4">
+    <!-- Đơn hàng hôm nay -->
+    <div class="col-md-4">
+        <div class="card border-start border-info border-4 shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted">Đơn hàng hôm nay</h6>
+                    <h3 class="fw-bold text-info">@ViewBag.TodayOrders</h3>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h4 class="card-title">Lượt chấm công gần nhất</h4>
-                    <p class="card-text">
-                        @if (ViewBag.LastAttendance != null)
-                        {
-                            var att = (RestaurantManagement.Models.Attendance)ViewBag.LastAttendance;
-                            @($"Ngày: {att.Date:dd/MM/yyyy} - Ca: {att.Shift}")
-                        }
-                        else
-                        {
-                            <span>Chưa có dữ liệu</span>
-                        }
-                    </p>
-                </div>
+                <i class="bi bi-cart-check-fill fs-2 text-info"></i>
             </div>
         </div>
     </div>
+
+    <!-- Bàn đang phục vụ -->
+    <div class="col-md-4">
+        <div class="card border-start border-warning border-4 shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted">Bàn đang sử dụng</h6>
+                    <h3 class="fw-bold text-warning">@ViewBag.TablesInUse</h3>
+                </div>
+                <i class="bi bi-grid-3x3-gap-fill fs-2 text-warning"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ca làm việc -->
+    <div class="col-md-4">
+        <div class="card border-start border-success border-4 shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted">Ca làm hôm nay</h6>
+                    <h5 class="fw-bold text-success">
+                        @if (ViewBag.TodayShift != null)
+                        {
+                            @ViewBag.TodayShift
+                        }
+                        else
+                        {
+                            <span>Chưa có</span>
+                        }
+                    </h5>
+                </div>
+                <i class="bi bi-clock-fill fs-2 text-success"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nhắc việc -->
+

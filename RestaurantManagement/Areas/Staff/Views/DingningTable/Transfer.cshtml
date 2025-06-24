@@ -1,27 +1,27 @@
-﻿@model int
-@{
+﻿@{
     ViewData["Title"] = "Chuyển bàn";
     Layout = "_StaffLayout";
     var tables = ViewBag.Tables as List<RestaurantManagement.Models.DingningTable>;
-    int fromTableId = ViewBag.FromTableId;
+    var fromTableId = (int)ViewBag.FromTableId;
 }
 
-<h2>Chuyển bàn từ bàn @fromTableId</h2>
+<partial name="~/Views/Shared/_Notification.cshtml" />
 
-<form asp-action="Transfer" method="post">
+<h2>🔁 Chuyển bàn</h2>
+<p>Chuyển toàn bộ đơn hàng từ bàn hiện tại sang bàn khác</p>
+
+<form method="post">
     <input type="hidden" name="fromTableId" value="@fromTableId" />
-
     <div class="mb-3">
-        <label class="form-label">Chuyển sang bàn:</label>
-        <select class="form-select" name="toTableId" required>
-            <option value="">-- Chọn bàn --</option>
-            @foreach (var table in tables)
+        <label class="form-label">Chọn bàn chuyển đến:</label>
+        <select name="toTableId" class="form-select" required>
+            <option disabled selected>-- Chọn bàn trống --</option>
+            @foreach (var table in tables!)
             {
-                <option value="@table.DingningTableId">@table.Name</option>
+                <option value="@table.DingningTableId">@table.Name (@(table.IsVIP ? "VIP" : "Thường"))</option>
             }
         </select>
     </div>
-
     <button type="submit" class="btn btn-primary">Chuyển bàn</button>
-    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
 </form>

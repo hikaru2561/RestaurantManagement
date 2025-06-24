@@ -1,44 +1,31 @@
-﻿@model List<RestaurantManagement.Models.Order>
+﻿@model IEnumerable<RestaurantManagement.Models.Order>
 @{
-    ViewData["Title"] = "Đơn hàng bị huỷ";
+    ViewData["Title"] = "Đơn hàng đã huỷ";
     Layout = "_AdminLayout";
 }
 
-<h2 class="mb-4">❌ Danh sách đơn hàng bị huỷ</h2>
+<h2 class="fw-bold mb-3">🛑 Danh sách đơn hàng đã huỷ</h2>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">
-        Không có đơn hàng nào bị huỷ.
-    </div>
-}
-else
-{
-    <table class="table table-bordered table-hover shadow-sm align-middle">
-        <thead class="table-danger text-center">
+<table class="table table-bordered table-hover">
+    <thead class="table-danger">
+        <tr>
+            <th>Mã đơn</th>
+            <th>Bàn</th>
+            <th>Khách hàng</th>
+            <th>Nhân viên</th>
+            <th>Thời gian huỷ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model)
+        {
             <tr>
-                <th>Mã đơn</th>
-                <th>Bàn</th>
-                <th>Khách hàng</th>
-                <th>Nhân viên</th>
-                <th>Thời gian</th>
-                <th>Trạng thái</th>
+                <td>@order.OrderId</td>
+                <td>@order.DingningTable?.Name</td>
+                <td>@order.Customer?.Name</td>
+                <td>@order.Staff?.Name</td>
+                <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
-                <tr>
-                    <td class="text-center fw-semibold">#@order.OrderId</td>
-                    <td>@order.DingningTable?.Name</td>
-                    <td>@order.Customer?.Name</td>
-                    <td>@order.Staff?.Name</td>
-                    <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td><span class="badge bg-danger">Đã huỷ</span></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-<a asp-area="Admin" asp-controller="Report" asp-action="Overview" class="btn btn-light mt-3">← Quay lại báo cáo</a>
+        }
+    </tbody>
+</table>

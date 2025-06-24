@@ -30,7 +30,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            ViewBag.DingningTables = new SelectList(_context.DingningTables.ToList(), "TableId", "Name");
+            ViewBag.DingningTables = new SelectList(_context.DingningTables.ToList(), "DingningTableId", "Name");
             return View();
         }
 
@@ -67,7 +67,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
                 TempData["Error"] = "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.";
             }
 
-            ViewBag.DingningTables = new SelectList(_context.DingningTables.ToList(), "TableId", "Name", reservation.DingningTableId);
+            ViewBag.DingningTables = new SelectList(_context.DingningTables.ToList(), "DingningTableId", "Name", reservation.DingningTableId);
             return View(reservation);
         }
 
@@ -83,5 +83,22 @@ namespace RestaurantManagement.Areas.Customer.Controllers
 
             return View(list);
         }
+        [HttpPost]
+        public IActionResult Cancel(int id)
+        {
+            var reservation = _context.Reservations.FirstOrDefault(r => r.ReservationId == id && r.Status == ReservationStatus.Pending);
+            if (reservation == null)
+            {
+                TempData["Error"] = "Không thể huỷ lịch đặt này.";
+                return RedirectToAction("History");
+            }
+
+            reservation.Status = ReservationStatus.Canceled;
+            _context.SaveChanges();
+
+            TempData["Success"] = "Huỷ lịch đặt bàn thành công.";
+            return RedirectToAction("History");
+        }
+
     }
 }

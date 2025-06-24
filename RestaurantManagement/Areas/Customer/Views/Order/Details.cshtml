@@ -1,74 +1,80 @@
 ﻿@model RestaurantManagement.Models.Order
 @using RestaurantManagement.Models
+
 @{
     ViewData["Title"] = "Chi tiết đơn hàng";
-    Layout = "_CustomerLayout";
+    Layout = "~/Areas/Customer/Views/Shared/_CustomerLayout.cshtml";
     var feedback = ViewBag.Feedback as Feedback;
-    var total = Model.Payment?.TotalAmount ?? 0;
 }
 
-<h2>Chi tiết đơn hàng #@Model.OrderId</h2>
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-receipt me-2"></i>Chi tiết đơn hàng #@Model.OrderId</h2>
 
-<p><strong>Bàn:</strong> @Model.DingningTable?.Name</p>
-<p><strong>Ngày:</strong> @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")</p>
-<p><strong>Trạng thái:</strong> @Model.Status</p>
-<p><strong>Tổng tiền:</strong> @total.ToString("N0") đ</p>
+    <div class="mb-3">
+        <strong>Bàn:</strong> @Model.DingningTable?.Name<br />
+        <strong>Thời gian:</strong> @Model.OrderTime.ToString("dd/MM/yyyy HH:mm")<br />
+        <strong>Trạng thái:</strong> <span class="badge bg-info text-dark">@Model.Status</span>
+    </div>
 
-<h4>Danh sách món</h4>
-<table class="table table-sm">
-    <thead>
-        <tr>
-            <th>Tên món</th>
-            <th>Số lượng</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.OrderItems)
-        {
+    <h5 class="mt-4">🧾 Danh sách món</h5>
+    <table class="table table-bordered rounded-3">
+        <thead class="table-light">
             <tr>
-                <td>@item.MenuItem?.Name</td>
-                <td>@item.Quantity</td>
+                <th>Món ăn</th>
+                <th>Số lượng</th>
+                <th>Đơn giá</th>
+                <th>Thành tiền</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
+                <tr>
+                    <td>@item.MenuItem?.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@($"{item.MenuItem?.Price:N0} đ")</td>
+                    <td>@($"{item.Quantity * (item.MenuItem?.Price ?? 0):N0} đ")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-@if (Model.Status == OrderStatus.Completed)
-{
-    if (feedback == null)
+    <h5 class="mt-4">💰 Thanh toán</h5>
+    <p>
+        <strong>Tổng tiền:</strong> @($"{Model.Payment?.TotalAmount.ToString("N0")} đ")<br />
+        <strong>Phương thức:</strong> @Model.Payment?.Method
+    </p>
+
+    <h5 class="mt-4">📝 Phản hồi</h5>
+    @if (feedback != null)
     {
-        <a asp-area="Customer" asp-controller="Feedback" asp-action="Create"
-           asp-route-orderId="@Model.OrderId" class="btn btn-success mt-3">
-            Gửi phản hồi
-        </a>
+        <p><strong>Nội dung:</strong> @feedback.Content</p>
+
+        @if (feedback.Reply != null)
+        {
+            <p class="text-success"><strong>Phản hồi từ nhà hàng:</strong> @feedback.Reply.Content</p>
+        }
+        else
+        {
+            <a asp-area="Customer" asp-controller="Feedback" asp-action="Edit" asp-route-id="@feedback.FeedbackId" class="btn btn-outline-warning me-2">
+                <i class="bi bi-pencil-square me-1"></i>Sửa phản hồi
+            </a>
+            <form asp-area="Customer" asp-controller="Feedback" asp-action="Delete" asp-route-id="@feedback.FeedbackId" method="post" class="d-inline" onsubmit="return confirm('Xác nhận xoá phản hồi này?')">
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-trash-fill me-1"></i>Xoá phản hồi
+                </button>
+            </form>
+        }
     }
     else
     {
-        <div class="alert alert-info mt-4">
-            <strong>Bạn đã phản hồi:</strong>
-            <p>@feedback.Content</p>
-            <p>⭐ Đánh giá: @feedback.Rating / 5</p>
+        <a asp-area="Customer" asp-controller="Feedback" asp-action="Create" asp-route-orderId="@Model.OrderId" class="btn btn-outline-primary">
+            <i class="bi bi-chat-square-text me-1"></i>Gửi phản hồi
+        </a>
 
-            @if (feedback.Reply == null)
-            {
-                <a asp-area="Customer" asp-controller="Feedback" asp-action="Edit"
-                   asp-route-id="@feedback.FeedbackId" class="btn btn-warning btn-sm me-2">
-                    Sửa phản hồi
-                </a>
-                <form asp-area="Customer" asp-controller="Feedback" asp-action="Delete"
-                      asp-route-id="@feedback.FeedbackId" method="post"
-                      onsubmit="return confirm('Bạn có chắc chắn muốn xoá phản hồi này?');"
-                      class="d-inline">
-                    <button type="submit" class="btn btn-danger btn-sm">Xoá phản hồi</button>
-                </form>
-            }
-            else
-            {
-                <div class="alert alert-secondary mt-3">
-                    <strong>Phản hồi từ nhà hàng:</strong>
-                    <p>@feedback.Reply.Content</p>
-                </div>
-            }
-        </div>
+        <a asp-area="Customer" asp-controller="Feedback" asp-action="Create" asp-route-orderId="@Model.OrderId" class="btn btn-outline-primary">
+            <i class="bi bi-chat-square-text me-1"></i>Gửi phản hồi
+        </a>
+
     }
-}
+</div>

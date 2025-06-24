@@ -1,27 +1,27 @@
-﻿@model int
-@{
+﻿@{
     ViewData["Title"] = "Gộp bàn";
     Layout = "_StaffLayout";
     var tables = ViewBag.Tables as List<RestaurantManagement.Models.DingningTable>;
-    int mainTableId = ViewBag.MainTableId;
+    var mainTableId = (int)ViewBag.MainTableId;
 }
 
-<h2>Gộp bàn vào bàn @mainTableId</h2>
+<partial name="~/Views/Shared/_Notification.cshtml" />
 
-<form asp-action="Merge" method="post">
+<h2>➕ Gộp bàn</h2>
+<p>Gộp đơn hàng của bàn khác vào bàn hiện tại.</p>
+
+<form method="post">
     <input type="hidden" name="mainTableId" value="@mainTableId" />
-
     <div class="mb-3">
-        <label class="form-label">Chọn bàn cần gộp:</label>
-        <select class="form-select" name="mergeTableId" required>
-            <option value="">-- Chọn bàn --</option>
-            @foreach (var table in tables)
+        <label class="form-label">Chọn bàn để gộp:</label>
+        <select name="mergeTableId" class="form-select" required>
+            <option disabled selected>-- Chọn bàn cần gộp --</option>
+            @foreach (var table in tables!)
             {
-                <option value="@table.DingningTableId">@table.Name</option>
+                <option value="@table.DingningTableId">@table.Name (@(table.IsVIP ? "VIP" : "Thường"))</option>
             }
         </select>
     </div>
-
     <button type="submit" class="btn btn-primary">Gộp bàn</button>
-    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
 </form>

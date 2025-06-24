@@ -18,15 +18,24 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index(DateTime? from, DateTime? to)
         {
-            var reservations = await _context.Reservations
+            var startDate = from ?? DateTime.Today;
+            var endDate = to?.Date.AddDays(1).AddSeconds(-1) ?? DateTime.Today.AddDays(1).AddSeconds(-1); // lấy hết ngày
+
+            var reservations = _context.Reservations
                 .Include(r => r.Customer)
                 .Include(r => r.DingningTable)
-                .OrderByDescending(r => r.ReservationTime)
-                .ToListAsync();
+                .Where(r => r.ReservationTime >= startDate && r.ReservationTime <= endDate)
+                .OrderBy(r => r.ReservationTime)
+                .ToList();
+
+            ViewBag.From = startDate.ToString("yyyy-MM-dd");
+            ViewBag.To = endDate.ToString("yyyy-MM-dd");
+
             return View(reservations);
         }
+
 
         public IActionResult Create()
         {

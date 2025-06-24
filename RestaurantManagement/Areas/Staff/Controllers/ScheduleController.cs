@@ -18,14 +18,13 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             _context = context;
         }
 
-        // Lấy StaffId từ Claims (chắc chắn hơn là Username)
         private int? GetStaffId()
         {
             var staffIdStr = User.FindFirst("StaffId")?.Value;
             return int.TryParse(staffIdStr, out int id) ? id : null;
         }
 
-        // Danh sách lịch làm việc cá nhân
+        // Danh sách lịch làm việc cá nhân (tuần hiện tại)
         public IActionResult Index()
         {
             var staffId = GetStaffId();
@@ -40,25 +39,22 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 .ToList();
 
             ViewBag.Shifts = _context.Shifts.OrderBy(s => s.StartTime).ToList();
-
             return View(attendances);
         }
 
-        // Hiển thị form đăng ký ca làm
-        // GET: Staff/Schedule/Register
+        // Đăng ký ca làm cho tuần tiếp theo
         public IActionResult Register(int weekOffset = 1)
         {
             var staffId = GetStaffId();
             if (staffId == null) return Unauthorized();
 
-            var startDate = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + 1).AddDays(weekOffset * 7); // Thứ 2 tuần offset
+            var startDate = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + 1).AddDays(weekOffset * 7); // Thứ 2 tuần tới
             var endDate = startDate.AddDays(6);
 
             ViewBag.WeekStart = startDate;
             ViewBag.WeekEnd = endDate;
             ViewBag.Shifts = _context.Shifts.OrderBy(s => s.StartTime).ToList();
 
-            // Lấy các đăng ký hiện tại của nhân viên trong tuần đã chọn
             var registered = _context.Attendances
                 .Where(a => a.StaffId == staffId && a.Date >= startDate && a.Date <= endDate)
                 .ToList();
@@ -94,7 +90,6 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                 if (!DateTime.TryParse(item.date, out DateTime date) || !int.TryParse(item.shiftId, out int shiftId))
                     continue;
 
-                // Kiểm tra trùng lịch
                 bool exists = _context.Attendances.Any(a =>
                     a.StaffId == staffId &&
                     a.Date == date &&
@@ -108,7 +103,7 @@ namespace RestaurantManagement.Areas.Staff.Controllers
                         StaffId = staffId.Value,
                         ShiftId = shiftId,
                         Date = date,
-                        IsPresent = false
+                        Status = AttendanceStatus.Registered
                     });
                 }
             }
@@ -124,16 +119,16 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             public string date { get; set; }
         }
 
-        // Cho phép hủy lịch chưa diễn ra
+        // Hủy ca làm
         public IActionResult Cancel(int id)
         {
             var staffId = GetStaffId();
             if (staffId == null) return Unauthorized();
 
             var attendance = _context.Attendances.FirstOrDefault(a => a.AttendanceId == id && a.StaffId == staffId);
-            if (attendance == null || attendance.Date < DateTime.Today)
+            if (attendance == null || attendance.Date < DateTime.Today || attendance.Status != AttendanceStatus.Registered)
             {
-                TempData["Error"] = "Không thể huỷ ca đã diễn ra hoặc không tồn tại.";
+                TempData["Error"] = "Không thể huỷ ca đã diễn ra hoặc đã duyệt.";
                 return RedirectToAction(nameof(Register));
             }
 
@@ -151,19 +146,23 @@ namespace RestaurantManagement.Areas.Staff.Controllers
 
             var attendance = _context.Attendances
                 .Include(a => a.Staff)
+                .Include(a => a.Shift)
                 .FirstOrDefault(a => a.AttendanceId == model.AttendanceId && a.StaffId == staffId);
 
-            if (attendance == null || !attendance.IsApproved)
+            if (attendance == null || attendance.Status != AttendanceStatus.Approved)
                 return Json(new { success = false });
 
-            var username = attendance.Staff?.Username ?? User.Identity.Name;
+            var username = attendance.Staff?.Username ?? User.Identity?.Name;
+            var senderName = attendance.Staff?.Name ?? "Nhân viên";
 
             var notification = new Notification
             {
-                Title = $"[YÊU CẦU] Thay đổi ca làm: {attendance.Shift?.Name ?? "Ca"} - {attendance.Date:dd/MM/yyyy}",
+                Title = $"[YÊU CẦU] Thay đổi ca: {attendance.Shift?.Name ?? "Ca"} - {attendance.Date:dd/MM/yyyy}",
                 Content = model.Content,
-                RecipientUsername = "admin", // bạn có thể thay bằng username thật của admin
+                RecipientUsername = "admin",
                 Role = "Admin",
+                SenderUsername = username,
+                SenderName = senderName,
                 CreatedAt = DateTime.Now,
                 IsRead = false
             };
@@ -179,6 +178,5 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             public int AttendanceId { get; set; }
             public string Content { get; set; }
         }
-
     }
 }

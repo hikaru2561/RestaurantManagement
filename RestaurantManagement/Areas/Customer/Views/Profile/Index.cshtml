@@ -1,37 +1,31 @@
 ﻿@model RestaurantManagement.Models.Customer
+
 @{
-    ViewData["Title"] = "Thông tin tài khoản";
+    ViewData["Title"] = "Hồ sơ của bạn";
     Layout = "_CustomerLayout";
 }
 
-<h2 class="mb-4">Thông tin tài khoản</h2>
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4 text-primary"><i class="bi bi-person-circle me-2"></i>Thông tin cá nhân</h2>
 
-<table class="table table-bordered">
-    <tr>
-        <th>Họ tên</th>
-        <td>@Model.Name</td>
-    </tr>
-    <tr>
-        <th>Email</th>
-        <td>@Model.Email</td>
-    </tr>
-    <tr>
-        <th>Số điện thoại</th>
-        <td>@Model.Phone</td>
-    </tr>
-    <tr>
-        <th>Hạng khách</th>
-        <td>
-            @if (Model.IsVIP)
-            {
-                <span class="badge bg-warning text-dark">VIP</span>
-            }
-            else
-            {
-                <span class="text-muted">Thường</span>
-            }
-        </td>
-    </tr>
-</table>
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">👤 Họ tên</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
 
-<a asp-action="Edit" class="btn btn-primary">Chỉnh sửa</a>
+                <dt class="col-sm-3">📧 Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">📞 Số điện thoại</dt>
+                <dd class="col-sm-9">@Model.Phone</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" class="btn btn-warning rounded-3">
+            <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+        </a>
+    </div>
+</div>

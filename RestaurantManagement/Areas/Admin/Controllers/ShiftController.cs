@@ -145,30 +145,62 @@ namespace RestaurantManagement.Areas.Admin.Controllers
         }
 
         // POST: Shifts/ManageAttendance/5
+        // POST: Shifts/ManageAttendance/5
         [HttpPost]
-        public async Task<IActionResult> ManageAttendance(int id, DateTime date, List<int> presentStaffIds)
+        public async Task<IActionResult> ManageAttendance(int id, DateTime date, List<int> presentStaffIds, List<int> absentStaffIds)
         {
             var allStaff = await _context.Staffs.ToListAsync();
+
             foreach (var staff in allStaff)
             {
                 var existing = await _context.Attendances.FirstOrDefaultAsync(a =>
                     a.ShiftId == id && a.Date.Date == date.Date && a.StaffId == staff.StaffId);
 
-                bool isPresent = presentStaffIds.Contains(staff.StaffId);
-
-                if (existing != null)
+                if (presentStaffIds.Contains(staff.StaffId))
                 {
-                    existing.IsPresent = isPresent;
-                    _context.Update(existing);
+                    if (existing != null)
+                    {
+                        existing.Status = AttendanceStatus.Present;
+                        _context.Update(existing);
+                    }
+                    else
+                    {
+                        _context.Add(new Attendance
+                        {
+                            ShiftId = id,
+                            StaffId = staff.StaffId,
+                            Date = date,
+                            Status = AttendanceStatus.Present
+                        });
+                    }
                 }
-                else
+                else if (absentStaffIds.Contains(staff.StaffId))
                 {
+                    if (existing != null)
+                    {
+                        existing.Status = AttendanceStatus.Absent;
+                        _context.Update(existing);
+                    }
+                    else
+                    {
+                        _context.Add(new Attendance
+                        {
+                            ShiftId = id,
+                            StaffId = staff.StaffId,
+                            Date = date,
+                            Status = AttendanceStatus.Absent
+                        });
+                    }
+                }
+                else if (existing == null)
+                {
+                    // Nếu không có trong 2 danh sách nhưng chưa tồn tại: tạo trạng thái Đã duyệt
                     _context.Add(new Attendance
                     {
                         ShiftId = id,
                         StaffId = staff.StaffId,
                         Date = date,
-                        IsPresent = isPresent
+                        Status = AttendanceStatus.Approved
                     });
                 }
             }
@@ -177,5 +209,6 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             TempData["Success"] = "Đã cập nhật chấm công.";
             return RedirectToAction(nameof(Details), new { id });
         }
+
     }
 }

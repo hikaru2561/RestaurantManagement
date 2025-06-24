@@ -1,30 +1,40 @@
 ﻿@model IEnumerable<RestaurantManagement.Models.Attendance>
 @using RestaurantManagement.Models
+
 @{
     ViewData["Title"] = "Duyệt lịch làm việc";
     Layout = "_AdminLayout";
-    var weekStart = (DateTime)ViewBag.StartOfWeek;
-    var weekEnd = (DateTime)ViewBag.EndOfWeek;
-    var shifts = (List<Shift>)ViewBag.Shifts;
-    int offset = (int)ViewBag.WeekOffset;
+    var weekStart = ViewBag.StartOfWeek;
+    var weekEnd = ViewBag.EndOfWeek;
+    var shifts = ViewBag.Shifts as List<Shift>;
+    var offset = (int)ViewBag.WeekOffset;
 }
 
-<h2>Duyệt lịch làm việc (@weekStart:dd/MM - @weekEnd:dd/MM)</h2>
+<h2 class="mb-4">Duyệt lịch làm việc (@weekStart - @weekEnd)</h2>
 
-<div class="mb-3">
-    <a class="btn btn-secondary" asp-action="Index" asp-route-weekOffset="@(offset - 1)">← Tuần trước</a>
-    <a class="btn btn-primary" asp-action="Index" asp-route-weekOffset="0">Tuần này</a>
-    <a class="btn btn-secondary" asp-action="Index" asp-route-weekOffset="@(offset + 1)">Tuần sau →</a>
+<div class="mb-4">
+    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-weekOffset="@(offset - 1)">← Tuần trước</a>
+    <a class="btn btn-outline-primary" asp-action="Index" asp-route-weekOffset="0">Tuần này</a>
+    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-weekOffset="@(offset + 1)">Tuần sau →</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <strong>Điểm danh ca hiện tại</strong>
+    </div>
+    <div class="card-body" id="currentShiftContainer">
+        <div class="text-center text-muted">Đang tải danh sách ca hiện tại...</div>
+    </div>
 </div>
 
 <table class="table table-bordered table-hover text-center align-middle">
     <thead class="table-light">
         <tr>
-            <th>Ca làm \ Ngày</th>
+            <th>Ca làm / Ngày</th>
             @for (int i = 0; i < 7; i++)
             {
-                var date = weekStart.AddDays(i);
-                <th>@date.ToString("ddd dd/MM")</th>
+                var d = weekStart.AddDays(i);
+                <th>@d.ToString("ddd dd/MM")</th>
             }
         </tr>
     </thead>
@@ -32,25 +42,30 @@
         @foreach (var shift in shifts)
         {
             <tr>
-                <td>@shift.Name<br /><small>@shift.StartTime - @shift.EndTime</small></td>
+                <td>
+                    <strong>@shift.Name</strong><br />
+                    <small>@shift.StartTime.ToString("HH:mm") - @shift.EndTime.ToString("HH:mm")</small>
+                </td>
                 @for (int i = 0; i < 7; i++)
                 {
                     var day = weekStart.AddDays(i);
                     var items = Model.Where(a => a.ShiftId == shift.ShiftId && a.Date.Date == day.Date).ToList();
 
-                    <td style="cursor:pointer" onclick="loadModal(@shift.ShiftId, '@day.ToString("yyyy-MM-dd")')">
+                    <td onclick="loadModal(@shift.ShiftId, '@day.ToString("yyyy-MM-dd")')" style="cursor: pointer;">
                         @foreach (var item in items)
                         {
+                            var isApproved = item.Status == AttendanceStatus.Approved;
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="@(item.IsApproved ? "text-success fw-bold" : "text-muted")">
+                                <span class="@(isApproved ? "text-success fw-bold" : "text-muted")">
                                     @item.Staff?.Name
                                 </span>
-                                @if (item.IsApproved)
+                                @if (isApproved)
                                 {
-                                    <form asp-action="CancelAttendance" method="post" asp-route-id="@item.AttendanceId" class="d-inline ms-1">
+                                    <form asp-action="CancelAttendance" asp-route-id="@item.AttendanceId"
+                                          method="post" class="d-inline ms-1">
                                         <button type="submit" class="btn btn-sm btn-link text-danger p-0"
                                                 title="Huỷ lịch"
-                                                onclick="event.stopPropagation(); return confirm('Bạn có chắc muốn huỷ lịch của @item.Staff?.Name không?');">
+                                                onclick="event.stopPropagation(); return confirm('Huỷ lịch làm của @item.Staff?.Name?');">
                                             🗑️
                                         </button>
                                     </form>
@@ -64,7 +79,7 @@
     </tbody>
 </table>
 
-<!-- Modal -->
+<!-- Modal duyệt đăng ký -->
 <div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content" id="approveModalContent"></div>
@@ -73,7 +88,7 @@
 
 @section Scripts {
     <script>
-        function loadModal(shiftId, date) {
+         function loadModal(shiftId, date) {
             $("#approveModalContent").html("<div class='p-4 text-center'>Đang tải...</div>");
             $("#approveModal").modal('show');
             $("#approveModalContent").load(`/Admin/Attendance/GetRegistrations?shiftId=${shiftId}&date=${date}`);
@@ -94,5 +109,36 @@
                 else alert("Lỗi khi duyệt.");
             });
         }
+
+             function loadCurrentShift() {
+            $("#currentShiftContainer").load("/Admin/Attendance/GetCurrentShiftAttendances");
+        }
+
+
+        // Load ca hiện tại
+        function loadCurrentShift() {
+            $("#currentShiftContainer").load("/Admin/Attendance/GetCurrentShiftAttendances");
+        }
+
+        // Gửi điểm danh
+        function markPresent(attendanceId) {
+            fetch('/Admin/Attendance/MarkPresent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: attendanceId })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Điểm danh thành công!");
+                        loadCurrentShift();
+                    } else {
+                        alert(data.message || "Lỗi khi điểm danh.");
+                    }
+                });
+        }
+
+        // Load ca hiện tại sau khi trang sẵn sàng
+        document.addEventListener("DOMContentLoaded", loadCurrentShift);
     </script>
 }

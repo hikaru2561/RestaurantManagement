@@ -1,0 +1,66 @@
+﻿@model List<RestaurantManagement.Models.Attendance>
+@using RestaurantManagement.Models
+
+@{
+    var shift = ViewBag.CurrentShift as Shift;
+}
+
+@if (shift != null)
+{
+    <h4 class="mb-3">
+        Điểm danh ca: <strong>@shift.Name</strong>
+        (<span>@shift.StartTime.ToString("HH:mm") - @shift.EndTime.ToString("HH:mm")</span>)
+    </h4>
+
+    @if (Model.Any())
+    {
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Nhân viên</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Staff?.Name</td>
+                        <td>
+                            @if (item.Status == AttendanceStatus.Present)
+                            {
+                                <span class="badge bg-success">Đã điểm danh</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Chờ điểm danh</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.Status != AttendanceStatus.Present)
+                            {
+                                <button class="btn btn-sm btn-primary"
+                                        onclick="markPresent(@item.AttendanceId)">
+                                    Điểm danh
+                                </button>
+                            }
+                            else
+                            {
+                                <span class="text-muted">✓</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p class="text-muted">Không có nhân viên nào được duyệt trong ca hiện tại.</p>
+    }
+}
+else
+{
+    <h5 class="text-muted">Không có ca làm nào đang diễn ra.</h5>
+}

@@ -1,0 +1,49 @@
+﻿@model IEnumerable<RestaurantManagement.Models.Reservation>
+
+@{
+    ViewData["Title"] = "Lịch đặt bàn";
+    Layout = "_StaffLayout";
+}
+
+<partial name="~/Views/Shared/_Notification.cshtml" />
+
+<h2 class="mb-4">📅 Lịch đặt bàn hôm nay (Chờ xác nhận)</h2>
+
+<table class="table table-bordered table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Khách hàng</th>
+            <th>Bàn</th>
+            <th>Thời gian</th>
+            <th>Số người</th>
+            <th>Tiền cọc</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted">Không có đặt bàn nào cần xử lý.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.Customer?.Name</td>
+                    <td>@r.DingningTable?.Name</td>
+                    <td>@r.ReservationTime.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@r.NumberOfPeople</td>
+                    <td>@r.DepositAmount.ToString("N0") đ</td>
+                    <td><span class="badge bg-warning text-dark">Chờ xác nhận</span></td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@r.ReservationId" class="btn btn-sm btn-info">Chi tiết</a>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

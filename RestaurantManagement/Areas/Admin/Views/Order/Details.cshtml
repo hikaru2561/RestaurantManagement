@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Chi tiết đơn hàng";
     Layout = "_AdminLayout";
+
+    decimal total = Model.OrderItems?.Sum(i => i.Quantity * i.MenuItem.Price) ?? 0;
 }
 
 <h2>Chi tiết đơn hàng #@Model.OrderId</h2>
@@ -18,7 +20,8 @@
         <tr>
             <th>Tên món</th>
             <th>Số lượng</th>
-            <th>Hành động</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
         </tr>
     </thead>
     <tbody>
@@ -27,16 +30,15 @@
             <tr>
                 <td>@item.MenuItem?.Name</td>
                 <td>@item.Quantity</td>
-                <td>
-                    <form asp-area="Admin" asp-action="RemoveItem" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa món này?')">
-                        <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
-                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                    </form>
-                </td>
+                <td>@item.MenuItem.Price.ToString("N0") đ</td>
+                <td>@((item.Quantity * item.MenuItem.Price).ToString("N0")) đ</td>
             </tr>
         }
+        <tr class="fw-bold">
+            <td colspan="3" class="text-end">Tổng cộng:</td>
+            <td>@total.ToString("N0") đ</td>
+        </tr>
     </tbody>
 </table>
 
-<a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.OrderId" class="btn btn-warning">Cập nhật</a>
-<a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+<a asp-area="Admin" asp-action="Index" class="btn btn-secondary">← Quay lại</a>

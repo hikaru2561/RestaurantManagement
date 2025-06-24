@@ -30,9 +30,10 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             if (staffId == null) return Unauthorized();
 
             var feedbacks = _context.Feedbacks
-                .Include(f => f.Order)
+                .Include(f => f.Order).ThenInclude(o => o.Customer)
                 .Include(f => f.Reply)
                 .Where(f => f.Order != null && f.Order.StaffId == staffId)
+                .OrderByDescending(f => f.FeedbackTime)
                 .ToList();
 
             return View(feedbacks);
@@ -44,56 +45,19 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             if (staffId == null) return Unauthorized();
 
             var feedback = _context.Feedbacks
-                .Include(f => f.Order)
+                .Include(f => f.Order).ThenInclude(o => o.Customer)
                 .Include(f => f.Reply)
                 .FirstOrDefault(f => f.FeedbackId == id && f.Order.StaffId == staffId);
 
-            if (feedback == null) return NotFound();
+            if (feedback == null)
+            {
+                TempData["Error"] = "Phản hồi không tồn tại hoặc không thuộc quyền truy cập.";
+                return RedirectToAction("Index");
+            }
 
             return View(feedback);
         }
 
-        [HttpPost]
-        public IActionResult Reply(int feedbackId, string content)
-        {
-            if (string.IsNullOrWhiteSpace(content))
-            {
-                TempData["Error"] = "Nội dung phản hồi không được để trống.";
-                return RedirectToAction("Details", new { id = feedbackId });
-            }
-
-            var staffId = GetStaffIdFromClaims();
-            if (staffId == null) return Unauthorized();
-
-            var feedback = _context.Feedbacks
-                .Include(f => f.Order)
-                .Include(f => f.Reply)
-                .FirstOrDefault(f => f.FeedbackId == feedbackId && f.Order.StaffId == staffId);
-
-            if (feedback == null)
-            {
-                TempData["Error"] = "Phản hồi không hợp lệ hoặc không thuộc quyền truy cập.";
-                return RedirectToAction("Index");
-            }
-
-            if (feedback.Reply != null)
-            {
-                TempData["Error"] = "Phản hồi này đã được trả lời trước đó.";
-                return RedirectToAction("Details", new { id = feedbackId });
-            }
-
-            var reply = new Reply
-            {
-                FeedbackId = feedbackId,
-                Content = content,
-                RepliedAt = DateTime.Now
-            };
-
-            _context.Replies.Add(reply);
-            _context.SaveChanges();
-
-            TempData["Success"] = "Phản hồi thành công!";
-            return RedirectToAction("Details", new { id = feedbackId });
-        }
+        // Tất cả các hành động như Reply, Delete... đều đã bị loại bỏ theo yêu cầu
     }
 }

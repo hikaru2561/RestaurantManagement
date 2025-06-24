@@ -2,43 +2,57 @@
 @{
     ViewData["Title"] = "Quản lý phản hồi";
     Layout = "_AdminLayout";
-    var query = Context.Request.Query;
-    string ratingFilter = query["rating"];
-    string statusFilter = query["status"];
+
+    string rating = ViewBag.Rating?.ToString();
+    string status = ViewBag.Status?.ToString();
+    string from = ViewBag.From;
+    string to = ViewBag.To;
 }
 
-<h2 class="mb-4">Danh sách phản hồi</h2>
+<h2 class="mb-4">📋 Danh sách phản hồi</h2>
 
 <form method="get" id="filterForm" class="row g-3 mb-3">
-    <div class="col-md-3">
-        <select name="rating" class="form-select" onchange="submitFilter()">
-            <option value="">-- Lọc theo số sao --</option>
+    <div class="col-md-2">
+        <label class="form-label">Từ ngày</label>
+        <input type="date" name="from" class="form-control" value="@from" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Đến ngày</label>
+        <input type="date" name="to" class="form-control" value="@to" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Số sao</label>
+        <select name="rating" class="form-select">
+            <option value="">-- Tất cả --</option>
             @for (int i = 1; i <= 5; i++)
             {
-                <option value="@i" selected="@(ratingFilter == i.ToString())">@i sao</option>
+                <option value="@i" selected="@(rating == i.ToString())">@i sao</option>
             }
         </select>
     </div>
-
-    <div class="col-md-3">
-        <select name="status" class="form-select" onchange="submitFilter()">
-            <option value="">-- Trạng thái --</option>
-            <option value="Replied" selected="@(statusFilter == "Replied")">Đã phản hồi</option>
-            <option value="Pending" selected="@(statusFilter == "Pending")">Chưa phản hồi</option>
+    <div class="col-md-2">
+        <label class="form-label">Trạng thái</label>
+        <select name="status" class="form-select">
+            <option value="">-- Tất cả --</option>
+            <option value="Pending" selected="@(status == "Pending")">Chưa phản hồi</option>
+            <option value="Replied" selected="@(status == "Replied")">Đã phản hồi</option>
         </select>
     </div>
-
-    <div class="col-md-3 text-end">
-        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+    </div>
+    <div class="col-md-2 align-self-end">
+        <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary w-100">← Quay lại</a>
     </div>
 </form>
 
 <table class="table table-bordered table-hover align-middle">
-    <thead class="table-light">
-        <tr class="text-center">
+    <thead class="table-light text-center">
+        <tr>
             <th>Khách hàng</th>
             <th>Đơn hàng</th>
             <th>Đánh giá</th>
+            <th>Ngày phản hồi</th>
             <th>Trạng thái</th>
             <th>Thao tác</th>
         </tr>
@@ -47,9 +61,10 @@
         @foreach (var fb in Model)
         {
             <tr>
-                <td>@fb.Order.Customer.Name</td>
-                <td>#@fb.Order?.OrderId</td>
+                <td>@fb.Order?.Customer?.Name</td>
+                <td>#@fb.OrderId</td>
                 <td class="text-center">@fb.Rating / 5</td>
+                <td class="text-center">@fb.FeedbackTime.ToString("dd/MM/yyyy HH:mm")</td>
                 <td class="text-center">
                     @if (fb.Reply != null)
                     {
@@ -70,9 +85,3 @@
         }
     </tbody>
 </table>
-
-<script>
-    function submitFilter() {
-        document.getElementById("filterForm").submit();
-    }
-</script>

@@ -25,7 +25,7 @@ builder.Services.Configure<RazorViewEngineOptions>(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-       // var uniqueSuffix = DateTime.Now.Ticks;
+        //var uniqueSuffix = DateTime.Now.Ticks;
         //options.Cookie.Name = $".AspNetCore.CustomAuthCookie_{uniqueSuffix}";
 
         options.LoginPath = "/Login/Login";

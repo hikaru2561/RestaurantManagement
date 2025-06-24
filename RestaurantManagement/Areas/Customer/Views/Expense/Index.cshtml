@@ -1,43 +1,68 @@
-﻿@model IEnumerable<RestaurantManagement.Models.Order>
-
+﻿@model List<RestaurantManagement.Models.Order>
 @{
-    ViewData["Title"] = "Chi tiêu của bạn";
+    ViewData["Title"] = "Tổng kết chi tiêu";
     Layout = "_CustomerLayout";
+
+    var total = Model.Sum(o => o.Payment?.TotalAmount ?? 0);
 }
 
-<h2 class="mb-4">Chi tiết chi tiêu của bạn</h2>
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4 text-primary"><i class="bi bi-cash-coin me-2"></i>Tổng kết chi tiêu</h2>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">Chưa có đơn hàng nào đã thanh toán.</div>
-}
-else
-{
-    <table class="table table-bordered">
-        <thead class="table-light">
-            <tr>
-                <th>Ngày</th>
-                <th>Bàn</th>
-                <th>Tổng tiền</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Bạn chưa có đơn hàng nào đã thanh toán.</div>
+    }
+    else
+    {
+        <div class="mb-3">
+            <input type="text" class="form-control" id="searchInput" placeholder="🔍 Tìm theo bàn, thời gian hoặc mã đơn..." />
+        </div>
+
+        <table class="table table-bordered table-striped rounded-4 shadow-sm" id="expenseTable">
+            <thead class="table-light">
                 <tr>
-                    <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@order.DingningTable?.Name</td>
-                    <td>@(order.Payment?.TotalAmount ?? 0).ToString("N0") đ</td>
+                    <th>#</th>
+                    <th>Bàn</th>
+                    <th>Thời gian</th>
+                    <th>Trạng thái</th>
+                    <th>Số tiền</th>
                 </tr>
-            }
-        </tbody>
-        <tfoot>
-            <tr class="table-info">
-                <td colspan="2" class="text-end fw-bold">Tổng cộng:</td>
-                <td class="fw-bold text-danger">
-                    @Model.Sum(o => o.Payment?.TotalAmount ?? 0).ToString("N0") đ
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>#@order.OrderId</td>
+                        <td>@order.DingningTable?.Name</td>
+                        <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <span class="badge bg-success">@order.Status</span>
+                        </td>
+                        <td class="text-end fw-semibold text-danger">
+                            @($"{order.Payment?.TotalAmount.ToString("N0")} đ")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="text-end mt-3 fw-bold fs-5 text-primary">
+            <i class="bi bi-calculator me-1"></i>Tổng cộng: @($"{total.ToString("N0")} đ")
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("searchInput").addEventListener("input", function () {
+            var keyword = this.value.toLowerCase();
+            var rows = document.querySelectorAll("#expenseTable tbody tr");
+
+            rows.forEach(row => {
+                var text = row.innerText.toLowerCase();
+                row.style.display = text.includes(keyword) ? "" : "none";
+            });
+        });
+    </script>
 }

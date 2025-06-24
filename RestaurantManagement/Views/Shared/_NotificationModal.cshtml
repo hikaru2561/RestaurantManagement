@@ -1,0 +1,27 @@
+﻿<!-- Modal hiển thị chi tiết thông báo -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modal-title" class="modal-title text-dark"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-content" class="text-dark mb-2"></p>
+
+                <small class="text-secondary d-block">
+                    <i class="bi bi-person-fill"></i>
+                    Gửi bởi:
+                    <span id="modal-sender" class="fw-semibold text-dark">(Không xác định)</span>
+                </small>
+
+                <small id="modal-time" class="text-muted d-block mt-2"></small>
+            </div>
+            <div class="modal-footer">
+                <button id="btnReplyNotification" class="btn btn-primary">Phản hồi</button>
+                <button id="btnDeleteNotification" class="btn btn-danger" data-id="">Xoá</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
