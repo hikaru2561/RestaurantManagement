@@ -5,61 +5,59 @@
 }
 
 <div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
+    <h2 class="fw-bold mb-4"><i class="bi bi-chat-square-text me-2"></i>Gửi phản hồi cho đơn hàng #@orderId</h2>
 
-            <h2 class="mb-4 fw-bold text-primary text-center">
-                <i class="bi bi-chat-square-text me-2"></i>Gửi phản hồi cho đơn hàng #@orderId
-            </h2>
+    <form asp-action="Create" method="post" enctype="multipart/form-data" class="card p-4 shadow-sm rounded-4">
+        <input type="hidden" name="orderId" value="@orderId" />
 
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    Vui lòng kiểm tra lại thông tin:
-                    <ul class="mb-0 mt-2">
-                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                        {
-                            <li>@error.ErrorMessage</li>
-                        }
-                    </ul>
-                </div>
-            }
-
-            <div class="card shadow-sm border-0 rounded-4">
-                <div class="card-body p-4">
-                    <form asp-action="Create" method="post" novalidate>
-                        <input type="hidden" name="orderId" value="@orderId" />
-
-                        <div class="mb-3">
-                            <label for="content" class="form-label fw-semibold">📝 Nội dung phản hồi</label>
-                            <textarea id="content" name="content" class="form-control rounded-3" rows="5" placeholder="Nhập nội dung phản hồi..." required>@(ViewData["content"] ?? "")</textarea>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="rating" class="form-label fw-semibold">⭐ Đánh giá</label>
-                            <select id="rating" name="rating" class="form-select rounded-3" required>
-                                <option value="">-- Chọn đánh giá --</option>
-                                @for (int i = 5; i >= 1; i--)
-                                {
-                                    var selected = (ViewData["rating"]?.ToString() == i.ToString()) ? "selected" : "";
-                                    <option value="@i"selected>@i - @(i == 5 ? "Tuyệt vời 😊" : i == 4 ? "Tốt 😄" : i == 3 ? "Trung bình 😐" : i == 2 ? "Kém 😟" : "Rất kém 😡")</option>
-                                }
-                            </select>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <a asp-controller="Order" asp-action="Details" asp-route-id="@orderId" class="btn btn-secondary rounded-3">
-                                <i class="bi bi-arrow-left me-1"></i>Quay lại
-                            </a>
-                            <button type="submit" class="btn btn-primary rounded-3">
-                                <i class="bi bi-send me-1"></i>Gửi phản hồi
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Nội dung</label>
+            <textarea name="content" class="form-control" rows="4" required></textarea>
         </div>
-    </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Đánh giá</label>
+            <select name="rating" id="rating" class="form-select" required>
+                <option disabled selected value="">-- Chọn đánh giá --</option>
+                <option value="5">🌟 5 - Tuyệt vời</option>
+                <option value="4">👍 4 - Tốt</option>
+                <option value="3">👌 3 - Trung bình</option>
+                <option value="2">😐 2 - Kém</option>
+                <option value="1">👎 1 - Rất kém</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Ảnh minh hoạ (tùy chọn)</label>
+            <input type="file" name="image" id="image" class="form-control" accept="image/*" onchange="previewImage(this)" />
+        </div>
+
+        <div class="mb-3 d-none" id="image-preview-container">
+            <label class="form-label">Xem trước ảnh:</label><br />
+            <img id="preview-img" src="#" class="img-fluid rounded shadow" style="max-height: 250px;" />
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-send me-1"></i>Gửi phản hồi</button>
+            <a asp-controller="Order" asp-action="Details" asp-route-id="@orderId" class="btn btn-secondary ms-2">Quay lại</a>
+        </div>
+    </form>
 </div>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('preview-img');
+            const container = document.getElementById('image-preview-container');
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    container.classList.remove("d-none");
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}

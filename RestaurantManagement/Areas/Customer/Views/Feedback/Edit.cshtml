@@ -1,35 +1,58 @@
 ﻿@model RestaurantManagement.Models.Feedback
+
 @{
-    ViewData["Title"] = "Sửa phản hồi";
+    ViewData["Title"] = "Chỉnh sửa phản hồi";
     Layout = "_CustomerLayout";
 }
 
-<h2>Sửa phản hồi đơn hàng #@Model.OrderId</h2>
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-pencil-square me-2"></i>Chỉnh sửa phản hồi</h2>
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" name="id" value="@Model.FeedbackId" />
-
-    <div class="mb-3">
-        <label for="content">Nội dung</label>
-        <textarea name="content" class="form-control" rows="4" required>@Model.Content</textarea>
-    </div>
-
-    <div class="mb-3">
-        <label for="rating">Đánh giá (1 đến 5)</label>
-        <select name="rating" class="form-select" required>
-            @for (int i = 5; i >= 1; i--)
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
             {
-                if (Model.Rating == i)
-                {
-                    <option value="@i" selected>@i sao</option>
-                }
-                else
-                {
-                    <option value="@i">@i sao</option>
-                }
+                <div>@error.ErrorMessage</div>
             }
-        </select>
-    </div>
+        </div>
+    }
 
-    <button type="submit" class="btn btn-primary">Cập nhật phản hồi</button>
-</form>
+    <form asp-action="Edit" method="post" enctype="multipart/form-data" class="card p-4 shadow-sm rounded-4">
+        <input type="hidden" name="id" value="@Model.FeedbackId" />
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Nội dung phản hồi</label>
+            <textarea name="content" class="form-control" rows="4" required>@Model.Content</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Đánh giá</label>
+            <select name="rating" class="form-select" required>
+                @for (int i = 5; i >= 1; i--)
+                {
+                    var selected = Model.Rating == i ? "selected" : "";
+                    <option value="@i" selected="@selected">
+                        @i - @(i == 5 ? "Tuyệt vời" : i == 4 ? "Tốt" : i == 3 ? "Trung bình" : i == 2 ? "Kém" : "Rất kém")
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="imageFile" class="form-label fw-semibold">Ảnh mới (nếu muốn thay)</label>
+            <input type="file" name="imageFile" class="form-control" accept="image/*" />
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Ảnh hiện tại</label><br />
+                <img src="@Model.ImagePath" class="img-thumbnail" style="max-height: 200px;" />
+            </div>
+        }
+
+        <button type="submit" class="btn btn-success"><i class="bi bi-save me-1"></i>Lưu thay đổi</button>
+        <a asp-controller="Order" asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-secondary ms-2">Quay lại</a>
+    </form>
+</div>

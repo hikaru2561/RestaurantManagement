@@ -64,7 +64,23 @@ namespace RestaurantManagement.Areas.Customer.Controllers
                 .FirstOrDefault(f => f.OrderId == id);
 
             ViewBag.Feedback = feedback;
+
+            // 👉 Tìm ảnh feedback nếu có
+            if (feedback != null)
+            {
+                var imgDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "Feedback");
+                var prefix = feedback.FeedbackId.ToString() + ".";
+                var file = Directory.GetFiles(imgDir, prefix + "*").FirstOrDefault();
+
+                if (file != null)
+                {
+                    var fileName = Path.GetFileName(file);
+                    ViewBag.FeedbackImage = $"/images/Feedback/{fileName}";
+                }
+            }
+
             return View(order);
         }
+
     }
 }

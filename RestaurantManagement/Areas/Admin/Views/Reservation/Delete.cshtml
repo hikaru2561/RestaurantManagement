@@ -11,7 +11,7 @@
     của khách hàng <strong>@Model.Customer?.Name</strong> tại bàn <strong>@Model.DingningTable?.Name</strong>?
 </div>
 
-<form asp-area="Admin" asp-action="DeleteConfirmed" method="post">
+<form asp-area="Admin" asp-action="Delete" method="post">
     <input type="hidden" asp-for="ReservationId" />
     <button type="submit" class="btn btn-danger">Xoá</button>
     <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Huỷ</a>
