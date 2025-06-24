@@ -1,69 +1,68 @@
 ﻿@{
-    ViewData["Title"] = "Báo cáo doanh thu theo ngày";
+    ViewData["Title"] = "Báo cáo doanh thu";
     Layout = "_AdminLayout";
+    var labels = ViewBag.Labels as List<string>;
+    var data = ViewBag.Data as List<decimal>;
 }
 
-<h2>Báo cáo doanh thu (Line Chart)</h2>
+<h2 class="fw-bold mb-4">📊 Báo cáo doanh thu</h2>
 
-<form method="get" class="row g-3 mb-4">
+<form method="get" class="row g-2 mb-4">
     <div class="col-md-3">
-        <label>Ngày bắt đầu</label>
-        <input type="date" name="from" class="form-control" value="@ViewBag.From" />
+        <label for="from" class="form-label">Từ ngày</label>
+        <input type="date" id="from" name="from" class="form-control" value="@ViewBag.From" />
     </div>
     <div class="col-md-3">
-        <label>Ngày kết thúc</label>
-        <input type="date" name="to" class="form-control" value="@ViewBag.To" />
+        <label for="to" class="form-label">Đến ngày</label>
+        <input type="date" id="to" name="to" class="form-control" value="@ViewBag.To" />
     </div>
-    <div class="col-md-3 align-self-end">
-        <button type="submit" class="btn btn-primary">Lọc</button>
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary w-100">Lọc</button>
     </div>
-    <div class="col-md-3 align-self-end text-end">
-        <a asp-area="Admin" asp-action="ExportRevenue" asp-route-from="@ViewBag.From" asp-route-to="@ViewBag.To" class="btn btn-success">📤 Xuất CSV</a>
+    <div class="col-md-2 align-self-end">
+        <a class="btn btn-success w-100"
+           asp-action="ExportRevenue"
+           asp-route-from="@ViewBag.From"
+           asp-route-to="@ViewBag.To">
+            <i class="bi bi-download"></i> Xuất CSV
+        </a>
     </div>
 </form>
 
-<canvas id="lineChart" height="100"></canvas>
+<canvas id="revenueChart" height="100"></canvas>
 
-<h5 class="mt-4">Tổng doanh thu: <strong>@ViewBag.Total.ToString("N0") VNĐ</strong></h5>
+<h5 class="mt-4">Tổng doanh thu: <strong class="text-success">@ViewBag.Total.ToString("N0") đ</strong></h5>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const ctx = document.getElementById('lineChart').getContext('2d');
-    const labels = @Html.Raw(Json.Serialize(ViewBag.Labels));
-    const data = @Html.Raw(Json.Serialize(ViewBag.Data));
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Doanh thu (VNĐ)',
-                data: data,
-                fill: true,
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { position: 'top' },
-                title: {
-                    display: true,
-                    text: 'Biểu đồ doanh thu theo ngày'
-                }
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        const revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(labels)),
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: @Html.Raw(Json.Serialize(data)),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: '#007bff',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return value.toLocaleString('vi-VN') + ' VNĐ';
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' đ';
+                            }
                         }
                     }
                 }
             }
-        }
-    });
-</script>
+        });
+    </script>
+}

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using RestaurantManagement.Data;
 using RestaurantManagement.Models;
 
@@ -17,17 +18,41 @@ namespace RestaurantManagement.Areas.Admin.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+
+        public IActionResult Index(int? rating, string? status, DateTime? from, DateTime? to)
         {
             var feedbacks = _context.Feedbacks
-                .Include(f => f.Order)
-                    .ThenInclude(o => o.Customer) // load Customer qua Order
+                .Include(f => f.Order).ThenInclude(o => o.Customer)
                 .Include(f => f.Reply)
-                .OrderByDescending(f => f.FeedbackId)
+                .AsQueryable();
+
+            // Mặc định lọc ngày hôm nay
+            DateTime start = from ?? DateTime.Today;
+            DateTime end = to?.Date.AddDays(1).AddTicks(-1) ?? DateTime.Today.AddDays(1).AddTicks(-1);
+
+            feedbacks = feedbacks.Where(f => f.FeedbackTime >= start && f.FeedbackTime <= end);
+
+            if (rating.HasValue)
+                feedbacks = feedbacks.Where(f => f.Rating == rating.Value);
+
+            if (status == "Replied")
+                feedbacks = feedbacks.Where(f => f.Reply != null);
+            else if (status == "Pending")
+                feedbacks = feedbacks.Where(f => f.Reply == null);
+
+            var list = feedbacks
+                .OrderByDescending(f => f.FeedbackTime)
                 .ToList();
 
-            return View(feedbacks);
+            ViewBag.Rating = rating;
+            ViewBag.Status = status;
+            ViewBag.From = start.ToString("yyyy-MM-dd");
+            ViewBag.To = end.ToString("yyyy-MM-dd");
+
+            return View(list);
         }
+
+
 
         public IActionResult Details(int id)
         {

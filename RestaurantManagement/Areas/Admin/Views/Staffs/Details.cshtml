@@ -7,15 +7,28 @@
 <h2>Chi tiết nhân viên</h2>
 
 <div class="mb-3">
-    <strong>Tên:</strong> @Model.Name
+    <strong>Tên đăng nhập:</strong> @Model.Username
 </div>
+
+<div class="mb-3">
+    <strong>Họ tên:</strong> @Model.Name
+</div>
+
 <div class="mb-3">
     <strong>Số điện thoại:</strong> @Model.Phone
 </div>
+
 <div class="mb-3">
     <strong>Ảnh đại diện:</strong><br />
-    <img src="~/images/Staffs/@Model.ImagePath" width="150" />
+    @if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <img src="~/images/Staffs/@Model.ImagePath?@DateTime.Now.Ticks" width="150" class="img-thumbnail" />
+    }
+    else
+    {
+        <img src="https://via.placeholder.com/150x150?text=No+Image" width="150" class="img-thumbnail" />
+    }
 </div>
 
-<a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.StaffId" class="btn btn-warning">Chỉnh sửa</a>
-<a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+<a asp-area="Admin" asp-controller="Staffs" asp-action="Edit" asp-route-id="@Model.StaffId" class="btn btn-warning">Chỉnh sửa</a>
+<a asp-area="Admin" asp-controller="Staffs" asp-action="Index" class="btn btn-secondary">Quay lại</a>

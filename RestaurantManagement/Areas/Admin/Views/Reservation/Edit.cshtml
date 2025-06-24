@@ -4,47 +4,65 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Chỉnh sửa đặt bàn</h2>
+<h2 class="mb-4">📝 Chỉnh sửa đặt bàn</h2>
 
 <form asp-area="Admin" asp-action="Edit" method="post">
     <input type="hidden" asp-for="ReservationId" />
 
-    <div class="mb-3">
-        <label class="form-label">Tìm SĐT khách hàng</label>
-        <input type="text" id="phoneInput" class="form-control" placeholder="Nhập số điện thoại..." oninput="findCustomer()" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Khách hàng</label>
-        <select asp-for="CustomerId" asp-items="ViewBag.Customers" class="form-select" id="customerSelect">
-            <option value="">-- Không chọn --</option>
-        </select>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label">🔎 Tìm SĐT khách hàng</label>
+            <input type="text" id="phoneInput" class="form-control" placeholder="Nhập số điện thoại..." oninput="findCustomer()" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">👤 Khách hàng</label>
+            <select asp-for="CustomerId" asp-items="ViewBag.Customers" class="form-select" id="customerSelect">
+                <option value="">-- Chọn khách hàng --</option>
+            </select>
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        </div>
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Bàn</label>
+        <label class="form-label">🍽️ Bàn</label>
         <select asp-for="DingningTableId" asp-items="ViewBag.Tables" class="form-select"></select>
         <span asp-validation-for="DingningTableId" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Thời gian đặt</label>
+        <label class="form-label">📅 Thời gian đặt</label>
         <input asp-for="ReservationTime" type="datetime-local" class="form-control"
                value="@Model.ReservationTime.ToString("yyyy-MM-ddTHH:mm")" />
         <span asp-validation-for="ReservationTime" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Số người</label>
-        <input asp-for="NumberOfPeople" type="number" class="form-control" />
+        <label class="form-label">👥 Số người</label>
+        <input asp-for="NumberOfPeople" type="number" class="form-control" min="1" />
         <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label asp-for="DepositAmount" class="form-label">Tiền cọc (VNĐ)</label>
-        <input asp-for="DepositAmount" class="form-control" />
+        <label class="form-label">💰 Tiền cọc (VNĐ)</label>
+        <input asp-for="DepositAmount" type="number" class="form-control" step="1000" min="0" />
         <span asp-validation-for="DepositAmount" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <div class="d-flex justify-content-between mt-4">
+        <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">← Quay lại</a>
+        <button type="submit" class="btn btn-primary">💾 Lưu thay đổi</button>
+    </div>
 </form>
+
+@section Scripts {
+    <script>
+        function findCustomer() {
+            const phone = document.getElementById("phoneInput").value.toLowerCase();
+            const options = document.querySelectorAll("#customerSelect option");
+            options.forEach(option => {
+                const text = option.textContent.toLowerCase();
+                option.style.display = text.includes(phone) ? 'block' : 'none';
+            });
+        }
+    </script>
+}

@@ -3,72 +3,72 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Báo cáo tổng quan</h2>
-<div class="row">
+<h2 class="mb-4">📊 Báo cáo tổng quan</h2>
+
+<div class="row mb-4">
     <div class="col-md-4">
-        <div class="card bg-success text-white mb-3">
-            <div class="card-body">
-                <h5>Doanh thu hôm nay</h5>
-                <p>@ViewBag.TotalRevenueToday.ToString("N0") VNĐ</p>
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Doanh thu hôm nay</h6>
+                <h3 class="text-success fw-bold">@ViewBag.TotalRevenueToday.ToString("N0") <small class="fs-6">VNĐ</small></h3>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-info text-white mb-3">
-            <div class="card-body">
-                <h5>Doanh thu tháng</h5>
-                <p>@ViewBag.TotalRevenueMonth.ToString("N0") VNĐ</p>
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Doanh thu tháng</h6>
+                <h3 class="text-primary fw-bold">@ViewBag.TotalRevenueMonth.ToString("N0") <small class="fs-6">VNĐ</small></h3>
             </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="card bg-primary text-white mb-3">
-            <div class="card-body">
-                <h5>Đơn hàng hôm nay</h5>
-                <p>@ViewBag.TotalOrdersToday đơn</p>
+        <div class="card shadow-sm border-0 bg-light">
+            <div class="card-body text-center">
+                <h6 class="text-muted">Đơn hàng hôm nay</h6>
+                <h3 class="text-dark fw-bold">@ViewBag.TotalOrdersToday <small class="fs-6">đơn</small></h3>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
+<div class="row mb-4">
     <div class="col-md-6">
-        <div class="card border-secondary mb-3">
-            <div class="card-header">Món bán chạy nhất</div>
-            <div class="card-body text-dark">
+        <div class="card shadow-sm border-start border-3 border-success">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Món ăn bán chạy nhất</h6>
                 @if (ViewBag.TopMenuItem != null)
                 {
-                    <h5 class="card-title">@ViewBag.TopMenuItem.Name</h5>
-                    <p class="card-text">Số lượng: @ViewBag.TopMenuItem.Quantity</p>
+                    <h5 class="fw-bold">@ViewBag.TopMenuItem.Name</h5>
+                    <p>Số lượng bán: <span class="fw-semibold">@ViewBag.TopMenuItem.Quantity</span></p>
                 }
                 else
                 {
-                    <p>Chưa có dữ liệu.</p>
+                    <p class="text-muted">Chưa có dữ liệu.</p>
                 }
             </div>
         </div>
     </div>
-
     <div class="col-md-6">
-        <div class="card border-warning mb-3">
-            <div class="card-header">Đánh giá trung bình</div>
-            <div class="card-body text-dark">
-                <h5>@ViewBag.FeedbackAvg.ToString("0.0") ★ / 5</h5>
+        <div class="card shadow-sm border-start border-3 border-warning">
+            <div class="card-body">
+                <h6 class="text-muted mb-2">Đánh giá trung bình</h6>
+                <h4 class="text-warning fw-bold">
+                    @ViewBag.FeedbackAvg.ToString("0.0") ★ <small class="text-muted fs-6">/ 5</small>
+                </h4>
             </div>
         </div>
     </div>
 </div>
 
-<hr />
-<h4>Xem các báo cáo chi tiết</h4>
-<ul class="list-group">
-    <li class="list-group-item"><a asp-area="Admin" asp-action="RevenueReport">📈 Báo cáo doanh thu</a></li>
-    <li class="list-group-item"><a asp-area="Admin" asp-action="OrderReport">📋 Báo cáo đơn hàng</a></li>
-    <li class="list-group-item"><a asp-area="Admin" asp-action="MenuItemReport">🍽️ Món ăn bán chạy</a></li>
-    <li class="list-group-item"><a asp-area="Admin" asp-action="StaffReport">👨‍🍳 Báo cáo nhân viên</a></li>
-    <li class="list-group-item"><a asp-area="Admin" asp-action="FeedbackReport">⭐ Báo cáo đánh giá</a></li>
-    <li class="list-group-item"><a asp-area="Admin" asp-action="InventoryReport">📦 Nguyên liệu sử dụng</a></li>
-    <li class="list-group-item"><a asp-area="Admin" asp-action="CanceledOrders">❌ Đơn hàng bị hủy</a></li>
-    <li class="list-group-item"><a asp-area="Admin" asp-action="RemovedOrderItems">❎ Món bị gỡ khỏi đơn</a></li>
-</ul>
-<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>
+<hr class="my-4" />
+<h4 class="mb-3">📁 Báo cáo chi tiết</h4>
+<div class="list-group shadow-sm">
+    <a asp-area="Admin" asp-action="RevenueReport" class="list-group-item list-group-item-action">📈 Báo cáo doanh thu</a>
+    <a asp-area="Admin" asp-action="CanceledOrders" class="list-group-item list-group-item-action">❌ Đơn hàng bị huỷ</a>
+    <a asp-area="Admin" asp-action="RemovedOrderItems" class="list-group-item list-group-item-action">❎ Món bị gỡ khỏi đơn</a>
+</div>
+
+<div class="mt-4">
+    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>
+</div>

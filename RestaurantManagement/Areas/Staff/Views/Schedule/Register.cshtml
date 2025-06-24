@@ -1,26 +1,27 @@
-﻿@{
-    ViewData["Title"] = "Đăng ký ca làm tuần sau";
+﻿@using System.Globalization
+@model object
+@{
     Layout = "_StaffLayout";
+    ViewData["Title"] = "Đăng ký ca làm tuần sau";
 
-    var nextMonday = DateTime.Today.AddDays((8 - (int)DateTime.Today.DayOfWeek) % 7); // Thứ 2 tuần sau
-    var daysOfWeek = Enumerable.Range(0, 7).Select(i => nextMonday.AddDays(i)).ToList();
+    var weekStart = (DateTime)ViewBag.WeekStart;
+    var weekEnd = (DateTime)ViewBag.WeekEnd;
     var shifts = ViewBag.Shifts as List<RestaurantManagement.Models.Shift>;
+    var registered = ViewBag.Registered as List<RestaurantManagement.Models.Attendance>;
 }
 
-<h2 class="mb-3">Đăng ký ca làm tuần sau</h2>
+<h2>Đăng ký ca làm từ @weekStart.ToString("dd/MM") đến @weekEnd.ToString("dd/MM")</h2>
 
-<form asp-action="Register" method="post" id="registerForm">
+<form asp-action="Register" method="post">
     <input type="hidden" name="SelectedShiftsJson" id="SelectedShiftsJson" />
-    <table class="table table-bordered text-center align-middle">
-        <thead class="table-light">
+
+    <table class="table table-bordered">
+        <thead>
             <tr>
                 <th>Ca / Ngày</th>
-                @foreach (var day in daysOfWeek)
+                @for (var date = weekStart; date <= weekEnd; date = date.AddDays(1))
                 {
-                    <th>
-                        @day.ToString("dddd", new System.Globalization.CultureInfo("vi-VN"))<br />
-                        @day.ToString("dd/MM")
-                    </th>
+                    <th>@date.ToString("ddd dd/MM")</th>
                 }
             </tr>
         </thead>
@@ -29,17 +30,47 @@
             {
                 <tr>
                     <td>
-                        <strong>@shift.Name</strong><br />
-                        @shift.StartTime.ToString(@"hh\:mm") - @shift.EndTime.ToString(@"hh\:mm")
+                        @shift.Name <br />
+                        <small>@shift.StartTime.ToString("HH:mm") - @shift.EndTime.ToString("HH:mm")</small>
                     </td>
-                    @foreach (var day in daysOfWeek)
+                    @for (var date = weekStart; date <= weekEnd; date = date.AddDays(1))
                     {
-                        <td>
-                            <div class="select-cell"
-                                 data-shiftid="@shift.ShiftId"
-                                 data-date="@day.ToString("yyyy-MM-dd")">
-                                <i class="bi bi-check-circle d-none text-success fs-4"></i>
-                            </div>
+                        var record = registered.FirstOrDefault(r => r.ShiftId == shift.ShiftId && r.Date.Date == date.Date);
+                        <td class="text-center">
+                            @if (record == null)
+                            {
+                                <input type="checkbox"
+                                       data-date="@date.ToString("yyyy-MM-dd")"
+                                       data-shift="@shift.ShiftId" />
+                            }
+                            else
+                            {
+                                switch (record.Status)
+                                {
+                                    case RestaurantManagement.Models.AttendanceStatus.Registered:
+                                        <span class="badge bg-secondary">Chờ duyệt</span>
+
+                                        <br />
+                                        <a asp-action="Cancel" asp-route-id="@record.AttendanceId" class="btn btn-sm btn-danger mt-1">Huỷ</a>
+                                        break;
+                                    case RestaurantManagement.Models.AttendanceStatus.Approved:
+                                        <span class="badge bg-success">Đã duyệt</span>
+
+                                        <br />
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-secondary mt-1"
+                                                onclick="openRequestModal(@record.AttendanceId, '@shift.Name', '@date.ToString("dd/MM/yyyy")')">
+                                            Gửi yêu cầu
+                                        </button>
+                                        break;
+                                    case RestaurantManagement.Models.AttendanceStatus.Present:
+                                        <span class="badge bg-success">Đã làm</span>
+                                        break;
+                                    case RestaurantManagement.Models.AttendanceStatus.Absent:
+                                        <span class="badge bg-danger">Vắng</span>
+                                        break;
+                                }
+                            }
                         </td>
                     }
                 </tr>
@@ -47,58 +78,75 @@
         </tbody>
     </table>
 
-    <button type="submit" class="btn btn-success mt-3">Đăng ký ca</button>
-    <a asp-action="Index" class="btn btn-secondary mt-3 ms-2">Quay lại</a>
+    <button type="submit" class="btn btn-success">Đăng ký</button>
+    <a asp-action="Index" class="btn btn-secondary">← Quay lại</a>
 </form>
 
-<style>
-    .select-cell {
-        width: 100%;
-        height: 60px;
-        cursor: pointer;
-        border-radius: 5px;
-        background-color: #f8f9fa;
-        transition: background-color 0.2s ease-in-out;
-        position: relative;
-    }
-
-        .select-cell.selected {
-            background-color: #d1e7dd;
-            border: 2px solid #198754;
-        }
-
-            .select-cell.selected i {
-                display: inline !important;
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-            }
-</style>
+<!-- Modal Gửi yêu cầu -->
+<div class="modal fade" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="requestModalLabel">Gửi yêu cầu thay đổi ca</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="attendanceId" />
+                <div class="mb-2"><strong id="shiftInfo"></strong></div>
+                <div class="form-floating">
+                    <textarea id="requestContent" class="form-control" style="height: 120px" placeholder="Nội dung yêu cầu..."></textarea>
+                    <label>Nội dung yêu cầu</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="sendRequest()">Gửi yêu cầu</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
-        const selected = new Set();
-
-        document.querySelectorAll('.select-cell').forEach(cell => {
-            cell.addEventListener('click', () => {
-                const key = cell.dataset.shiftid + "_" + cell.dataset.date;
-                if (selected.has(key)) {
-                    selected.delete(key);
-                    cell.classList.remove('selected');
-                } else {
-                    selected.add(key);
-                    cell.classList.add('selected');
+        document.querySelector("form").addEventListener("submit", function (e) {
+            const data = [];
+            document.querySelectorAll("input[type=checkbox]:not([disabled])").forEach(cb => {
+                if (cb.checked) {
+                    data.push({
+                        shiftId: cb.dataset.shift,
+                        date: cb.dataset.date
+                    });
                 }
             });
+            document.getElementById("SelectedShiftsJson").value = JSON.stringify(data);
         });
 
-        document.getElementById('registerForm').addEventListener('submit', function () {
-            const values = Array.from(selected).map(k => {
-                const [shiftId, date] = k.split('_');
-                return { shiftId, date };
+        function openRequestModal(attendanceId, shiftName, dateStr) {
+            document.getElementById('attendanceId').value = attendanceId;
+            document.getElementById('shiftInfo').innerText = `${shiftName} - ${dateStr}`;
+            document.getElementById('requestContent').value = "";
+            var modal = new bootstrap.Modal(document.getElementById('requestModal'));
+            modal.show();
+        }
+
+        function sendRequest() {
+            const id = document.getElementById('attendanceId').value;
+            const content = document.getElementById('requestContent').value;
+
+            fetch('/Staff/Schedule/SendRequest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ attendanceId: id, content: content })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Đã gửi yêu cầu thành công!");
+                    location.reload();
+                } else {
+                    alert("Gửi yêu cầu thất bại!");
+                }
             });
-            document.getElementById('SelectedShiftsJson').value = JSON.stringify(values);
-        });
+        }
     </script>
 }

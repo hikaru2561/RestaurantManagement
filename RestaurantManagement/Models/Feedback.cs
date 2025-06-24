@@ -1,4 +1,6 @@
-﻿namespace RestaurantManagement.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RestaurantManagement.Models
 {
     public class Feedback
     {
@@ -13,5 +15,8 @@
         public string? ImagePath { get; set; }
 
         public Reply? Reply { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime FeedbackTime { get; set; } = DateTime.Now;
     }
 }

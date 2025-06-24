@@ -4,46 +4,35 @@
     Layout = "_StaffLayout";
 }
 
-<h2>Chi tiết phản hồi</h2>
+<h2 class="mb-3">Chi tiết phản hồi đơn hàng #@Model.OrderId</h2>
 
 <div class="card mb-3">
-    <div class="card-header">
-        Khách: @Model.Order?.Customer?.Name ?? "(Không rõ)" | Đơn hàng: #@Model.Order?.OrderId
-    </div>
     <div class="card-body">
-        <p><strong>Đánh giá:</strong> @Model.Rating / 5</p>
+        <p><strong>Khách hàng:</strong> @Model.Order.Customer?.Name</p>
+        <p><strong>Ngày phản hồi:</strong> @Model.FeedbackTime.ToString("dd/MM/yyyy HH:mm")</p>
+        <p><strong>Số sao:</strong> @Model.Rating / 5</p>
         <p><strong>Nội dung:</strong> @Model.Content</p>
-
         @if (!string.IsNullOrEmpty(Model.ImagePath))
         {
             <p>
-                <img src="~/images/feedback/@Model.ImagePath" width="300"
-                     onerror="this.onerror=null;this.src='https://via.placeholder.com/300x200?text=No+Image';" />
+                <strong>Ảnh:</strong><br />
+                <img src="@Url.Content(Model.ImagePath)" class="img-fluid rounded" style="max-height:300px;" />
             </p>
         }
 
-        <hr />
-        <h4>Phản hồi từ nhân viên:</h4>
-
         @if (Model.Reply != null)
         {
-            <div class="alert alert-success">
-                <strong>Đã phản hồi lúc:</strong> @Model.Reply.RepliedAt.ToString("g")<br />
-                <strong>Nội dung:</strong> @Model.Reply.Content
-            </div>
+            <hr />
+            <h5 class="text-success">✅ Phản hồi từ quản lý:</h5>
+            <p>@Model.Reply.Content</p>
+            <p class="text-muted"><small>@Model.Reply.RepliedAt.ToString("dd/MM/yyyy HH:mm")</small></p>
         }
         else
         {
-            <form asp-action="Reply" method="post">
-                <input type="hidden" name="feedbackId" value="@Model.FeedbackId" />
-                <div class="form-group">
-                    <label for="content">Nội dung phản hồi</label>
-                    <textarea name="content" class="form-control" required rows="3"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary mt-2">Gửi phản hồi</button>
-            </form>
+            <hr />
+            <p class="text-muted fst-italic">Chưa có phản hồi từ quản lý.</p>
         }
     </div>
 </div>
 
-<a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+<a asp-action="Index" class="btn btn-secondary">← Quay lại danh sách</a>

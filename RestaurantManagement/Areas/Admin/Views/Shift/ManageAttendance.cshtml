@@ -1,7 +1,9 @@
 ﻿@model Dictionary<int, RestaurantManagement.Models.Attendance>
+@using RestaurantManagement.Models
+
 @{
     var staffs = ViewBag.Staffs as List<RestaurantManagement.Models.Staffs>;
-    var shift = ViewBag.Shift as RestaurantManagement.Models.Shift;
+    var shift = ViewBag.Shift as Shift;
     DateTime date = ViewBag.Date;
     ViewData["Title"] = "Chấm công";
     Layout = "_AdminLayout";
@@ -23,16 +25,18 @@
         <tbody>
             @foreach (var staff in staffs)
             {
-                var isChecked = Model.ContainsKey(staff.StaffId) && Model[staff.StaffId].IsPresent;
+                bool isPresent = Model.TryGetValue(staff.StaffId, out var att) && att.Status == AttendanceStatus.Present;
+
                 <tr>
                     <td>@staff.Name</td>
                     <td>
-                        <input type="checkbox" name="presentStaffIds" value="@staff.StaffId" @(isChecked ? "checked" : "") />
+                        <input type="checkbox" name="presentStaffIds" value="@staff.StaffId" @(isPresent ? "checked" : "") />
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+
     <button type="submit" class="btn btn-success">Lưu chấm công</button>
     <a asp-area="Admin" asp-action="Details" asp-route-id="@shift.ShiftId" class="btn btn-secondary">Quay lại</a>
 </form>

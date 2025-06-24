@@ -1,40 +1,144 @@
 ﻿@model IEnumerable<RestaurantManagement.Models.Attendance>
+@using RestaurantManagement.Models
+
 @{
-    ViewData["Title"] = "Duyệt lịch làm việc tuần sau";
+    ViewData["Title"] = "Duyệt lịch làm việc";
     Layout = "_AdminLayout";
+    var weekStart = ViewBag.StartOfWeek;
+    var weekEnd = ViewBag.EndOfWeek;
+    var shifts = ViewBag.Shifts as List<Shift>;
+    var offset = (int)ViewBag.WeekOffset;
 }
 
-<h2>Duyệt lịch làm việc tuần sau</h2>
+<h2 class="mb-4">Duyệt lịch làm việc (@weekStart - @weekEnd)</h2>
 
-<form asp-action="Approve" method="post">
-    <a class="btn btn-primary" asp-area="Admin" asp-controller="Shift" asp-action="Index">
-        <i class="bi bi-diagram-3-fill me-2"></i> Ca làm
-    </a>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Nhân viên</th>
-                <th>Ngày</th>
-                <th>Ca làm</th>
-                <th>Thời gian</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
+<div class="mb-4">
+    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-weekOffset="@(offset - 1)">← Tuần trước</a>
+    <a class="btn btn-outline-primary" asp-action="Index" asp-route-weekOffset="0">Tuần này</a>
+    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-weekOffset="@(offset + 1)">Tuần sau →</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <strong>Điểm danh ca hiện tại</strong>
+    </div>
+    <div class="card-body" id="currentShiftContainer">
+        <div class="text-center text-muted">Đang tải danh sách ca hiện tại...</div>
+    </div>
+</div>
+
+<table class="table table-bordered table-hover text-center align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Ca làm / Ngày</th>
+            @for (int i = 0; i < 7; i++)
             {
-                    <tr>
-                        <td>
-                            <input type="checkbox" name="selectedIds" value="@item.AttendanceId" />
-                        </td>
-                        <td>@item.Staff?.Name</td>
-                        <td>@item.Date.ToString("dddd, dd/MM/yyyy")</td>
-                        <td>@item.Shift?.Name</td>
-                        <td>@item.Shift?.StartTime.ToString(@"hh\:mm") - @item.Shift?.EndTime.ToString(@"hh\:mm")</td>
-                    </tr>
+                var d = weekStart.AddDays(i);
+                <th>@d.ToString("ddd dd/MM")</th>
             }
-        </tbody>
-    </table>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var shift in shifts)
+        {
+            <tr>
+                <td>
+                    <strong>@shift.Name</strong><br />
+                    <small>@shift.StartTime.ToString("HH:mm") - @shift.EndTime.ToString("HH:mm")</small>
+                </td>
+                @for (int i = 0; i < 7; i++)
+                {
+                    var day = weekStart.AddDays(i);
+                    var items = Model.Where(a => a.ShiftId == shift.ShiftId && a.Date.Date == day.Date).ToList();
 
-    <button type="submit" class="btn btn-success">Duyệt lịch đã chọn</button>
-</form>
+                    <td onclick="loadModal(@shift.ShiftId, '@day.ToString("yyyy-MM-dd")')" style="cursor: pointer;">
+                        @foreach (var item in items)
+                        {
+                            var isApproved = item.Status == AttendanceStatus.Approved;
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="@(isApproved ? "text-success fw-bold" : "text-muted")">
+                                    @item.Staff?.Name
+                                </span>
+                                @if (isApproved)
+                                {
+                                    <form asp-action="CancelAttendance" asp-route-id="@item.AttendanceId"
+                                          method="post" class="d-inline ms-1">
+                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0"
+                                                title="Huỷ lịch"
+                                                onclick="event.stopPropagation(); return confirm('Huỷ lịch làm của @item.Staff?.Name?');">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal duyệt đăng ký -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="approveModalContent"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+         function loadModal(shiftId, date) {
+            $("#approveModalContent").html("<div class='p-4 text-center'>Đang tải...</div>");
+            $("#approveModal").modal('show');
+            $("#approveModalContent").load(`/Admin/Attendance/GetRegistrations?shiftId=${shiftId}&date=${date}`);
+        }
+
+        function approveSelected() {
+            const ids = [];
+            document.querySelectorAll('input[name="approveIds"]:checked').forEach(c => ids.push(c.value));
+
+            fetch('/Admin/Attendance/ApproveSelected', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(ids)
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) location.reload();
+                else alert("Lỗi khi duyệt.");
+            });
+        }
+
+             function loadCurrentShift() {
+            $("#currentShiftContainer").load("/Admin/Attendance/GetCurrentShiftAttendances");
+        }
+
+
+        // Load ca hiện tại
+        function loadCurrentShift() {
+            $("#currentShiftContainer").load("/Admin/Attendance/GetCurrentShiftAttendances");
+        }
+
+        // Gửi điểm danh
+        function markPresent(attendanceId) {
+            fetch('/Admin/Attendance/MarkPresent', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: attendanceId })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Điểm danh thành công!");
+                        loadCurrentShift();
+                    } else {
+                        alert(data.message || "Lỗi khi điểm danh.");
+                    }
+                });
+        }
+
+        // Load ca hiện tại sau khi trang sẵn sàng
+        document.addEventListener("DOMContentLoaded", loadCurrentShift);
+    </script>
+}

@@ -15,18 +15,20 @@
     var unreadCount = notifications.Count(n => !n.IsRead);
 }
 
+<!-- Nút chuông thông báo -->
 <div class="dropdown me-3">
     <button class="btn btn-light position-relative" data-bs-toggle="dropdown">
         <i class="bi bi-bell-fill fs-5"></i>
-        @if (unreadCount > 0)
-        {
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                @unreadCount
-            </span>
-        }
+        <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" @(unreadCount == 0 ? "style=display:none;" : "")>
+            @unreadCount
+        </span>
     </button>
-    <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
-        <li class="dropdown-header fw-bold text-dark">Thông báo</li>
+
+    <ul id="notification-list" class="dropdown-menu dropdown-menu-end shadow" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+        <li class="dropdown-header fw-bold text-dark d-flex justify-content-between align-items-center">
+            Thông báo
+            <button class="btn btn-sm btn-outline-secondary" onclick="markAllAsRead()">✓ Đã đọc</button>
+        </li>
         <hr class="my-1" />
         @if (!notifications.Any())
         {
@@ -36,7 +38,7 @@
         {
             foreach (var n in notifications)
             {
-                <li class="dropdown-item @(n.IsRead ? "" : "fw-bold")">
+                <li class="dropdown-item @(n.IsRead ? "" : "fw-bold")" onclick="viewNotification(@n.NotificationId)">
                     <div>@n.Title</div>
                     <small class="text-muted">@n.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
                 </li>
@@ -44,3 +46,135 @@
         }
     </ul>
 </div>
+
+<!-- Modal hiển thị chi tiết thông báo -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modal-title" class="modal-title text-dark"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-content" class="text-dark mb-2"></p>
+                <small class="text-secondary d-block">
+                    <i class="bi bi-person-fill"></i> Gửi bởi: <span id="modal-sender" class="fw-semibold"></span>
+                </small>
+                <small id="modal-time" class="text-muted d-block mt-2"></small>
+            </div>
+            <div class="modal-footer">
+                <button id="btnReplyNotification" class="btn btn-outline-primary">Phản hồi</button>
+                <button id="btnDeleteNotification" class="btn btn-danger" data-id="">Xoá</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function viewNotification(id) {
+            $.get('/Notification/Get/' + id, function (data) {
+                if (data) {
+                    $('#modal-title').text(data.title);
+                    $('#modal-content').text(data.content || "(Không có nội dung)");
+                    $('#modal-sender').text(data.senderName || "(Không xác định)");
+                    $('#modal-time').text("🕒 " + data.createdAt);
+                    $('#btnDeleteNotification').data('id', id);
+                    $('#btnReplyNotification').data('to', data.senderUsername);
+                    $('#btnReplyNotification').data('role', data.senderRole);
+
+                    const modal = new bootstrap.Modal(document.getElementById('notificationModal'));
+                    modal.show();
+                }
+            });
+        }
+
+        function markAllAsRead() {
+            $.post('/Notification/MarkAllAsRead', function () {
+                refreshNotifications();
+            });
+        }
+
+        $('#btnDeleteNotification').click(function () {
+            const id = $(this).data('id');
+            if (confirm("Xác nhận xoá thông báo này?")) {
+                $.post('/Notification/Delete/' + id, function () {
+                    $('#notificationModal').modal('hide');
+                    refreshNotifications();
+                });
+            }
+        });
+
+        $('#btnReplyNotification').click(function () {
+            const title = $('#modal-title').text();
+            const recipientUsername = $(this).data('to');
+            const recipientRole = $(this).data('role');
+
+            const content = prompt("Nhập nội dung phản hồi:");
+            if (!content || content.trim() === '') return;
+
+            $.ajax({
+                url: '/Notification/Reply',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    title: "[PHẢN HỒI] " + title,
+                    content: content.trim(),
+                    recipientUsername: recipientUsername,
+                    role: recipientRole
+                }),
+                success: function () {
+                    alert("Phản hồi đã được gửi!");
+                    $('#notificationModal').modal('hide');
+                },
+                error: function () {
+                    alert("Lỗi khi gửi phản hồi.");
+                }
+            });
+        });
+
+        function refreshNotifications() {
+            $.get('/Notification/GetLatest', function (data) {
+                if (!data) return;
+
+                const badge = $('#notification-badge');
+                const list = $('#notification-list');
+
+                if (data.unreadCount > 0) {
+                    badge.text(data.unreadCount).show();
+                } else {
+                    badge.hide();
+                }
+
+                let html = `
+                    <li class="dropdown-header fw-bold text-dark d-flex justify-content-between align-items-center">
+                        Thông báo
+                        <button class="btn btn-sm btn-outline-secondary" onclick="markAllAsRead()">✓ Đã đọc</button>
+                    </li>
+                    <hr class="my-1" />
+                `;
+
+                if (data.notifications.length === 0) {
+                    html += `<li class="px-3 text-muted">Không có thông báo nào.</li>`;
+                } else {
+                    data.notifications.forEach(n => {
+                        html += `
+                            <li class="dropdown-item ${n.isRead ? '' : 'fw-bold'}" onclick="viewNotification(${n.notificationId})">
+                                <div>${n.title}</div>
+                                <small class="text-muted">${n.createdAt}</small>
+                            </li>
+                        `;
+                    });
+                }
+
+                list.html(html);
+            });
+        }
+
+        $(document).ready(function () {
+            refreshNotifications();
+            setInterval(refreshNotifications, 15000); // cập nhật mỗi 15s
+        });
+    </script>
+}

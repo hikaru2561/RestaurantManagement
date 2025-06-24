@@ -2,6 +2,13 @@
 
 namespace RestaurantManagement.Models
 {
+    public enum ReservationStatus
+    {
+        Pending, // Chưa đến
+        Confirmed, // Đã đến
+        Canceled
+    }
+
     public class Reservation
     {
         public int ReservationId { get; set; }
@@ -15,6 +22,10 @@ namespace RestaurantManagement.Models
         public DateTime ReservationTime { get; set; }
 
         public int NumberOfPeople { get; set; }
+
         public decimal DepositAmount { get; set; }
+
+        public ReservationStatus Status { get; set; } = ReservationStatus.Pending;
     }
+
 }

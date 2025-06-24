@@ -1,4 +1,5 @@
 ﻿@model RestaurantManagement.Models.Staffs
+
 @{
     ViewData["Title"] = "Chỉnh sửa nhân viên";
     Layout = "_AdminLayout";
@@ -6,17 +7,17 @@
 
 <h2>Chỉnh sửa nhân viên</h2>
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
-<form asp-area="Admin" asp-action="Edit" method="post" enctype="multipart/form-data">
+<form asp-area="Admin" asp-controller="Staffs" asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="StaffId" />
-    <input type="hidden" asp-for="ImagePath" />
 
     <div class="mb-3">
-        <label asp-for="Name" class="form-label">Tên</label>
+        <label asp-for="Username" class="form-label">Tên đăng nhập</label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Họ tên</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
@@ -34,23 +35,33 @@
 
     <div class="mb-3">
         <label class="form-label">Ảnh hiện tại:</label><br />
-        <img id="previewImg" src="~/images/Staffs/@Model.ImagePath" width="150" />
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img id="previewImg" src="~/images/Staffs/@Model.ImagePath?@DateTime.Now.Ticks" width="150" />
+        }
+        else
+        {
+            <img id="previewImg" src="https://via.placeholder.com/150x150?text=No+Image" width="150" />
+        }
     </div>
 
     <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-    <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    <a asp-area="Admin" asp-controller="Staffs" asp-action="Index" class="btn btn-secondary">Quay lại</a>
 </form>
 
-<script>
-    function previewImage(input) {
-        const preview = document.getElementById('previewImg');
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                preview.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewImage(input) {
+            const preview = document.getElementById('previewImg');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         }
-    }
-</script>
+    </script>
+}

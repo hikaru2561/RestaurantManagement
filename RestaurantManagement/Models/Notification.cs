@@ -17,6 +17,9 @@ namespace RestaurantManagement.Models
 
         public string RecipientUsername { get; set; } // Ai nhận thông báo
 
+        public string? SenderUsername { get; set; }
+        public string? SenderName { get; set; } // Tên người gửi hiển thị
+        
         public string Role { get; set; } // "Admin", "Staff", "Customer"
     }
 }

@@ -5,25 +5,37 @@
     Layout = "_AdminLayout";
 }
 
-<h2>Chi tiết nguyên liệu</h2>
+<h2 class="mb-4">📦 Chi tiết nguyên liệu</h2>
 
-<div class="mb-3">
-    @if (!string.IsNullOrEmpty(Model.ImagePath))
-    {
-        <img src="@Model.ImagePath" width="120" />
-    }
+<div class="row mb-4">
+    <div class="col-md-4">
+        @if (!string.IsNullOrEmpty(Model.ImagePath))
+        {
+            <img src="@Model.ImagePath?v=@DateTime.Now.Ticks" alt="Ảnh nguyên liệu"
+                 class="img-thumbnail border shadow-sm" style="max-width: 100%;" />
+        }
+        else
+        {
+            <div class="text-muted">Không có ảnh</div>
+        }
+    </div>
+
+    <div class="col-md-8">
+        <dl class="row">
+            <dt class="col-sm-4">🧾 Tên nguyên liệu</dt>
+            <dd class="col-sm-8">@Model.Name</dd>
+
+            <dt class="col-sm-4">🔢 Số lượng</dt>
+            <dd class="col-sm-8">@Model.Quantity</dd>
+
+            <dt class="col-sm-4">⚖️ Đơn vị</dt>
+            <dd class="col-sm-8">@Model.Unit</dd>
+        </dl>
+
+        <div class="mt-4 d-flex gap-2">
+            <a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.InventoryItemId" class="btn btn-primary">✏️ Sửa</a>
+            <a asp-area="Admin" asp-action="Delete" asp-route-id="@Model.InventoryItemId" class="btn btn-danger">🗑️ Xoá</a>
+            <a asp-area="Admin" asp-action="Index" class="btn btn-secondary">← Quay lại danh sách</a>
+        </div>
+    </div>
 </div>
-
-<dl class="row">
-    <dt class="col-sm-3">Tên</dt>
-    <dd class="col-sm-9">@Model.Name</dd>
-
-    <dt class="col-sm-3">Số lượng</dt>
-    <dd class="col-sm-9">@Model.Quantity</dd>
-
-    <dt class="col-sm-3">Đơn vị</dt>
-    <dd class="col-sm-9">@Model.Unit</dd>
-</dl>
-
-<a asp-area="Admin" asp-action="Edit" asp-route-id="@Model.InventoryItemId" class="btn btn-warning">Sửa</a>
-<a asp-area="Admin" asp-action="Index" class="btn btn-light">← Quay lại</a>

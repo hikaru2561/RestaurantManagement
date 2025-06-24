@@ -1,34 +1,44 @@
 ﻿@model RestaurantManagement.Models.Reservation
+
 @{
     ViewData["Title"] = "Đặt bàn";
     Layout = "_CustomerLayout";
 }
 
-<h2 class="mb-4">Đặt bàn</h2>
+<div class="container mt-4">
+    <h2 class="mb-4 fw-bold"><i class="bi bi-calendar-plus me-2"></i>Đặt bàn</h2>
 
-<form asp-action="Create" method="post" class="needs-validation" novalidate>
-    <div class="mb-3">
-        <label asp-for="DingningTableId" class="form-label">Chọn bàn</label>
-        <select asp-for="DingningTableId" class="form-select" asp-items="ViewBag.Tables">
-            <option value="">-- Chọn bàn --</option>
-        </select>
-        <span asp-validation-for="DingningTableId" class="text-danger"></span>
+    <div class="card shadow-sm rounded-4">
+        <div class="card-body">
+            <form asp-action="Create" method="post" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label asp-for="DingningTableId" class="form-label fw-semibold">Chọn bàn</label>
+                    <select asp-for="DingningTableId" asp-items="ViewBag.DingningTables" class="form-select" required>
+                        <option disabled selected value="">-- Chọn bàn --</option>
+                    </select>
+                    <span asp-validation-for="DingningTableId" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ReservationTime" class="form-label fw-semibold">Thời gian đặt</label>
+                    <input asp-for="ReservationTime" type="datetime-local" class="form-control" required />
+                    <span asp-validation-for="ReservationTime" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="NumberOfPeople" class="form-label fw-semibold">Số người</label>
+                    <input asp-for="NumberOfPeople" type="number" class="form-control" min="1" required />
+                    <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary rounded-3 px-4">
+                    <i class="bi bi-check2-circle me-1"></i>Đặt bàn
+                </button>
+                <a asp-action="History" class="btn btn-secondary rounded-3 ms-2">Xem lịch sử</a>
+            </form>
+        </div>
     </div>
-
-    <div class="mb-3">
-        <label asp-for="NumberOfPeople" class="form-label">Số người</label>
-        <input asp-for="NumberOfPeople" class="form-control" type="number" min="1" />
-        <span asp-validation-for="NumberOfPeople" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ReservationTime" class="form-label">Thời gian đặt</label>
-        <input asp-for="ReservationTime" class="form-control" type="datetime-local" />
-        <span asp-validation-for="ReservationTime" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Gửi yêu cầu đặt bàn</button>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

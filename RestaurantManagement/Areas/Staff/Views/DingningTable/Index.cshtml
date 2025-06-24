@@ -1,34 +1,61 @@
 ﻿@model IEnumerable<RestaurantManagement.Models.DingningTable>
+@using RestaurantManagement.Models
+
 @{
     ViewData["Title"] = "Quản lý bàn";
     Layout = "_StaffLayout";
 }
 
-<h2>Danh sách bàn</h2>
+<h2 class="mb-4 fw-bold">🍽️ Danh sách bàn</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Tên bàn</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var table in Model)
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var table in Model)
+    {
+        string statusText = table.Status switch
         {
-            <tr>
-                <td>@table.Name</td>
-                <td>@table.Status</td>
-                <td>
+            TableStatus.Available => "Trống",
+            TableStatus.InUse => "Đang dùng",
+            TableStatus.Reserved => "Đã đặt",
+            _ => table.Status.ToString()
+        };
+
+        string statusClass = table.Status switch
+        {
+            TableStatus.Available => "success",
+            TableStatus.InUse => "warning text-dark",
+            TableStatus.Reserved => "info",
+            _ => "secondary"
+        };
+
+        <div class="col">
+            <div class="card h-100 shadow-sm border">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <strong>@table.Name</strong>
+                        @if (table.IsVIP)
+                        {
+                            <span class="badge bg-danger ms-2">VIP</span>
+                        }
+                    </h5>
+
+                    <p class="card-text mb-1"><strong>Sức chứa:</strong> @table.Capacity</p>
+                    <p class="card-text">
+                        <strong>Trạng thái:</strong>
+                        <span class="badge bg-@statusClass">@statusText</span>
+                    </p>
+
                     @if (table.Status == TableStatus.InUse)
                     {
-                        <a asp-action="Transfer" asp-route-fromTableId="@table.DingningTableId" class="btn btn-sm btn-warning">Chuyển bàn</a>
-                        <a asp-action="Split" asp-route-fromTableId="@table.DingningTableId" class="btn btn-sm btn-secondary">Tách bàn</a>
-                        <a asp-action="Merge" asp-route-mainTableId="@table.DingningTableId" class="btn btn-sm btn-info">Gộp bàn</a>
+                        <div class="d-flex gap-2 mt-3">
+                            <a asp-action="Transfer" asp-route-fromTableId="@table.DingningTableId" class="btn btn-sm btn-warning">Chuyển bàn</a>
+                            <a asp-action="Split" asp-route-fromTableId="@table.DingningTableId" class="btn btn-sm btn-secondary">Tách bàn</a>
+                            <a asp-action="Merge" asp-route-mainTableId="@table.DingningTableId" class="btn btn-sm btn-info">Gộp bàn</a>
+                        </div>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<a asp-controller="Dashboard" asp-action="Index" class="btn btn-light mt-4">← Quay lại</a>

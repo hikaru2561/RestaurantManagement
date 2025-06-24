@@ -1,32 +1,30 @@
-﻿@model List<RestaurantManagement.Models.Order>
+﻿@model IEnumerable<RestaurantManagement.Models.Order>
 @{
-    ViewData["Title"] = "Đơn hàng bị hủy";
+    ViewData["Title"] = "Đơn hàng đã huỷ";
     Layout = "_AdminLayout";
 }
 
-<h2>Đơn hàng bị hủy</h2>
+<h2 class="fw-bold mb-3">🛑 Danh sách đơn hàng đã huỷ</h2>
 
-<table class="table table-bordered">
-    <thead class="table-dark">
+<table class="table table-bordered table-hover">
+    <thead class="table-danger">
         <tr>
             <th>Mã đơn</th>
             <th>Bàn</th>
             <th>Khách hàng</th>
             <th>Nhân viên</th>
-            <th>Thời gian</th>
-            <th>Trạng thái</th>
+            <th>Thời gian huỷ</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var order in Model)
         {
             <tr>
-                <td>#@order.OrderId</td>
+                <td>@order.OrderId</td>
                 <td>@order.DingningTable?.Name</td>
                 <td>@order.Customer?.Name</td>
                 <td>@order.Staff?.Name</td>
                 <td>@order.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
-                <td><span class="badge bg-danger">Đã hủy</span></td>
             </tr>
         }
     </tbody>

@@ -1,0 +1,38 @@
+﻿@model RestaurantManagement.Models.Reservation
+@{
+    ViewData["Title"] = "Chi tiết đặt bàn";
+    Layout = "_StaffLayout";
+}
+
+<partial name="~/Views/Shared/_Notification.cshtml" />
+
+<h2>Chi tiết đặt bàn</h2>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Khách hàng</th>
+        <td>@Model.Customer?.Name</td>
+    </tr>
+    <tr>
+        <th>Bàn</th>
+        <td>@Model.DingningTable?.Name</td>
+    </tr>
+    <tr>
+        <th>Thời gian</th>
+        <td>@Model.ReservationTime.ToString("dd/MM/yyyy HH:mm")</td>
+    </tr>
+    <tr>
+        <th>Số người</th>
+        <td>@Model.NumberOfPeople</td>
+    </tr>
+    <tr>
+        <th>Tiền cọc</th>
+        <td>@Model.DepositAmount.ToString("N0") đ</td>
+    </tr>
+</table>
+
+<form asp-action="Confirm" method="post">
+    <input type="hidden" name="id" value="@Model.ReservationId" />
+    <button type="submit" class="btn btn-success">✅ Xác nhận khách đã đến</button>
+    <a asp-action="Index" class="btn btn-secondary">← Quay lại</a>
+</form>

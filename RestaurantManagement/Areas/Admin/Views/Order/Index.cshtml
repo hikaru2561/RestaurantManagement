@@ -1,34 +1,54 @@
 ﻿@model IEnumerable<RestaurantManagement.Models.Order>
+@using RestaurantManagement.Models
 @{
-    ViewData["Title"] = "Danh sách đơn hàng";
+    ViewData["Title"] = "Quản lý đơn hàng";
     Layout = "_AdminLayout";
+
+    var fromDate = string.IsNullOrEmpty(Context.Request.Query["fromDate"])
+        ? DateTime.Today
+        : DateTime.Parse(Context.Request.Query["fromDate"]);
+
+    var toDate = string.IsNullOrEmpty(Context.Request.Query["toDate"])
+        ? DateTime.Today
+        : DateTime.Parse(Context.Request.Query["toDate"]);
+
+    var searchTable = Context.Request.Query["searchTable"].ToString();
+    var statusFilter = Context.Request.Query["statusFilter"].ToString();
 }
 
-<h2>Danh sách đơn hàng</h2>
+<h2 class="mb-4">Quản lý đơn hàng</h2>
 
-<form method="get" id="filterForm" class="row g-3 mb-3">
+<form method="get" id="filterForm" class="row gy-2 gx-3 align-items-end mb-4">
     <div class="col-md-3">
-        <input type="text" name="searchTable" value="@Context.Request.Query["searchTable"]" class="form-control" placeholder="Tìm theo bàn..." oninput="submitForm()" />
+        <input type="text" name="searchTable" value="@searchTable" class="form-control" placeholder="🔍 Tìm theo bàn..." />
     </div>
-    <div class="col-md-3">
-        <select name="statusFilter" class="form-select" onchange="submitForm()">
+    <div class="col-md-2">
+        <select name="statusFilter" class="form-select">
             <option value="">-- Trạng thái --</option>
-            @foreach (var status in Enum.GetValues(typeof(RestaurantManagement.Models.OrderStatus)))
+            @foreach (var status in Enum.GetValues(typeof(OrderStatus)))
             {
-                <option value="@status" selected="@(Context.Request.Query["statusFilter"] == status.ToString())">@status</option>
+                <option value="@status" selected="@(status.ToString() == statusFilter)">
+                    @status
+                </option>
             }
         </select>
     </div>
-    <div class="col-md-3">
-        <input type="date" name="dateFilter" value="@Context.Request.Query["dateFilter"]" class="form-control" onchange="submitForm()" />
+    <div class="col-md-2">
+        <label class="form-label">Từ ngày</label>
+        <input type="date" name="fromDate" class="form-control" value="@fromDate.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-2">
+        <label class="form-label">Đến ngày</label>
+        <input type="date" name="toDate" class="form-control" value="@toDate.ToString("yyyy-MM-dd")" />
     </div>
     <div class="col-md-3 text-end">
-        <a asp-area="Admin" asp-action="Create" class="btn btn-success">Tạo đơn mới</a>
+        <button type="submit" class="btn btn-primary">Lọc</button>
+        <a asp-area="Admin" asp-action="Create" class="btn btn-success">+ Tạo đơn mới</a>
     </div>
 </form>
 
-<table class="table table-bordered">
-    <thead>
+<table class="table table-hover table-bordered align-middle text-center">
+    <thead class="table-light">
         <tr>
             <th>Bàn</th>
             <th>Nhân viên</th>
@@ -36,42 +56,66 @@
             <th>Thời gian</th>
             <th>Trạng thái</th>
             <th>Món đã gọi</th>
-            <th>Hành động</th>
+            <th>Thao tác</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var o in Model)
+        @{
+            var filtered = Model
+            .Where(o => o.OrderTime.Date >= fromDate.Date && o.OrderTime.Date <= toDate.Date)
+            .Where(o =>
+            string.IsNullOrEmpty(searchTable) ||
+            (o.DingningTable?.Name?.Contains(searchTable, StringComparison.OrdinalIgnoreCase) ?? false)
+            )
+            .Where(o =>
+            string.IsNullOrEmpty(statusFilter) ||
+            o.Status.ToString() == statusFilter
+            )
+            .ToList();
+        }
+
+        @if (!filtered.Any())
         {
             <tr>
-                <td>@o.DingningTable?.Name</td>
-                <td>@o.Staff?.Name</td>
-                <td>@o.Customer?.Name</td>
-                <td>@o.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@o.Status</td>
-                <td>
-                    <ul>
-                        @foreach (var item in o.OrderItems)
-                        {
-                            <li>@item.MenuItem?.Name (x@item.Quantity)</li>
-                        }
-                    </ul>
-                </td>
-                <td>
-                    <a asp-area="Admin" asp-action="Details" asp-route-id="@o.OrderId" class="btn btn-info btn-sm">Chi tiết</a>
-                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@o.OrderId" class="btn btn-warning btn-sm">Sửa</a>
-                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@o.OrderId" class="btn btn-danger btn-sm">Xoá</a>
-                </td>
+                <td colspan="7" class="text-muted">Không có đơn hàng nào phù hợp.</td>
             </tr>
+        }
+        else
+        {
+            @foreach (var o in filtered)
+            {
+                <tr>
+                    <td>@o.DingningTable?.Name</td>
+                    <td>@o.Staff?.Name</td>
+                    <td>@o.Customer?.Name</td>
+                    <td>@o.OrderTime.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <span class="badge
+                            @(o.Status == OrderStatus.Ordered ? "bg-secondary" :
+                              o.Status == OrderStatus.Preparing ? "bg-warning text-dark" :
+                              o.Status == OrderStatus.Paid ? "bg-success" :
+                              o.Status == OrderStatus.Canceled ? "bg-danger" :
+                              o.Status == OrderStatus.Completed ? "bg-primary" : "bg-light")">
+                            @o.Status
+                        </span>
+                    </td>
+                    <td class="text-start">
+                        <ul class="mb-0 ps-3">
+                            @foreach (var item in o.OrderItems ?? new List<OrderItem>())
+                            {
+                                <li>@item.MenuItem?.Name (@item.Quantity)</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <a asp-area="Admin" asp-action="Details" asp-route-id="@o.OrderId" class="btn btn-info btn-sm">Chi tiết</a>
+                        <a asp-area="Admin" asp-action="Edit" asp-route-id="@o.OrderId" class="btn btn-warning btn-sm">Sửa</a>
+                        <a asp-area="Admin" asp-action="Delete" asp-route-id="@o.OrderId" class="btn btn-danger btn-sm">Xoá</a>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
-<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>
 
-<script>
-    function submitForm() {
-        clearTimeout(window.submitTimeout);
-        window.submitTimeout = setTimeout(() => {
-            document.getElementById("filterForm").submit();
-        }, 300);
-    }
-</script>
+<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light mt-3">← Quay lại</a>

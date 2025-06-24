@@ -2,35 +2,64 @@
 @{
     ViewData["Title"] = "Quản lý đặt bàn";
     Layout = "_AdminLayout";
+
+    string from = ViewBag.From as string ?? DateTime.Today.ToString("yyyy-MM-dd");
+    string to = ViewBag.To as string ?? DateTime.Today.ToString("yyyy-MM-dd");
 }
 
-<h2>Danh sách đặt bàn</h2>
-<a asp-area="Admin" asp-action="Create" class="btn btn-success mb-3">+ Đặt bàn mới</a>
+<h2 class="fw-bold mb-3">📅 Danh sách đặt bàn</h2>
 
-<table class="table table-bordered">
-    <thead>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <label for="from" class="form-label">Từ ngày</label>
+        <input type="date" id="from" name="from" class="form-control" value="@from" />
+    </div>
+    <div class="col-md-3">
+        <label for="to" class="form-label">Đến ngày</label>
+        <input type="date" id="to" name="to" class="form-control" value="@to" />
+    </div>
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary w-100">Lọc</button>
+    </div>
+    <div class="col-md-4 align-self-end text-end">
+        <a asp-action="Create" class="btn btn-success">+ Đặt bàn mới</a>
+    </div>
+</form>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
         <tr>
             <th>Khách hàng</th>
             <th>Bàn</th>
             <th>Thời gian</th>
             <th>Số người</th>
-            <th>Hành động</th>
+            <th style="width: 150px;">Hành động</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var r in Model)
+        @if (!Model.Any())
         {
             <tr>
-                <td>@r.Customer?.Name</td>
-                <td>@r.DingningTable?.Name</td>
-                <td>@r.ReservationTime.ToString("HH:mm dd/MM/yyyy")</td>
-                <td>@r.NumberOfPeople</td>
-                <td>
-                    <a asp-area="Admin" asp-action="Edit" asp-route-id="@r.ReservationId" class="btn btn-warning btn-sm">Sửa</a>
-                    <a asp-area="Admin" asp-action="Delete" asp-route-id="@r.ReservationId" class="btn btn-danger btn-sm">Xoá</a>
-                </td>
+                <td colspan="5" class="text-center text-muted">Không có đặt bàn nào trong khoảng thời gian này.</td>
             </tr>
+        }
+        else
+        {
+            foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.Customer?.Name</td>
+                    <td>@r.DingningTable?.Name</td>
+                    <td>@r.ReservationTime.ToString("HH:mm dd/MM/yyyy")</td>
+                    <td>@r.NumberOfPeople</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@r.ReservationId" class="btn btn-warning btn-sm">Sửa</a>
+                        <a asp-action="Delete" asp-route-id="@r.ReservationId" class="btn btn-danger btn-sm">Xoá</a>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
-<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-light">← Quay lại</a>
+
+<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary mt-3">← Quay lại</a>

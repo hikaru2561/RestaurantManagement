@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RestaurantManagement.Data;
+using RestaurantManagement.Models;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using System.Linq;
 
 namespace RestaurantManagement.Areas.Customer.Controllers
 {
@@ -19,7 +18,7 @@ namespace RestaurantManagement.Areas.Customer.Controllers
             _context = context;
         }
 
-        private int? GetCustomerIdFromClaims()
+        private int? GetCustomerId()
         {
             var customerIdStr = User.FindFirst("CustomerId")?.Value;
             return int.TryParse(customerIdStr, out var id) ? id : null;
@@ -27,13 +26,15 @@ namespace RestaurantManagement.Areas.Customer.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var customerId = GetCustomerIdFromClaims();
-            if (customerId == null) return Unauthorized();
+            var customerId = GetCustomerId();
+            if (customerId == null)
+                return Unauthorized();
 
             var orders = await _context.Orders
                 .Include(o => o.Payment)
                 .Include(o => o.DingningTable)
-                .Where(o => o.CustomerId == customerId && o.Status == Models.OrderStatus.Paid)
+                .Where(o => o.CustomerId == customerId &&
+                    (o.Status == OrderStatus.Paid || o.Status == OrderStatus.Completed))
                 .OrderByDescending(o => o.OrderTime)
                 .ToListAsync();
 

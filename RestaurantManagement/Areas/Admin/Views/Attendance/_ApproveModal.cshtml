@@ -1,0 +1,87 @@
+﻿@model List<RestaurantManagement.Models.Attendance>
+@using RestaurantManagement.Models
+
+@{
+    var shift = Model.FirstOrDefault()?.Shift;
+    var date = Model.FirstOrDefault()?.Date.ToString("dd/MM/yyyy");
+}
+
+<div class="modal-header">
+    <h5 class="modal-title">Duyệt lịch: @shift?.Name - @date</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+    @if (Model.Any())
+    {
+        <form id="approveForm">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-center"><input type="checkbox" id="checkAll" /></th>
+                        <th>Nhân viên</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                @if (item.Status == AttendanceStatus.Registered)
+                                {
+                                    <input type="checkbox" name="approveIds" value="@item.AttendanceId" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" disabled />
+                                }
+                            </td>
+                            <td>@item.Staff?.Name</td>
+                            <td>
+                                @switch (item.Status)
+                                {
+                                    case AttendanceStatus.Registered:
+                                        <span class="badge bg-secondary">Chờ duyệt</span>
+                                        ;
+                                        break;
+                                    case AttendanceStatus.Approved:
+                                        <span class="badge bg-success">Đã duyệt</span>
+                                        ;
+                                        break;
+                                    case AttendanceStatus.Present:
+                                        <span class="badge bg-info">Đã điểm danh</span>
+                                        ;
+                                        break;
+                                    case AttendanceStatus.Absent:
+                                        <span class="badge bg-danger">Vắng</span>
+                                        ;
+                                        break;
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-warning">Không có nhân viên nào đăng ký ca này.</div>
+    }
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-success" onclick="approveSelected()">Duyệt các mục đã chọn</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("checkAll").addEventListener("change", function () {
+            document.querySelectorAll("input[name='approveIds']").forEach(cb => {
+                if (!cb.disabled) cb.checked = this.checked;
+            });
+        });
+    </script>
+}

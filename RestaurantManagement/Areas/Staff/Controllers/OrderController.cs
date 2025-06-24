@@ -154,14 +154,36 @@ namespace RestaurantManagement.Areas.Staff.Controllers
         [HttpPost]
         public IActionResult UpdateItemQuantity(int orderItemId, int quantity)
         {
-            var item = _context.OrderItems.FirstOrDefault(o => o.OrderItemId == orderItemId);
-            if (item == null || quantity <= 0) return NotFound();
+            var staffId = GetStaffId();
+            if (staffId == null || quantity < 1)
+            {
+                return Json(new { success = false, message = "Dữ liệu không hợp lệ." });
+            }
 
-            item.Quantity = quantity;
+            var orderItem = _context.OrderItems
+                .Include(oi => oi.Order)
+                .Include(oi => oi.MenuItem)
+                .FirstOrDefault(oi => oi.OrderItemId == orderItemId && oi.Order.StaffId == staffId);
+
+            if (orderItem == null)
+            {
+                return Json(new { success = false, message = "Không tìm thấy món ăn trong đơn." });
+            }
+
+            orderItem.Quantity = quantity;
             _context.SaveChanges();
 
-            TempData["Success"] = "Cập nhật số lượng thành công.";
-            return RedirectToAction("Details", new { id = item.OrderId });
+            var orderId = orderItem.OrderId;
+            var total = _context.OrderItems
+                .Where(i => i.OrderId == orderId)
+                .Sum(i => i.Quantity * i.MenuItem.Price);
+
+            return Json(new
+            {
+                success = true,
+                itemTotal = (orderItem.MenuItem.Price * quantity).ToString("N0"),
+                totalAmount = total.ToString("N0")
+            });
         }
 
         [HttpPost]
@@ -187,40 +209,81 @@ namespace RestaurantManagement.Areas.Staff.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
+        public IActionResult Checkout(int id)
+        {
+            var staffId = GetStaffId();
+            var order = _context.Orders
+                .Include(o => o.OrderItems).ThenInclude(i => i.MenuItem)
+                .Include(o => o.DingningTable)
+                .Include(o => o.Customer)
+                .Include(o => o.Payment)
+                .FirstOrDefault(o => o.OrderId == id && o.StaffId == staffId);
+
+            if (order == null || (order.Status != OrderStatus.Paid && order.Status != OrderStatus.Completed))
+            {
+                TempData["Error"] = "Đơn hàng không tồn tại hoặc chưa thanh toán.";
+                return RedirectToAction("Index");
+            }
+
+            return View("Checkout", order);
+        }
+
+
         [HttpPost]
         public IActionResult Checkout(int id, string method)
         {
+            var staffId = GetStaffId();
+            if (staffId == null)
+            {
+                TempData["Error"] = "Không xác định được nhân viên.";
+                return RedirectToAction("Index");
+            }
+
             var order = _context.Orders
                 .Include(o => o.OrderItems).ThenInclude(i => i.MenuItem)
-                .FirstOrDefault(o => o.OrderId == id && o.StaffId == GetStaffId());
+                .Include(o => o.DingningTable)
+                .Include(o => o.Customer)
+                .FirstOrDefault(o => o.OrderId == id && o.StaffId == staffId);
 
-            if (order == null || order.Status == OrderStatus.Paid)
+            if (order == null)
             {
-                TempData["Error"] = "Đơn hàng không hợp lệ.";
+                TempData["Error"] = "Không tìm thấy đơn hàng.";
+                return RedirectToAction("Details", new { id });
+            }
+
+            if (order.Status == OrderStatus.Paid || order.Status == OrderStatus.Completed)
+            {
+                TempData["Error"] = "Đơn hàng đã được thanh toán hoặc hoàn tất.";
                 return RedirectToAction("Details", new { id });
             }
 
             decimal total = order.OrderItems.Sum(i => i.Quantity * i.MenuItem.Price);
 
-            _context.Payments.Add(new Payment
+            // Tạo bản ghi thanh toán
+            var payment = new Payment
             {
                 OrderId = order.OrderId,
                 PaymentTime = DateTime.Now,
                 TotalAmount = total,
                 Method = method
-            });
+            };
 
-            order.Status = OrderStatus.Paid;
+            _context.Payments.Add(payment);
 
-            var table = _context.DingningTables.FirstOrDefault(t => t.DingningTableId == order.DingningTableId);
-            if (table != null)
-            {
-                table.Status = TableStatus.Available;
-            }
+            // Cập nhật trạng thái đơn hàng
+            order.Status = OrderStatus.Completed;
+
+            // Cập nhật trạng thái bàn
+            order.DingningTable.Status = TableStatus.Available;
 
             _context.SaveChanges();
             TempData["Success"] = "Thanh toán thành công.";
+
             return RedirectToAction("Details", new { id });
         }
+
+
+
     }
 }
